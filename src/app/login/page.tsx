@@ -58,9 +58,9 @@ export default function LoginPage() {
 
         <p className="text-[10px] text-muted text-center leading-loose">
           계속 진행하면 Cinderella의{" "}
-          <a href="#" className="text-gold no-underline">이용약관</a>{" "}
+          <a href="/terms" className="text-gold no-underline">이용약관</a>{" "}
           및{" "}
-          <a href="#" className="text-gold no-underline">개인정보처리방침</a>에 동의합니다.
+          <a href="/privacy" className="text-gold no-underline">개인정보처리방침</a>에 동의합니다.
         </p>
       </div>
     </div>
