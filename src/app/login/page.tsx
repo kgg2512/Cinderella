@@ -8,31 +8,12 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) {
-        alert("로그인 오류: " + error.message);
-        console.error(error);
-        setLoading(false);
-        return;
-      }
-      if (!data?.url) {
-        alert("Google 로그인을 준비 중입니다. Supabase 대시보드에서 Google OAuth 설정을 완료해 주세요.");
-        setLoading(false);
-        return;
-      }
-      // 명시적 리다이렉트
-      window.location.href = data.url;
-    } catch (e) {
-      console.error(e);
-      alert("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      setLoading(false);
-    }
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
   };
 
   return (
