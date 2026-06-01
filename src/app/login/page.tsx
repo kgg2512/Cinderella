@@ -4,12 +4,17 @@ import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+    if (error) {
+      alert("로그인 오류: " + error.message);
+      console.error(error);
+    }
+    console.log("OAuth result:", data);
   };
 
   return (
