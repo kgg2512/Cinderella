@@ -186,37 +186,23 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 아이템 리스트 */}
-      <div className="item-list">
+      {/* 아이템 그리드 */}
+      <div className="grid grid-cols-2 gap-px bg-[#E8E3DC]">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-muted gap-2">
+          <div className="col-span-2 flex flex-col items-center py-16 text-muted gap-2 bg-cream">
             <p className="text-sm">등록된 물품이 없습니다</p>
           </div>
         ) : (
           filtered.map((item) => (
-            <Link key={item.id} href={`/items/${item.id}`} className="item-row">
-              <div className="item-thumb">
-                <img src={item.img} alt={item.name} />
-                <div className="item-grade-badge">{item.grade}</div>
+            <Link key={item.id} href={`/items/${item.id}`} className="bg-white block">
+              <div className="relative aspect-square overflow-hidden bg-[#F3F0EB]">
+                <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                <div className="absolute top-2 left-2 bg-black/70 text-white text-[7px] tracking-[.1em] font-bold px-1.5 py-0.5 rounded-md">{item.grade}</div>
               </div>
-              <div className="item-info">
-                <div className="item-brand">{item.brand}</div>
-                <div className="item-name">{item.name}</div>
-                <div className="item-location">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  {item.area} · {item.posted}
-                </div>
-                <div className="item-price-row">
-                  <span className="item-price">{item.price.toLocaleString()}원</span>
-                  <span className="item-per">/ 4시간~</span>
-                </div>
-                <div className="item-stats">
-                  <span className="item-stars">{item.stars}</span>
-                  <span className="item-review-cnt">({item.reviewCount})</span>
-                </div>
+              <div className="px-3 pt-2.5 pb-3">
+                <div className="text-[9px] tracking-[.18em] uppercase text-[#B8963E] font-bold mb-0.5">{item.brand}</div>
+                <div className="text-[12.5px] font-medium text-[#1A1816] leading-snug line-clamp-2 mb-1.5">{item.name}</div>
+                <div className="text-[14px] font-bold text-[#1A1816]">{item.price.toLocaleString()}원<span className="text-[10px] text-[#A09589] font-normal ml-1">/일</span></div>
               </div>
             </Link>
           ))
