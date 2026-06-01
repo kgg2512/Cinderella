@@ -5,30 +5,36 @@ import { useRouter } from "next/navigation";
 import type { ItemCategory } from "@/types";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
-  { value: "bags", label: "가방" },
-  { value: "clothing", label: "의류" },
-  { value: "shoes", label: "슈즈" },
-  { value: "accessories", label: "액세서리" },
-  { value: "jewelry", label: "주얼리" },
+  { value: "bags", label: "핸드백" },
   { value: "watches", label: "시계" },
-  { value: "other", label: "기타" },
+  { value: "jewelry", label: "주얼리" },
+  { value: "shoes", label: "슈즈" },
+  { value: "clothing", label: "의류" },
+  { value: "accessories", label: "기타" },
+];
+
+const GRADES = [
+  { value: "S", label: "S급", sub: "새상품급" },
+  { value: "A", label: "A급", sub: "상급" },
+  { value: "B", label: "B급", sub: "중급" },
+  { value: "C", label: "C급", sub: "보통" },
 ];
 
 export default function NewItemPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    title: "",
-    brand: "",
-    category: "bags" as ItemCategory,
-    price_per_day: "",
-    description: "",
-  });
+  const [selectedCat, setSelectedCat] = useState<ItemCategory>("bags");
+  const [selectedGrade, setSelectedGrade] = useState("S");
+  const [price, setPrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const priceNum = Number(price) || 0;
+  const earnDay = Math.round(priceNum * 2 * 0.85);
+  const earnMonth = earnDay * 20;
+
+  const showToastMsg = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,135 +43,131 @@ export default function NewItemPage() {
     // TODO: Supabase insert + Storage 업로드
     setTimeout(() => {
       setSubmitting(false);
-      router.push("/");
+      showToastMsg("등록이 완료되었습니다 ✓");
+      setTimeout(() => router.push("/"), 1200);
     }, 800);
   };
 
   return (
     <div className="min-h-screen">
-      {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-cream border-b border-border px-4 pt-12 pb-3 flex items-center gap-3">
-        <button type="button" onClick={() => router.back()} className="p-1">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1816" strokeWidth="1.5">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h1 className="text-base font-medium text-charcoal">물품 등록</h1>
-      </header>
+      {/* 탑바 */}
+      <div className="topbar">
+        <div className="topbar-logo">내 명품 등록</div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="px-4 py-6 flex flex-col gap-5">
-        {/* 이미지 업로드 */}
-        <div>
-          <label className="block text-xs text-muted mb-2 tracking-wide uppercase">사진</label>
-          <div className="w-full aspect-square max-h-40 bg-surface border border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8A8580" strokeWidth="1.5">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-            <p className="text-xs text-muted">사진 추가 (최대 5장)</p>
+      {/* 헤더 */}
+      <div className="reg-header">
+        <div className="reg-title">요정이 되어보세요</div>
+        <div className="reg-sub">
+          사용하지 않는 명품으로 수익을 만들어보세요.<br />
+          FairyRating 인증 후 플랫폼에 등록되며, 정품 보증 정책이 적용됩니다.
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="form-wrap">
+        {/* 카테고리 */}
+        <div className="form-group">
+          <label className="form-label">카테고리</label>
+          <div className="chip-row">
+            {CATEGORIES.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setSelectedCat(value)}
+                className={`chip${selectedCat === value ? " sel" : ""}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* 브랜드 */}
-        <div>
-          <label htmlFor="brand" className="block text-xs text-muted mb-1.5 tracking-wide uppercase">
-            브랜드
-          </label>
-          <input
-            id="brand"
-            name="brand"
-            type="text"
-            value={form.brand}
-            onChange={handleChange}
-            placeholder="예: Chanel, Hermès"
-            className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-charcoal placeholder:text-muted outline-none focus:border-gold transition-colors"
-          />
+        <div className="form-group">
+          <label htmlFor="brand" className="form-label">브랜드</label>
+          <input id="brand" name="brand" type="text" className="form-input" placeholder="예: Chanel" />
         </div>
 
-        {/* 제목 */}
-        <div>
-          <label htmlFor="title" className="block text-xs text-muted mb-1.5 tracking-wide uppercase">
-            물품명 <span className="text-gold">*</span>
-          </label>
-          <input
-            id="title"
-            name="title"
-            type="text"
-            required
-            value={form.title}
-            onChange={handleChange}
-            placeholder="예: 샤넬 클래식 플랩 미디엄"
-            className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-charcoal placeholder:text-muted outline-none focus:border-gold transition-colors"
-          />
+        {/* 상품명 */}
+        <div className="form-group">
+          <label htmlFor="title" className="form-label">정식 상품명 *</label>
+          <input id="title" name="title" type="text" required className="form-input" placeholder="예: Classic Flap Medium Caviar Black" />
         </div>
 
-        {/* 카테고리 */}
-        <div>
-          <label htmlFor="category" className="block text-xs text-muted mb-1.5 tracking-wide uppercase">
-            카테고리
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-charcoal outline-none focus:border-gold transition-colors appearance-none"
-          >
-            {CATEGORIES.map(({ value, label }) => (
-              <option key={value} value={value}>
+        {/* 상태 등급 */}
+        <div className="form-group">
+          <label className="form-label">상태 등급</label>
+          <div className="grade-row">
+            {GRADES.map(({ value, label, sub }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setSelectedGrade(value)}
+                className={`grade-btn${selectedGrade === value ? " sel" : ""}`}
+              >
                 {label}
-              </option>
+                <small>{sub}</small>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
 
-        {/* 가격 */}
-        <div>
-          <label htmlFor="price_per_day" className="block text-xs text-muted mb-1.5 tracking-wide uppercase">
-            1일 대여 가격 <span className="text-gold">*</span>
-          </label>
-          <div className="relative">
-            <input
-              id="price_per_day"
-              name="price_per_day"
-              type="number"
-              required
-              min={0}
-              value={form.price_per_day}
-              onChange={handleChange}
-              placeholder="0"
-              className="w-full bg-white border border-border rounded-xl px-4 py-3 pr-10 text-sm text-charcoal placeholder:text-muted outline-none focus:border-gold transition-colors"
-            />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted">원</span>
-          </div>
-          <p className="text-[10px] text-muted mt-1">0원이면 무료 대여입니다.</p>
+        {/* 사진 */}
+        <div className="form-group">
+          <label className="form-label">실물 사진 (최대 5장)</label>
+          <button type="button" className="upload-zone" onClick={() => showToastMsg("카메라/앨범 연결 예정")}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A09589" strokeWidth="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            <div className="upload-label">실물 사진 직접 촬영</div>
+          </button>
         </div>
 
         {/* 설명 */}
-        <div>
-          <label htmlFor="description" className="block text-xs text-muted mb-1.5 tracking-wide uppercase">
-            상태 설명
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={4}
-            placeholder="물품 상태, 구매 시기, 포함 구성품 등을 자유롭게 적어주세요."
-            className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-charcoal placeholder:text-muted outline-none focus:border-gold transition-colors resize-none"
-          />
+        <div className="form-group">
+          <label htmlFor="desc" className="form-label">설명</label>
+          <textarea id="desc" name="desc" className="form-textarea" placeholder="구입 시기, 착용 횟수, 보관 상태를 자세히 적어주세요" />
         </div>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-charcoal text-cream py-4 rounded-xl text-sm font-medium tracking-wide hover:bg-gold transition-colors disabled:opacity-60"
-        >
+        {/* 가격 */}
+        <div className="form-group">
+          <label htmlFor="price" className="form-label">4시간 기준 대여료</label>
+          <div className="price-inline">
+            <input
+              id="price"
+              name="price"
+              type="number"
+              min={0}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="0"
+              className="form-input"
+            />
+            <span className="price-unit-txt">원 / 4시간</span>
+          </div>
+        </div>
+
+        {/* 예상 수익 */}
+        <div className="earn-box">
+          <div className="earn-eyebrow">예상 수익 (요정 몫 85%)</div>
+          <div className="earn-row">
+            <div className="earn-desc">1일 (4시간×2) 기준</div>
+            <div className="earn-val">₩{earnDay.toLocaleString()}</div>
+          </div>
+          <div className="earn-row earn-row-last">
+            <div className="earn-desc">월 20일 기준</div>
+            <div className="earn-val">₩{earnMonth.toLocaleString()}</div>
+          </div>
+        </div>
+
+        <button type="submit" disabled={submitting} className="btn-primary">
           {submitting ? "등록 중..." : "등록하기"}
         </button>
       </form>
+
+      <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">{toast}</div>
     </div>
   );
 }

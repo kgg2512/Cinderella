@@ -2,85 +2,111 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-const MOCK_ITEMS = [
-  { id: "1", title: "샤넬 클래식 플랩 미디엄", brand: "Chanel", price_per_day: 50000, images: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80"] },
-  { id: "2", title: "에르메스 버킨 35", brand: "Hermès", price_per_day: 80000, images: ["https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80"] },
-  { id: "3", title: "롤렉스 데이트저스트", brand: "Rolex", price_per_day: 40000, images: ["https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&q=80"] },
+const BRANDS = ["All", "Louis Vuitton", "Chanel", "Hermès", "Dior", "Gucci", "Cartier", "Rolex", "Valentino"];
+
+const ALL_ITEMS = [
+  { id: "1", brand: "Louis Vuitton", name: "Neverfull MM Monogram Canvas", price: 28000, img: "https://images.unsplash.com/photo-1529025530948-67e8a5c69b58?auto=format&fit=crop&w=400&q=82", area: "역삼동", stars: "★★★★★", reviewCount: 47 },
+  { id: "2", brand: "Chanel", name: "Classic Flap Medium Caviar Black", price: 45000, img: "https://images.unsplash.com/photo-1593418632104-71bd668d1af1?auto=format&fit=crop&w=400&q=82", area: "논현동", stars: "★★★★★", reviewCount: 62 },
+  { id: "3", brand: "Hermès", name: "Birkin 30 Togo Fauve Gold HW", price: 90000, img: "https://images.unsplash.com/photo-1691480250099-a63081ecfcb8?auto=format&fit=crop&w=400&q=82", area: "청담동", stars: "★★★★☆", reviewCount: 28 },
+  { id: "4", brand: "Dior", name: "Lady Dior Medium Cannage Black", price: 52000, img: "https://images.unsplash.com/photo-1584917865442-de89be144b2d?auto=format&fit=crop&w=400&q=82", area: "청담동", stars: "★★★★★", reviewCount: 41 },
+  { id: "5", brand: "Rolex", name: "Datejust 36 Jubilee White Dial", price: 65000, img: "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=400&q=82", area: "청담동", stars: "★★★★★", reviewCount: 22 },
+  { id: "6", brand: "Cartier", name: "Love Necklace 18K Yellow Gold", price: 35000, img: "https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=400&q=82", area: "도산공원", stars: "★★★★★", reviewCount: 53 },
 ];
 
 export default function SearchPage() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
+  const [activeBrand, setActiveBrand] = useState("All");
 
-  const results = query.trim()
-    ? MOCK_ITEMS.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.brand.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  const results = ALL_ITEMS.filter((item) => {
+    const q = query.trim().toLowerCase();
+    const brandMatch = activeBrand === "All" || item.brand === activeBrand;
+    const queryMatch = q === "" || item.name.toLowerCase().includes(q) || item.brand.toLowerCase().includes(q);
+    return brandMatch && queryMatch;
+  });
+
+  const showEmpty = query.trim() === "" && activeBrand === "All";
 
   return (
     <div className="min-h-screen">
-      {/* 검색 바 */}
-      <header className="sticky top-0 z-40 bg-cream border-b border-border px-4 pt-12 pb-3">
-        <div className="relative">
+      {/* 검색 탑바 */}
+      <div className="topbar">
+        <div className="search-input-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A09589" strokeWidth="2.2">
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
           <input
+            id="search-q"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="브랜드, 물품명으로 검색"
-            className="w-full bg-surface border border-border rounded-xl pl-10 pr-4 py-3 text-sm text-charcoal placeholder:text-muted outline-none focus:border-gold transition-colors"
+            placeholder="브랜드, 상품명 검색"
+            autoFocus
           />
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#8A8580"
-            strokeWidth="1.5"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" />
-          </svg>
         </div>
-      </header>
+        <button type="button" className="search-cancel-btn" onClick={() => router.back()}>
+          취소
+        </button>
+      </div>
 
-      <div className="px-4 py-4">
-        {query.trim() === "" && (
-          <p className="text-xs text-muted text-center py-12">검색어를 입력하세요</p>
-        )}
+      {/* 브랜드 필터 */}
+      <div className="filter-section-notop">
+        <div className="brand-pills-pt">
+          {BRANDS.map((b) => (
+            <button
+              key={b}
+              type="button"
+              onClick={() => setActiveBrand(b)}
+              className={`brand-pill${activeBrand === b ? " active" : ""}`}
+            >
+              {b}
+            </button>
+          ))}
+        </div>
+        <div className="sort-row">
+          <div className="results-txt">{showEmpty ? "검색어를 입력하세요" : `${results.length}개 아이템`}</div>
+        </div>
+      </div>
 
-        {query.trim() !== "" && results.length === 0 && (
-          <p className="text-xs text-muted text-center py-12">
-            &ldquo;{query}&rdquo;에 대한 결과가 없습니다
-          </p>
-        )}
-
-        <div className="flex flex-col gap-3">
-          {results.map((item) => (
-            <Link key={item.id} href={`/items/${item.id}`}>
-              <div className="flex gap-3 bg-white rounded-xl p-3 shadow-card">
-                <img
-                  src={item.images[0]}
-                  alt={item.title}
-                  className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] text-gold font-medium tracking-widest uppercase mb-0.5">
-                    {item.brand}
-                  </p>
-                  <p className="text-sm text-charcoal leading-snug truncate">{item.title}</p>
-                  <p className="text-sm font-medium text-charcoal mt-1">
-                    {item.price_per_day.toLocaleString()}
-                    <span className="text-[10px] text-muted font-normal ml-0.5">원/일</span>
-                  </p>
+      {/* 결과 리스트 */}
+      <div className="item-list">
+        {showEmpty ? (
+          <div className="flex flex-col items-center py-16 gap-3 text-muted">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <p className="text-sm">브랜드 또는 상품명을 검색해보세요</p>
+          </div>
+        ) : results.length === 0 ? (
+          <div className="flex flex-col items-center py-16 gap-2 text-muted">
+            <p className="text-sm">검색 결과가 없습니다</p>
+          </div>
+        ) : (
+          results.map((item) => (
+            <Link key={item.id} href={`/items/${item.id}`} className="item-row">
+              <div className="item-thumb">
+                <img src={item.img} alt={item.name} />
+              </div>
+              <div className="item-info">
+                <div className="item-brand">{item.brand}</div>
+                <div className="item-name">{item.name}</div>
+                <div className="item-location">{item.area}</div>
+                <div className="item-price-row">
+                  <span className="item-price">{item.price.toLocaleString()}원</span>
+                  <span className="item-per">/ 4시간~</span>
+                </div>
+                <div className="item-stats">
+                  <span className="item-stars">{item.stars}</span>
+                  <span className="item-review-cnt">({item.reviewCount})</span>
                 </div>
               </div>
             </Link>
-          ))}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );

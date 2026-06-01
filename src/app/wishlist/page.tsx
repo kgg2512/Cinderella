@@ -1,52 +1,92 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
-// 목업 — Supabase 연결 전 UI 확인용
-const MOCK_WISHLIST = [
-  { id: "w1", item: { id: "1", title: "샤넬 클래식 플랩 미디엄", brand: "Chanel", price_per_day: 50000, images: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80"] } },
-  { id: "w2", item: { id: "3", title: "롤렉스 데이트저스트", brand: "Rolex", price_per_day: 40000, images: ["https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&q=80"] } },
+const INITIAL_WISHLIST = [
+  {
+    id: "w1",
+    item: {
+      id: "1", brand: "Louis Vuitton", name: "Neverfull MM Monogram Canvas",
+      price: 28000, grade: "S급",
+      img: "https://images.unsplash.com/photo-1529025530948-67e8a5c69b58?auto=format&fit=crop&w=400&q=82",
+      area: "역삼동", stars: "★★★★★", reviewCount: 47,
+    },
+  },
+  {
+    id: "w2",
+    item: {
+      id: "2", brand: "Chanel", name: "Classic Flap Medium Caviar Black",
+      price: 45000, grade: "S급",
+      img: "https://images.unsplash.com/photo-1593418632104-71bd668d1af1?auto=format&fit=crop&w=400&q=82",
+      area: "논현동", stars: "★★★★★", reviewCount: 62,
+    },
+  },
+  {
+    id: "w3",
+    item: {
+      id: "5", brand: "Cartier", name: "Love Necklace 18K Yellow Gold",
+      price: 35000, grade: "S급",
+      img: "https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=400&q=82",
+      area: "도산공원", stars: "★★★★★", reviewCount: 53,
+    },
+  },
 ];
 
 export default function WishlistPage() {
+  const [wishlist, setWishlist] = useState(INITIAL_WISHLIST);
+
+  const remove = (id: string) => setWishlist((prev) => prev.filter((w) => w.id !== id));
+
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 bg-cream border-b border-border px-4 pt-12 pb-3">
-        <h1 className="text-base font-medium text-charcoal">찜 목록</h1>
-      </header>
+      {/* 탑바 */}
+      <div className="topbar">
+        <div className="topbar-logo">좋아요</div>
+      </div>
 
-      <div className="px-4 py-4">
-        {MOCK_WISHLIST.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-muted gap-3">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-            </svg>
-            <p className="text-sm">찜한 물품이 없습니다</p>
+      {wishlist.length === 0 ? (
+        <div className="wish-empty">
+          <div className="wish-empty-icon">♡</div>
+          <div className="wish-empty-txt">
+            아직 찜한 아이템이 없습니다.<br />마음에 드는 명품을 찜해보세요.
           </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {MOCK_WISHLIST.map(({ id, item }) => (
-              <Link key={id} href={`/items/${item.id}`}>
-                <div className="bg-white rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow">
-                  <div className="aspect-square bg-surface overflow-hidden">
-                    <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="item-list">
+          {wishlist.map(({ id, item }) => (
+            <div key={id} className="wish-item-row">
+              <Link href={`/items/${item.id}`} className="wish-item-link">
+                <div className="item-thumb">
+                  <img src={item.img} alt={item.name} />
+                  <div className="item-grade-badge">{item.grade}</div>
+                </div>
+                <div className="item-info">
+                  <div className="item-brand">{item.brand}</div>
+                  <div className="item-name">{item.name}</div>
+                  <div className="item-location">{item.area}</div>
+                  <div className="item-price-row">
+                    <span className="item-price">{item.price.toLocaleString()}원</span>
+                    <span className="item-per">/ 4시간~</span>
                   </div>
-                  <div className="p-3">
-                    <p className="text-[10px] text-gold font-medium tracking-widest uppercase mb-0.5">
-                      {item.brand}
-                    </p>
-                    <p className="text-xs text-charcoal leading-snug line-clamp-2 mb-1">{item.title}</p>
-                    <p className="text-sm font-medium text-charcoal">
-                      {item.price_per_day.toLocaleString()}
-                      <span className="text-[10px] text-muted font-normal ml-0.5">원/일</span>
-                    </p>
+                  <div className="item-stats">
+                    <span className="item-stars">{item.stars}</span>
+                    <span className="item-review-cnt">({item.reviewCount})</span>
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
-        )}
-      </div>
+              <button
+                type="button"
+                aria-label="찜 해제"
+                onClick={() => remove(id)}
+                className="wish-remove-btn"
+              >
+                ♥
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
