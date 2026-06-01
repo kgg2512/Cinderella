@@ -26,7 +26,8 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      // 정상 리다이렉트 — 로딩 유지
+      // 명시적 리다이렉트
+      window.location.href = data.url;
     } catch (e) {
       console.error(e);
       alert("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
