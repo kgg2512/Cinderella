@@ -8,6 +8,9 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
 
+  // Open Redirect 방지: next 파라미터가 반드시 /로 시작해야 함
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+
   if (code) {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -28,7 +31,7 @@ export async function GET(request: NextRequest) {
     );
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}${safeNext}`);
     }
   }
 
