@@ -1,0 +1,46 @@
+name: Supabase & Vercel Keep-Alive
+
+# CFO 요청: Supabase Free Tier 7일 비활성 자동 일시정지 방지
+# 주 2회 (월요일/목요일 UTC 00:00) 실행
+on:
+  schedule:
+    - cron: "0 0 * * 1"   # 매주 월요일 00:00 UTC
+    - cron: "0 0 * * 4"   # 매주 목요일 00:00 UTC
+  workflow_dispatch:       # 수동 트리거 허용
+
+jobs:
+  ping:
+    name: Ping Services
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Health
+        run: |
+          SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "SUPABASE_URL secret not set — skipping Supabase ping"
+          else
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${SUPABASE_URL}/rest/v1/" \
+              -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+              -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+            echo "Supabase health status: $STATUS"
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+              echo "Supabase is alive."
+            else
+              echo "Warning: Supabase returned $STATUS"
+            fi
+          fi
+
+      - name: Ping Vercel Deployment
+        run: |
+          VERCEL_URL="${{ secrets.VERCEL_URL }}"
+          if [ -z "$VERCEL_URL" ]; then
+            echo "VERCEL_URL secret not set — skipping Vercel ping"
+          else
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VERCEL_URL")
+            echo "Vercel deployment status: $STATUS"
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+              echo "Vercel deployment is alive."
+            else
+              echo "Warning: Vercel returned $STATUS"
+            fi
+          fi
