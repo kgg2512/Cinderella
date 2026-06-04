@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ItemCategory } from "@/types";
+import { submitItem } from "./actions";
+import type { SubmitItemResult } from "./actions";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
   { value: "bags", label: "핸드백" },
@@ -27,6 +29,7 @@ export default function NewItemPage() {
   const [price, setPrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const priceNum = Number(price) || 0;
   const earnDay = Math.round(priceNum * 2 * 0.85);
@@ -37,15 +40,31 @@ export default function NewItemPage() {
     setTimeout(() => setToast(""), 2000);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
-    // TODO: Supabase insert + Storage 업로드
-    setTimeout(() => {
-      setSubmitting(false);
-      showToastMsg("등록이 완료되었습니다 ✓");
+    setFieldErrors({});
+
+    // FormData에 chip/grade 상태 주입 (controlled inputs이라 hidden input 없이 직접 append)
+    const formData = new FormData(e.currentTarget);
+    formData.set("category", selectedCat);
+    formData.set("grade", selectedGrade);
+
+    const result: SubmitItemResult = await submitItem(formData);
+
+    setSubmitting(false);
+    if (result.success) {
+      showToastMsg(result.message);
       setTimeout(() => router.push("/"), 1200);
-    }, 800);
+    } else {
+      if (typeof result.errors === "object") {
+        setFieldErrors(result.errors as Record<string, string[]>);
+        const firstMsg = Object.values(result.errors as Record<string, string[]>)[0]?.[0];
+        if (firstMsg) showToastMsg(firstMsg);
+      } else {
+        showToastMsg(result.errors as string);
+      }
+    }
   };
 
   return (
@@ -86,12 +105,14 @@ export default function NewItemPage() {
         <div className="form-group">
           <label htmlFor="brand" className="form-label">브랜드</label>
           <input id="brand" name="brand" type="text" className="form-input" placeholder="예: Chanel" />
+          {fieldErrors.brand && <p className="form-error">{fieldErrors.brand[0]}</p>}
         </div>
 
         {/* 상품명 */}
         <div className="form-group">
           <label htmlFor="title" className="form-label">정식 상품명 *</label>
           <input id="title" name="title" type="text" required className="form-input" placeholder="예: Classic Flap Medium Caviar Black" />
+          {fieldErrors.title && <p className="form-error">{fieldErrors.title[0]}</p>}
         </div>
 
         {/* 상태 등급 */}
@@ -129,6 +150,7 @@ export default function NewItemPage() {
         <div className="form-group">
           <label htmlFor="desc" className="form-label">설명</label>
           <textarea id="desc" name="desc" className="form-textarea" placeholder="구입 시기, 착용 횟수, 보관 상태를 자세히 적어주세요" />
+          {fieldErrors.desc && <p className="form-error">{fieldErrors.desc[0]}</p>}
         </div>
 
         {/* 가격 */}
@@ -147,6 +169,7 @@ export default function NewItemPage() {
             />
             <span className="price-unit-txt">원 / 4시간</span>
           </div>
+          {fieldErrors.price && <p className="form-error">{fieldErrors.price[0]}</p>}
         </div>
 
         {/* 예상 수익 */}
