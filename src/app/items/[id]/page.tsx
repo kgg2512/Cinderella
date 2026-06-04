@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { requestTransaction } from "@/app/transactions/actions";
+import { calcDeposit } from "@/lib/toss";
 
 const MOCK_ITEMS: Record<string, {
   id: string; brand: string; name: string; grade: string;
@@ -50,7 +52,16 @@ const MOCK_ITEMS: Record<string, {
 };
 
 const FALLBACK_ITEM = MOCK_ITEMS["1"];
-const HOUR_OPTIONS = [4, 8, 12, 24, 48];
+
+// 날짜 기본값: 오늘 ~ 내일
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+function tomorrow() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -58,13 +69,36 @@ export default function ItemDetailPage() {
   const [currentImage, setCurrentImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
-  const [selectedHours, setSelectedHours] = useState(4);
   const [toast, setToast] = useState("");
+  const [startDate, setStartDate] = useState(today());
+  const [endDate, setEndDate] = useState(tomorrow());
+  const [requesting, setRequesting] = useState(false);
 
   const item = MOCK_ITEMS[params.id as string] ?? FALLBACK_ITEM;
   const imgs = item.imgs;
-  const fee = Math.round(item.price * (selectedHours / 4) * 0.15);
-  const total = item.price * (selectedHours / 4) + fee;
+  const depositAmount = calcDeposit(item.price);
+
+  const handleRequestTransaction = async () => {
+    if (!startDate || !endDate || startDate > endDate) {
+      showToastMsg("날짜를 올바르게 선택해주세요.");
+      return;
+    }
+    setRequesting(true);
+    // 실제 Supabase item ID가 없으므로 mock ID 사용 (실제 연동 시 real UUID 필요)
+    const result = await requestTransaction(
+      params.id as string,
+      startDate,
+      endDate,
+      depositAmount
+    );
+    setRequesting(false);
+    if (result.success) {
+      setShowSheet(false);
+      router.push(`/transactions/${result.data.transactionId}`);
+    } else {
+      showToastMsg(result.error);
+    }
+  };
 
   const showToastMsg = (msg: string) => {
     setToast(msg);
@@ -192,55 +226,77 @@ export default function ItemDetailPage() {
         </button>
       </div>
 
-      {/* 예약 바텀시트 */}
+      {/* 빌리기 요청 바텀시트 */}
       {showSheet && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="대여 시간 선택"
+          aria-label="빌리기 요청"
           className="sheet-overlay"
           onClick={(e) => { if (e.target === e.currentTarget) setShowSheet(false); }}
         >
-          <div className="sheet">
+          <div className="date-sheet">
             <div className="sheet-handle" />
             <div className="sheet-name">{item.name}</div>
-            <div className="sheet-sub">대여 시간을 선택해주세요 (최소 4시간)</div>
-            <div className="flex gap-2 flex-wrap mb-5">
-              {HOUR_OPTIONS.map((h) => (
-                <button
-                  key={h}
-                  type="button"
-                  onClick={() => setSelectedHours(h)}
-                  className={`hour-btn${selectedHours === h ? " sel" : ""}`}
-                >
-                  {h < 24 ? `${h}시간` : `${h / 24}일`}
-                </button>
-              ))}
-            </div>
-            <div className="price-sum">
-              <div className="ps-row">
-                <span>대여 시간</span>
-                <span>{selectedHours < 24 ? `${selectedHours}시간` : `${selectedHours / 24}일`}</span>
+            <div className="sheet-sub">안전한 거래를 시작합니다</div>
+
+            {/* 날짜 선택 */}
+            <div className="date-input-row">
+              <div>
+                <label htmlFor="rent-start-date" className="date-input-label">대여 시작일</label>
+                <input
+                  id="rent-start-date"
+                  type="date"
+                  className="date-input"
+                  value={startDate}
+                  min={today()}
+                  title="대여 시작일"
+                  placeholder="YYYY-MM-DD"
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
               </div>
-              <div className="ps-row">
-                <span>4시간 기준 금액</span>
+              <div>
+                <label htmlFor="rent-end-date" className="date-input-label">반납일</label>
+                <input
+                  id="rent-end-date"
+                  type="date"
+                  className="date-input"
+                  value={endDate}
+                  min={startDate || today()}
+                  title="반납일"
+                  placeholder="YYYY-MM-DD"
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* 보증금 요약 */}
+            <div className="deposit-summary-box">
+              <div className="deposit-summary-row">
+                <span>일 임대료</span>
                 <span>{item.price.toLocaleString()}원</span>
               </div>
-              <div className="ps-row">
-                <span>서비스 수수료 (15%)</span>
-                <span>{fee.toLocaleString()}원</span>
-              </div>
-              <div className="ps-row ps-total">
-                <span>총 결제 금액</span>
-                <span>{total.toLocaleString()}원</span>
+              <div className="deposit-summary-row">
+                <span>보증금 (일 임대료 × 2)</span>
+                <span className="deposit-summary-total">₩{depositAmount.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* 안내 */}
+            <div className="deposit-notice-box deposit-notice-box--sheet">
+              <p className="deposit-notice-line">
+                신데렐라의 모든 거래는 보증금 직거래 방식으로 진행됩니다.
+                대여자가 수락하면 토스로 보증금을 전송하고, 물건을 받으시면 됩니다.
+              </p>
+            </div>
+
             <button
               type="button"
               className="btn-primary"
-              onClick={() => { setShowSheet(false); showToastMsg("결제 기능 준비 중입니다"); }}
+              disabled={requesting || !startDate || !endDate || startDate > endDate}
+              onClick={handleRequestTransaction}
             >
-              결제하기
+              {requesting ? "요청 중..." : "빌리기 요청하기"}
             </button>
           </div>
         </div>
