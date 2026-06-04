@@ -1597,3 +1597,598 @@ img {
   flex: 1;
   overflow-y: auto;
 }
+
+/* ── TRANSACTION STATUS PILLS ─────── */
+.s-requested {
+  background: #F5F5F5;
+  color: #6B6159;
+  border: 1px solid #E8E3DC;
+}
+
+.s-deposit-requested {
+  background: rgba(255, 193, 7, 0.10);
+  color: #8A6C00;
+  border: 1px solid rgba(255, 193, 7, 0.30);
+}
+
+.s-deposit-confirmed {
+  background: #F1F8F1;
+  color: #2E7D32;
+  border: 1px solid rgba(46, 125, 50, 0.25);
+}
+
+.s-handed-over {
+  background: rgba(25, 118, 210, 0.08);
+  color: #1565C0;
+  border: 1px solid rgba(25, 118, 210, 0.25);
+}
+
+.s-returned {
+  background: rgba(103, 58, 183, 0.08);
+  color: #512DA8;
+  border: 1px solid rgba(103, 58, 183, 0.22);
+}
+
+.s-completed {
+  background: rgba(184, 150, 62, 0.10);
+  color: #B8963E;
+  border: 1px solid rgba(184, 150, 62, 0.30);
+}
+
+.s-disputed {
+  background: rgba(211, 47, 47, 0.08);
+  color: #C62828;
+  border: 1px solid rgba(211, 47, 47, 0.22);
+}
+
+/* ── DEPOSIT NOTICE BOX ───────────── */
+.deposit-notice-box {
+  margin: 16px 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(184, 150, 62, 0.06);
+  border: 1px solid rgba(184, 150, 62, 0.18);
+}
+
+.deposit-notice-title {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.deposit-notice-line {
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.75;
+}
+
+/* ── EVIDENCE UPLOAD BTN ──────────── */
+.btn-evidence-upload {
+  width: 100%;
+  height: 56px;
+  border-radius: 12px;
+  border: 1.5px dashed var(--border);
+  background: var(--cream);
+  color: var(--mid);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: border-color 0.18s, background 0.18s;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+
+.btn-evidence-upload:hover {
+  border-color: var(--charcoal);
+}
+
+.btn-evidence-upload.uploading {
+  border-color: var(--gold);
+  color: var(--gold);
+  animation: pulse 1s infinite;
+  will-change: opacity;
+}
+
+.btn-evidence-upload.done {
+  background: var(--green-bg);
+  border: 1.5px solid rgba(46, 125, 50, 0.30);
+  color: var(--green);
+  font-weight: 600;
+  gap: 12px;
+  padding: 0 16px;
+  justify-content: flex-start;
+}
+
+.btn-evidence-upload.done img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ── TOSS PAYMENT BTN ─────────────── */
+.btn-toss-payment {
+  width: 100%;
+  height: 56px;
+  border-radius: 12px;
+  background: #007aff;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: opacity 0.15s, transform 0.12s;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+
+.btn-toss-payment:active {
+  transform: scale(0.98);
+}
+
+.btn-toss-payment:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.toss-btn-amount {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.toss-btn-sub {
+  font-size: 10.5px;
+  opacity: 0.72;
+  line-height: 1.2;
+}
+
+/* ── TRANSACTION TIMELINE ─────────── */
+.tx-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding: 0 18px;
+}
+
+.tx-timeline-inner {
+  position: relative;
+}
+
+.tx-connector {
+  position: absolute;
+  left: 15px;
+  top: 30px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.tx-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+  padding: 12px 0;
+}
+
+.tx-dot-wrap {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tx-dot-done {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tx-dot-current {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tx-pulse 1.6s ease-in-out infinite;
+  will-change: filter;
+}
+
+.tx-dot-pending {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 2px solid var(--border);
+}
+
+@keyframes tx-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(184, 150, 62, 0.5)); }
+  50% { filter: drop-shadow(0 0 6px rgba(184, 150, 62, 0)); }
+}
+
+.tx-step-content {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.tx-step-label {
+  font-size: 13.5px;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+  line-height: 1.4;
+}
+
+.tx-step-label.done { color: var(--charcoal); font-weight: 600; }
+.tx-step-label.current { color: var(--gold); font-weight: 700; }
+.tx-step-label.pending { color: var(--muted); font-weight: 400; }
+
+.tx-step-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.tx-step-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── TRANSACTION PAGE ─────────────── */
+.tx-page-header {
+  padding: 20px 18px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.tx-item-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+  align-items: center;
+}
+
+.tx-item-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--ivory);
+}
+
+.tx-item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tx-section {
+  padding: 20px 18px 0;
+}
+
+.tx-section-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.tx-action-area {
+  padding: 0 18px 32px;
+}
+
+/* ── TRANSACTION LIST ─────────────── */
+.tx-list-tab {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+}
+
+.tx-tab-btn {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.16s;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+
+.tx-tab-btn.active {
+  color: var(--charcoal);
+  border-bottom-color: var(--charcoal);
+  font-weight: 700;
+}
+
+.tx-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  gap: 10px;
+}
+
+.tx-empty-icon {
+  font-size: 36px;
+  opacity: 0.3;
+}
+
+.tx-card {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.tx-card:active {
+  background: var(--ivory);
+}
+
+.tx-card-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--ivory);
+}
+
+.tx-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tx-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tx-card-brand {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.tx-card-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-bottom: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tx-card-date {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* ── REQUEST DATE SHEET ───────────── */
+.date-sheet {
+  background: #ffffff;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  border-radius: 22px 22px 0 0;
+  padding: 6px 18px 44px;
+}
+
+.date-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.date-input-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.date-input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--charcoal);
+  background: #ffffff;
+  outline: none;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+
+.date-input:focus {
+  border-color: var(--charcoal);
+}
+
+.deposit-summary-box {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.deposit-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--mid);
+  margin-bottom: 7px;
+}
+
+.deposit-summary-row:last-child {
+  margin-bottom: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--charcoal);
+}
+
+.deposit-summary-total {
+  font-weight: 700;
+}
+
+/* sheet 안에서 마진 오버라이드 */
+.deposit-notice-box--sheet {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+}
+
+/* deposit-notice-box 변형 */
+.deposit-notice-box--flush {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.deposit-notice-box--flush-mb {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 12px;
+}
+
+.deposit-notice-box--disputed {
+  margin-left: 0;
+  margin-right: 0;
+  border-color: rgba(211, 47, 47, 0.25);
+  background: rgba(211, 47, 47, 0.05);
+}
+
+.deposit-notice-title--disputed {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #C62828;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* transaction detail layout helpers */
+.tx-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tx-action-stack--gap10 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tx-action-area--padded {
+  padding-top: 24px;
+}
+
+.tx-item-detail {
+  flex: 1;
+}
+
+.tx-item-title-lg {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.topbar-status {
+  font-size: 10px;
+}
+
+.status-pill--topbar {
+  font-size: 10px;
+}
+
+.tx-section-label--flush {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.deposit-summary-amount {
+  font-weight: 600;
+}
+
+.deposit-summary-total-bold {
+  font-weight: 700;
+}
+
+.btn-primary--dark {
+  width: 100%;
+  padding: 15px;
+  background: var(--charcoal);
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+
+.btn-primary--dark:active { opacity: 0.8; }
+.btn-primary--dark:disabled { opacity: 0.6; cursor: not-allowed; }
