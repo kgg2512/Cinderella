@@ -125,6 +125,85 @@ export interface Database {
           created_at?: string;
         };
       };
+      transactions: {
+        Row: {
+          id: string;
+          item_id: string;
+          lender_id: string;
+          borrower_id: string;
+          status: string;
+          start_date: string;
+          end_date: string;
+          deposit_amount: number;
+          toss_id: string | null;
+          lender_confirmed_handover: boolean;
+          borrower_confirmed_handover: boolean;
+          lender_confirmed_return: boolean;
+          borrower_confirmed_return: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          item_id: string;
+          lender_id: string;
+          borrower_id: string;
+          status?: string;
+          start_date: string;
+          end_date: string;
+          deposit_amount: number;
+          toss_id?: string | null;
+          lender_confirmed_handover?: boolean;
+          borrower_confirmed_handover?: boolean;
+          lender_confirmed_return?: boolean;
+          borrower_confirmed_return?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          item_id?: string;
+          lender_id?: string;
+          borrower_id?: string;
+          status?: string;
+          start_date?: string;
+          end_date?: string;
+          deposit_amount?: number;
+          toss_id?: string | null;
+          lender_confirmed_handover?: boolean;
+          borrower_confirmed_handover?: boolean;
+          lender_confirmed_return?: boolean;
+          borrower_confirmed_return?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      transaction_photos: {
+        Row: {
+          id: string;
+          transaction_id: string;
+          uploaded_by: string;
+          photo_type: string;
+          storage_path: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          transaction_id: string;
+          uploaded_by: string;
+          photo_type: string;
+          storage_path: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          transaction_id?: string;
+          uploaded_by?: string;
+          photo_type?: string;
+          storage_path?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {};
     Functions: {};

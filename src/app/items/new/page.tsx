@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { ItemCategory } from "@/types";
 import { submitItem } from "./actions";
@@ -24,12 +24,15 @@ const GRADES = [
 
 export default function NewItemPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedCat, setSelectedCat] = useState<ItemCategory>("bags");
   const [selectedGrade, setSelectedGrade] = useState("S");
   const [price, setPrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const priceNum = Number(price) || 0;
   const earnDay = Math.round(priceNum * 2 * 0.85);
@@ -40,22 +43,48 @@ export default function NewItemPage() {
     setTimeout(() => setToast(""), 2000);
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    const combined = [...selectedFiles, ...files].slice(0, 5);
+    setSelectedFiles(combined);
+
+    // 기존 URL 해제
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    const urls = combined.map((f) => URL.createObjectURL(f));
+    setPreviewUrls(urls);
+  };
+
+  const removeImage = (index: number) => {
+    URL.revokeObjectURL(previewUrls[index]);
+    const newFiles = selectedFiles.filter((_, i) => i !== index);
+    const newUrls = previewUrls.filter((_, i) => i !== index);
+    setSelectedFiles(newFiles);
+    setPreviewUrls(newUrls);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     setFieldErrors({});
 
-    // FormData에 chip/grade 상태 주입 (controlled inputs이라 hidden input 없이 직접 append)
     const formData = new FormData(e.currentTarget);
     formData.set("category", selectedCat);
     formData.set("grade", selectedGrade);
+
+    // 이미지 파일 추가
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
 
     const result: SubmitItemResult = await submitItem(formData);
 
     setSubmitting(false);
     if (result.success) {
       showToastMsg(result.message);
-      setTimeout(() => router.push("/"), 1200);
+      // 생성된 아이템 상세 페이지로 이동
+      setTimeout(() => router.push(`/items/${result.itemId}`), 1200);
     } else {
       if (typeof result.errors === "object") {
         setFieldErrors(result.errors as Record<string, string[]>);
@@ -133,17 +162,56 @@ export default function NewItemPage() {
           </div>
         </div>
 
-        {/* 사진 */}
+        {/* 사진 업로드 */}
         <div className="form-group">
           <label className="form-label">실물 사진 (최대 5장)</label>
-          <button type="button" className="upload-zone" onClick={() => showToastMsg("카메라/앨범 연결 예정")}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A09589" strokeWidth="1.5">
-              <rect x="3" y="3" width="18" height="18" rx="3" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-            <div className="upload-label">실물 사진 직접 촬영</div>
-          </button>
+
+          {/* 미리보기 그리드 */}
+          {previewUrls.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {previewUrls.map((url, i) => (
+                <div key={url} className="relative aspect-square">
+                  <img src={url} alt={`미리보기 ${i + 1}`} className="w-full h-full object-cover rounded-md" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-xs flex items-center justify-center"
+                    aria-label="이미지 삭제"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {previewUrls.length < 5 && (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageSelect}
+                aria-label="사진 선택"
+              />
+              <button
+                type="button"
+                className="upload-zone"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A09589" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="3" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                <div className="upload-label">
+                  {previewUrls.length > 0 ? `${previewUrls.length}/5장 선택됨 · 추가하기` : "사진 선택 (카메라/앨범)"}
+                </div>
+              </button>
+            </>
+          )}
         </div>
 
         {/* 설명 */}

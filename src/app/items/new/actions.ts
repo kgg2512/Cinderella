@@ -1,6 +1,27 @@
 "use server";
 
 import { z } from "zod";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
+// ── Supabase 서버 클라이언트 ──────────────────────────────────────────
+async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) {
+          try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); }
+          catch { /* Server Component에서 set 무시 */ }
+        },
+      },
+    }
+  );
+}
 
 // ── 입력 필드 Zod 스키마 ──────────────────────────────────────────────
 const VALID_CATEGORIES = ["bags", "watches", "jewelry", "shoes", "clothing", "accessories"] as const;
@@ -36,13 +57,52 @@ export type NewItemParsed = z.output<typeof NewItemSchema>;
 
 // ── 액션 반환 타입 ────────────────────────────────────────────────────
 export type SubmitItemResult =
-  | { success: true; message: string }
+  | { success: true; message: string; itemId: string }
   | { success: false; errors: Record<string, string[]> | string };
+
+// ── 이미지 Storage 업로드 헬퍼 ────────────────────────────────────────
+async function uploadImages(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+  files: File[]
+): Promise<string[]> {
+  const urls: string[] = [];
+
+  for (const file of files.slice(0, 5)) {
+    if (file.size === 0) continue;
+    if (file.size > 10 * 1024 * 1024) continue; // 10MB 초과 스킵
+
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const storagePath = `items/${userId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("item-images")
+      .upload(storagePath, file, { upsert: false });
+
+    if (error) continue;
+
+    const { data: urlData } = supabase.storage
+      .from("item-images")
+      .getPublicUrl(storagePath);
+
+    urls.push(urlData.publicUrl);
+  }
+
+  return urls;
+}
 
 // ── Server Action: 아이템 등록 ────────────────────────────────────────
 export async function submitItem(
   formData: FormData
 ): Promise<SubmitItemResult> {
+  const supabase = await createSupabaseServerClient();
+
+  // 인증 확인
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    redirect("/login");
+  }
+
   // FormData → raw 객체 변환
   const raw = {
     brand: formData.get("brand"),
@@ -63,12 +123,31 @@ export async function submitItem(
 
   const validated = result.data;
 
-  // TODO: Supabase insert + Storage 업로드
-  // const supabase = createServerSupabaseClient();
-  // await supabase.from("items").insert({ ...validated });
+  // 이미지 업로드
+  const imageFiles = formData.getAll("images") as File[];
+  const imageUrls = imageFiles.length > 0
+    ? await uploadImages(supabase, user.id, imageFiles)
+    : [];
 
-  // 현재는 검증 통과 확인 후 성공 반환
-  void validated; // 미사용 변수 경고 방지 (Supabase 연동 전)
+  // items 테이블 insert
+  const { data: inserted, error: insertError } = await supabase
+    .from("items")
+    .insert([{
+      user_id: user.id,
+      title: validated.title,
+      brand: validated.brand || null,
+      category: validated.category,
+      price_per_day: validated.price,
+      description: validated.desc || null,
+      images: imageUrls,
+      status: "available",
+    }])
+    .select("id")
+    .single();
 
-  return { success: true, message: "등록이 완료되었습니다 ✓" };
+  if (insertError || !inserted) {
+    return { success: false, errors: "등록 중 오류가 발생했습니다. 다시 시도해주세요." };
+  }
+
+  return { success: true, message: "등록이 완료되었습니다 ✓", itemId: inserted.id };
 }
