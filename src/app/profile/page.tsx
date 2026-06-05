@@ -6,32 +6,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
-const RENTAL_HISTORY = [
-  {
-    id: "r1",
-    brand: "Chanel",
-    name: "Classic Flap Medium Caviar",
-    date: "2026.05.20 14:00 – 22:00",
-    status: "active",
-    img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=120&q=80",
-  },
-  {
-    id: "r2",
-    brand: "Louis Vuitton",
-    name: "Neverfull MM Monogram",
-    date: "2026.05.10 12:00 – 18:00",
-    status: "done",
-    img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=120&q=80",
-  },
-  {
-    id: "r3",
-    brand: "Rolex",
-    name: "Datejust 36 Jubilee White Dial",
-    date: "2026.04.28 15:00 – 21:00",
-    status: "done",
-    img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=120&q=80",
-  },
-];
 
 const MENU_ITEMS = [
   { label: "내 물품 관리", href: "/items/new" },
@@ -144,23 +118,11 @@ export default function ProfilePage() {
 
       {/* 대여 현황 */}
       <div className="my-section-title">대여 현황</div>
-      {RENTAL_HISTORY.map((r) => (
-        <div key={r.id} className="rental-row">
-          <div className="rental-thumb">
-            <img src={r.img} alt={r.name} />
-          </div>
-          <div className="rental-info">
-            <div className="rental-brand">{r.brand}</div>
-            <div className="rental-name">{r.name}</div>
-            <div className="rental-date">{r.date}</div>
-          </div>
-          <div
-            className={`status-pill ${r.status === "active" ? "s-active" : "s-end"}`}
-          >
-            {r.status === "active" ? "진행중" : "완료"}
-          </div>
-        </div>
-      ))}
+      <div className="rental-empty">
+        <div className="rental-empty-icon">✦</div>
+        <div className="rental-empty-text">아직 대여 내역이 없어요</div>
+        <div className="rental-empty-sub">첫 거래를 시작해보세요</div>
+      </div>
 
       {/* 메뉴 */}
       <div className="my-section-title">더보기</div>

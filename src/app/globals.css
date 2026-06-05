@@ -1176,6 +1176,29 @@ img {
   margin-top: 3px;
 }
 
+.rental-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 0;
+  gap: 6px;
+}
+.rental-empty-icon {
+  font-size: 22px;
+  color: var(--gold);
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+.rental-empty-text {
+  font-size: 13px;
+  color: var(--charcoal);
+  font-weight: 500;
+}
+.rental-empty-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .rental-row {
   display: flex;
   gap: 13px;
