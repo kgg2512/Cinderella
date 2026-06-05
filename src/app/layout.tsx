@@ -1,13 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+
+export const viewport: Viewport = {
+  themeColor: "#D4AF37",
+};
 
 export const metadata: Metadata = {
   title: "신데렐라 — 명품 공유 커뮤니티",
   description: "서로의 명품을 나누는 프리미엄 P2P 렌탈 커뮤니티",
   manifest: "/manifest.json",
-  themeColor: "#D4AF37",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
