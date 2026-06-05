@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>신데렐라 — 앱 아이콘 생성기</title>
+<style>
+  body { font-family: system-ui; background: #0c0c10; color: #fff; padding: 20px; }
+  h1 { font-size: 18px; margin-bottom: 16px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 16px; }
+  .item { text-align: center; font-size: 11px; color: #999; }
+  canvas { display: block; margin-bottom: 4px; border-radius: 22%; }
+  button { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 6px 14px;
+           border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 4px; }
+  .dl-all { background: #B8977E; color: #000; border: none; padding: 10px 24px;
+             border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700;
+             margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<h1>신데렐라 아이콘 생성기</h1>
+<button class="dl-all" onclick="downloadAll()">모두 다운로드</button>
+<div class="grid" id="grid"></div>
+<script>
+const SIZES = [
+  { size: 20, label: 'iOS 20' }, { size: 29, label: 'iOS 29' },
+  { size: 40, label: 'iOS 40' }, { size: 58, label: 'iOS 58' },
+  { size: 60, label: 'iOS 60' }, { size: 76, label: 'iOS 76' },
+  { size: 80, label: 'iOS 80' }, { size: 87, label: 'iOS 87' },
+  { size: 120, label: 'iOS 120' }, { size: 152, label: 'iOS 152' },
+  { size: 167, label: 'iOS 167' }, { size: 180, label: 'iOS 180' },
+  { size: 48, label: 'Android mdpi' }, { size: 72, label: 'Android hdpi' },
+  { size: 96, label: 'Android xhdpi' }, { size: 144, label: 'Android xxhdpi' },
+  { size: 192, label: 'Android xxxhdpi' }, { size: 512, label: 'Play Store' },
+  { size: 1024, label: 'App Store' }
+];
+
+function drawCinderella(ctx, size) {
+  const s = size;
+  // 배경 — 심야 블루-블랙 그라디언트
+  const grad = ctx.createRadialGradient(s*0.35, s*0.3, 0, s*0.5, s*0.5, s*0.7);
+  grad.addColorStop(0, '#1a1428');
+  grad.addColorStop(1, '#06050d');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, s, s, s * 0.22);
+  ctx.fill();
+
+  // 별빛 파티클
+  const starPositions = [[0.15,0.2],[0.82,0.15],[0.9,0.55],[0.12,0.72],[0.7,0.82]];
+  ctx.fillStyle = 'rgba(255,255,200,0.7)';
+  starPositions.forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(s*x, s*y, s*0.012, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  // 유리 구두 실루엣 (힐)
+  const u = s / 100;
+  ctx.save();
+  ctx.translate(s * 0.5, s * 0.58);
+
+  // 구두 패스
+  ctx.beginPath();
+  // 앞코
+  ctx.moveTo(u * -32, u * 10);
+  ctx.bezierCurveTo(u * -38, u * 10, u * -42, u * 5, u * -40, u * -2);
+  // 상단 라인
+  ctx.bezierCurveTo(u * -38, u * -12, u * -20, u * -16, u * 0, u * -18);
+  ctx.bezierCurveTo(u * 18, u * -20, u * 30, u * -14, u * 32, u * -8);
+  // 뒤꿈치 위
+  ctx.bezierCurveTo(u * 34, u * -4, u * 32, u * 2, u * 28, u * 4);
+  // 힐 상단
+  ctx.lineTo(u * 24, u * 4);
+  ctx.bezierCurveTo(u * 22, u * 4, u * 20, u * 6, u * 20, u * 8);
+  // 힐 스틱
+  ctx.lineTo(u * 22, u * 22);
+  ctx.lineTo(u * 16, u * 22);
+  // 힐 바닥
+  ctx.lineTo(u * 14, u * 10);
+  ctx.bezierCurveTo(u * 12, u * 8, u * 0, u * 10, u * -16, u * 10);
+  ctx.bezierCurveTo(u * -24, u * 10, u * -30, u * 10, u * -32, u * 10);
+  ctx.closePath();
+
+  // 채우기 — 반투명 파란 유리
+  const shoeGrad = ctx.createLinearGradient(-u*40, -u*20, u*32, u*22);
+  shoeGrad.addColorStop(0, 'rgba(140,180,255,0.85)');
+  shoeGrad.addColorStop(0.5, 'rgba(80,120,220,0.75)');
+  shoeGrad.addColorStop(1, 'rgba(40,60,160,0.9)');
+  ctx.fillStyle = shoeGrad;
+  ctx.fill();
+
+  // 테두리 — 골드
+  ctx.strokeStyle = '#E8D5A0';
+  ctx.lineWidth = u * 2.5;
+  ctx.stroke();
+
+  // 유리 광택
+  ctx.beginPath();
+  ctx.moveTo(u * -28, u * 0);
+  ctx.bezierCurveTo(u * -24, u * -10, u * -10, u * -14, u * 5, u * -14);
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+  ctx.lineWidth = u * 2;
+  ctx.stroke();
+
+  ctx.restore();
+
+  // 앱 이름 (큰 사이즈만)
+  if (size >= 180) {
+    ctx.fillStyle = 'rgba(232,213,160,0.9)';
+    ctx.font = `${u * 8}px Georgia, serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('신데렐라', s * 0.5, s * 0.88);
+  }
+}
+
+const grid = document.getElementById('grid');
+const canvases = {};
+
+SIZES.forEach(({ size, label }) => {
+  const item = document.createElement('div');
+  item.className = 'item';
+  const disp = Math.min(size, 100);
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  canvas.style.width = disp + 'px'; canvas.style.height = disp + 'px';
+  drawCinderella(canvas.getContext('2d'), size);
+  canvases[label] = canvas;
+  const btn = document.createElement('button');
+  btn.textContent = '저장';
+  btn.onclick = () => download(canvas, `cinderella-icon-${size}.png`);
+  item.append(canvas, document.createTextNode(`${label} (${size}×${size})`), document.createElement('br'), btn);
+  grid.append(item);
+});
+
+function download(canvas, name) {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = name;
+  a.click();
+}
+
+function downloadAll() {
+  SIZES.forEach(({ size, label }) => {
+    const c = canvases[label];
+    setTimeout(() => download(c, `cinderella-icon-${size}.png`), 100);
+  });
+}
+</script>
+</body>
+</html>
