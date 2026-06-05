@@ -10,6 +10,9 @@ const config: CapacitorConfig = {
   server: {
     allowMixedContent: false,
     cleartext: false,
+    // iOS Custom URL Scheme — OAuth 딥링크 콜백에 사용
+    // Supabase redirect URL: com.g2company.cinderella://auth/callback
+    iosScheme: 'com.g2company.cinderella',
   },
 
   ios: {

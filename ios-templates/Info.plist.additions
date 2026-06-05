@@ -18,6 +18,21 @@
   <key>NSPhotoLibraryAddUsageDescription</key>
   <string>거래 완료 사진을 앨범에 저장합니다.</string>
 
+  <!-- OAuth 딥링크 커스텀 URL Scheme -->
+  <!-- Supabase redirect URL: com.g2company.cinderella://auth/callback -->
+  <!-- Google Cloud Console → OAuth 동의화면 → 승인된 리디렉션 URI 에도 동일하게 추가 필요 -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>com.g2company.cinderella</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>com.g2company.cinderella</string>
+      </array>
+    </dict>
+  </array>
+
   <!-- 앱 내 도메인 (Supabase + Toss 도메인 추가) -->
   <key>WKAppBoundDomains</key>
   <array>
