@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadTransactionPhoto } from "@/app/transactions/actions";
+import { uploadTransactionPhoto } from "@/app/transactions/client-actions";
 
 interface EvidenceUploadBtnProps {
   transactionId: string;

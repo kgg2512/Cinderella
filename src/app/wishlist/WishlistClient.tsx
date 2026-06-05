@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { removeWishlist } from "./actions";
+import { getWishlist, removeWishlist } from "./client-actions";
 
 interface ItemShape {
   id: string;
@@ -28,6 +28,10 @@ interface Props {
 export default function WishlistClient({ initialWishlist }: Props) {
   const [wishlist, setWishlist] = useState(initialWishlist);
   const [removing, setRemoving] = useState<string | null>(null);
+
+  useEffect(() => {
+    getWishlist().then((data) => setWishlist(data as WishItem[]));
+  }, []);
 
   const handleRemove = async (itemId: string, wishId: string) => {
     setRemoving(wishId);

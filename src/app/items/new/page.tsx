@@ -3,8 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { ItemCategory } from "@/types";
-import { submitItem } from "./actions";
-import type { SubmitItemResult } from "./actions";
+import { submitItem } from "./client-actions";
+import type { SubmitItemResult } from "./client-actions";
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
   { value: "bags", label: "핸드백" },

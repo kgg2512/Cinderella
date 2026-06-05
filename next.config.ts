@@ -50,8 +50,11 @@ const nextConfig: NextConfig = {
       }),
 };
 
-export default withPWA({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-})(nextConfig);
+// Capacitor 빌드 시 PWA 래퍼 제외 (네이티브 앱은 SW 불필요 + webpack 충돌 방지)
+export default isCapacitorBuild
+  ? nextConfig
+  : withPWA({
+      dest: "public",
+      disable: process.env.NODE_ENV === "development",
+      register: true,
+    })(nextConfig);
