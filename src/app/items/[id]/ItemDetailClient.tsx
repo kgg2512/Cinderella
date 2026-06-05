@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { requestTransaction } from "@/app/transactions/actions";
+import { requestTransaction } from "@/app/transactions/client-actions";
 import { calcDeposit } from "@/lib/toss";
 import type { Database } from "@/types/database";
 

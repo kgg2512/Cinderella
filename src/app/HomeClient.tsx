@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { supabase as _supabase } from "@/lib/supabase";
 import type { ItemCategory } from "@/types";
 import type { Database } from "@/types/database";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const supabase = _supabase as any;
 type Item = Database["public"]["Tables"]["items"]["Row"];
 
 const CATEGORIES: { value: ItemCategory | "all"; label: string }[] = [
@@ -25,42 +27,33 @@ const SORTS: { value: string; label: string }[] = [
   { value: "new", label: "신상품" },
 ];
 
-interface Props {
-  items: Item[];
-  initialCategory: string;
-  initialBrand: string;
-  initialSort: string;
-}
+export default function HomeClient() {
+  const [items, setItems] = useState<Item[]>([]);
+  const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
+  const [activeBrand, setActiveBrand] = useState("All Brands");
+  const [activeSort, setActiveSort] = useState("popular");
 
-export default function HomeClient({ items, initialCategory, initialBrand, initialSort }: Props) {
-  const router = useRouter();
-  const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">(initialCategory as ItemCategory | "all");
-  const [activeBrand, setActiveBrand] = useState(initialBrand);
-  const [activeSort, setActiveSort] = useState(initialSort);
+  useEffect(() => {
+    supabase
+      .from("items")
+      .select("*")
+      .eq("status", "available")
+      .order("created_at", { ascending: false })
+      .limit(40)
+      .then(({ data }: { data: Item[] | null }) => {
+        setItems(data ?? []);
+      });
+  }, []);
 
-  const handleCategoryChange = (cat: ItemCategory | "all") => {
-    setActiveCategory(cat);
-    const params = new URLSearchParams();
-    if (cat !== "all") params.set("category", cat);
-    if (activeBrand !== "All Brands") params.set("brand", activeBrand);
-    if (activeSort !== "popular") params.set("sort", activeSort);
-    router.push(params.toString() ? `/?${params}` : "/");
-  };
+  const filtered = items.filter((item) => {
+    if (activeCategory !== "all" && item.category !== activeCategory) return false;
+    if (activeBrand !== "All Brands" && item.brand !== activeBrand) return false;
+    return true;
+  });
 
-  const handleBrandChange = (brand: string) => {
-    setActiveBrand(brand);
-    const params = new URLSearchParams();
-    if (activeCategory !== "all") params.set("category", activeCategory);
-    if (brand !== "All Brands") params.set("brand", brand);
-    if (activeSort !== "popular") params.set("sort", activeSort);
-    router.push(params.toString() ? `/?${params}` : "/");
-  };
-
-  // 클라이언트 사이드 정렬 (서버에서 받은 데이터 기준)
-  const sorted = [...items].sort((a, b) => {
+  const sorted = [...filtered].sort((a, b) => {
     if (activeSort === "price_asc") return a.price_per_day - b.price_per_day;
     if (activeSort === "price_desc") return b.price_per_day - a.price_per_day;
-    // popular, new: 서버 order (created_at desc) 유지
     return 0;
   });
 
@@ -101,7 +94,7 @@ export default function HomeClient({ items, initialCategory, initialBrand, initi
             <button
               key={value}
               type="button"
-              onClick={() => handleCategoryChange(value)}
+              onClick={() => setActiveCategory(value)}
               className={`cat-pill${activeCategory === value ? " active" : ""}`}
             >
               {label}
@@ -113,7 +106,7 @@ export default function HomeClient({ items, initialCategory, initialBrand, initi
             <button
               key={b}
               type="button"
-              onClick={() => handleBrandChange(b)}
+              onClick={() => setActiveBrand(b)}
               className={`brand-pill${activeBrand === b ? " active" : ""}`}
             >
               {b}
