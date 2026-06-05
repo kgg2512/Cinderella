@@ -3,6 +3,7 @@ import withPWA from "@ducanh2912/next-pwa";
 
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: false },
+  turbopack: {},
 
   // CISO 지시: GA4 CSP 헤더
   async headers() {

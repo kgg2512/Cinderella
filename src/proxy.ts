@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 const PROTECTED_ROUTES = ["/profile", "/wishlist", "/items/new"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 보호 경로가 아니면 통과
