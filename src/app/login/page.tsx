@@ -1,19 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signInWithGoogleMobile, initMobileAuthListener, isCapacitor } from "@/lib/mobile-auth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 모바일 환경에서 앱 URL 딥링크 리스너 등록
+  // 웹 환경에서는 아무 동작 없음
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+
+    initMobileAuthListener(
+      // 세션 교환 성공 → 홈으로 이동
+      () => {
+        setLoading(false);
+        router.push("/");
+      },
+      // 실패
+      (msg) => {
+        setLoading(false);
+        setError(msg);
+      },
+    ).then((fn) => {
+      cleanup = fn;
+    });
+
+    return () => {
+      cleanup?.();
+    };
+  }, [router]);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    setError(null);
+    try {
+      // isCapacitor() 분기는 signInWithGoogleMobile 내부에서 처리
+      await signInWithGoogleMobile();
+      // 웹 환경에서는 위 함수가 리디렉션을 트리거하므로 이 이후 코드 실행 안 됨
+      // 모바일 환경에서는 Browser.open() 후 대기 → appUrlOpen 이벤트로 복귀
+    } catch (e) {
+      setLoading(false);
+      const msg = e instanceof Error ? e.message : "로그인에 실패했습니다.";
+      setError(msg);
+    }
   };
 
   return (
@@ -46,6 +79,13 @@ export default function LoginPage() {
           <br />결혼식, 소개팅, 특별한 그 날을 위해.
         </p>
 
+        {/* 에러 메시지 */}
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={handleGoogleLogin}
@@ -53,7 +93,11 @@ export default function LoginPage() {
           className="btn-google"
         >
           <GoogleIcon />
-          {loading ? "로그인 중..." : "Google 계정으로 시작하기"}
+          {loading
+            ? isCapacitor()
+              ? "인증 중... (브라우저에서 완료하세요)"
+              : "로그인 중..."
+            : "Google 계정으로 시작하기"}
         </button>
 
         <p className="text-[10px] text-muted text-center leading-loose">

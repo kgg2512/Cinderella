@@ -33,3 +33,24 @@
   android:usesCleartextTraffic="false"  (CISO 보안 필수)
   android:networkSecurityConfig="@xml/network_security_config"
 -->
+
+<!-- ===== OAuth 딥링크 Intent Filter (activity 태그 안에 추가) ===== -->
+<!--
+  배포 위치: android/app/src/main/AndroidManifest.xml
+  <activity android:name=".MainActivity" ...> 블록 안에 아래 intent-filter 추가
+
+  Supabase Auth redirect URL: com.g2company.cinderella://auth/callback
+  Google Cloud Console → OAuth 동의화면 → 승인된 리디렉션 URI에도 동일하게 추가 필요
+-->
+<intent-filter android:autoVerify="false">
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <!--
+      android:scheme: 앱 고유 커스텀 스킴 (소문자, 점 허용)
+      android:host: 경로의 첫 번째 세그먼트 (auth)
+    -->
+    <data
+        android:scheme="com.g2company.cinderella"
+        android:host="auth" />
+</intent-filter>
