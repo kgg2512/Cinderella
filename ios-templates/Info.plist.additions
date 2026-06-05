@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  신데렐라 — Info.plist Usage Description 추가 항목
+  배포 경로: ios/App/App/Info.plist 에 병합
+-->
+<plist version="1.0">
+<dict>
+
+  <!-- 카메라 (상품 촬영) -->
+  <key>NSCameraUsageDescription</key>
+  <string>명품 상품을 등록하기 위해 사진을 촬영합니다.</string>
+
+  <!-- 사진 라이브러리 읽기 (상품 이미지 업로드) -->
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>상품 이미지를 앨범에서 선택하기 위해 접근합니다.</string>
+
+  <!-- 사진 라이브러리 쓰기 (선택적) -->
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>거래 완료 사진을 앨범에 저장합니다.</string>
+
+  <!-- 앱 내 도메인 (Supabase + Toss 도메인 추가) -->
+  <key>WKAppBoundDomains</key>
+  <array>
+    <string>supabase.co</string>
+    <string>tosspayments.com</string>
+  </array>
+
+  <!-- 화면 방향 고정 (세로) -->
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+  </array>
+
+</dict>
+</plist>
