@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Cinderella — Play Store Assets Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Noto+Sans+KR:wght@300;400;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1A1816;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #FAF9F7;
+    padding: 48px 40px 80px;
+    min-height: 100vh;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(184,150,62,0.2);
+  }
+  header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 42px;
+    font-weight: 300;
+    font-style: italic;
+    color: #B8963E;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+  }
+  header p { font-size: 12px; color: #6B6159; letter-spacing: 2px; text-transform: uppercase; }
+
+  .section { margin-bottom: 64px; }
+  .section-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #B8963E; font-weight: 600; margin-bottom: 6px;
+  }
+  .section-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .section-spec { font-size: 12px; color: #6B6159; margin-bottom: 24px; }
+
+  /* Icon display */
+  .icon-preview {
+    display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap;
+  }
+  .icon-box {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .icon-box img, .icon-box object {
+    border-radius: 22.5%; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .icon-size { font-size: 11px; color: #6B6159; }
+
+  /* Featured graphic */
+  .featured-wrap {
+    width: 100%; max-width: 1024px;
+    border: 1px solid rgba(184,150,62,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  }
+  .featured-wrap img, .featured-wrap object {
+    width: 100%; display: block;
+  }
+
+  /* Screenshots */
+  .screenshots-row {
+    display: flex; gap: 32px; flex-wrap: wrap;
+  }
+  .screenshot-wrap {
+    flex: 0 0 auto;
+    border-radius: 8px; overflow: hidden;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    border: 1px solid rgba(184,150,62,0.12);
+  }
+  .screenshot-wrap iframe {
+    display: block;
+    border: none;
+  }
+  .screenshot-label {
+    padding: 10px 16px;
+    background: #221F1C;
+    font-size: 11px; color: #6B6159;
+    letter-spacing: 1px;
+  }
+
+  .file-list {
+    margin-top: 24px;
+    padding: 20px 24px;
+    background: #221F1C;
+    border: 1px solid rgba(184,150,62,0.12);
+    border-radius: 8px;
+  }
+  .file-list h3 { font-size: 12px; color: #B8963E; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; font-weight: 600; }
+  .file-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid rgba(184,150,62,0.08);
+  }
+  .file-item:last-child { border-bottom: none; }
+  .file-name { font-size: 13px; font-weight: 500; font-family: monospace; color: #D4B86A; }
+  .file-desc { font-size: 11px; color: #6B6159; }
+  .file-spec { font-size: 11px; color: #A09589; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cinderella</h1>
+  <p>Play Store Design Assets — CDO Deliverables</p>
+</header>
+
+<!-- 1. APP ICON -->
+<div class="section">
+  <div class="section-label">Asset 01</div>
+  <div class="section-title">앱 아이콘</div>
+  <div class="section-spec">icon-512.svg — 512×512px · 크림 배경 + 골드 구두 + Cinderella 워드마크</div>
+  <div class="icon-preview">
+    <div class="icon-box">
+      <img src="icon-512.svg" width="192" height="192" alt="App Icon 192">
+      <div class="icon-size">192px (Google Play)</div>
+    </div>
+    <div class="icon-box">
+      <img src="icon-512.svg" width="108" height="108" alt="App Icon 108">
+      <div class="icon-size">108px (xxhdpi)</div>
+    </div>
+    <div class="icon-box">
+      <img src="icon-512.svg" width="72" height="72" alt="App Icon 72">
+      <div class="icon-size">72px (xhdpi)</div>
+    </div>
+    <div class="icon-box">
+      <img src="icon-512.svg" width="48" height="48" alt="App Icon 48">
+      <div class="icon-size">48px (hdpi)</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. FEATURED GRAPHIC -->
+<div class="section">
+  <div class="section-label">Asset 02</div>
+  <div class="section-title">피처드 그래픽</div>
+  <div class="section-spec">featured-graphic.svg — 1024×500px · 다크 차콜 배경 + 골드 타이포그래피 + 명품백·구두 일러스트</div>
+  <div class="featured-wrap">
+    <img src="featured-graphic.svg" alt="Featured Graphic" style="max-height:500px;object-fit:cover;">
+  </div>
+</div>
+
+<!-- 3. SCREENSHOTS -->
+<div class="section">
+  <div class="section-label">Asset 03</div>
+  <div class="section-title">스크린샷</div>
+  <div class="section-spec">screenshot-1.html / screenshot-2.html — 432×768 프레임 (1080×1920 at 2.5x 기준)</div>
+  <div class="screenshots-row">
+    <div class="screenshot-wrap">
+      <iframe src="screenshot-1.html" width="432" height="768" scrolling="no"></iframe>
+      <div class="screenshot-label">Screenshot 1 — 홈 피드 (상품 탐색)</div>
+    </div>
+    <div class="screenshot-wrap">
+      <iframe src="screenshot-2.html" width="432" height="768" scrolling="no"></iframe>
+      <div class="screenshot-label">Screenshot 2 — 상품 상세 + 렌탈 예약</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILE LIST -->
+<div class="file-list">
+  <h3>파일 목록</h3>
+  <div class="file-item">
+    <span class="file-name">icon-512.svg</span>
+    <span class="file-desc">앱 아이콘 — 구두 모티프 + 워드마크</span>
+    <span class="file-spec">512×512px SVG</span>
+  </div>
+  <div class="file-item">
+    <span class="file-name">screenshot-1.html</span>
+    <span class="file-desc">홈 피드 화면 — 상품 그리드 + 필터</span>
+    <span class="file-spec">432×768 HTML (→ 1080×1920 캡처)</span>
+  </div>
+  <div class="file-item">
+    <span class="file-name">screenshot-2.html</span>
+    <span class="file-desc">상품 상세 + 렌탈 예약 Bottom Sheet</span>
+    <span class="file-spec">432×768 HTML (→ 1080×1920 캡처)</span>
+  </div>
+  <div class="file-item">
+    <span class="file-name">featured-graphic.svg</span>
+    <span class="file-desc">피처드 그래픽 — 다크 배경 + 브랜드 타이포</span>
+    <span class="file-spec">1024×500px SVG</span>
+  </div>
+  <div class="file-item" style="border-top:1px solid rgba(184,150,62,0.15);margin-top:8px;padding-top:16px;">
+    <span class="file-name" style="color:#6B6159;">PNG 변환 방법</span>
+    <span class="file-desc" style="color:#4A4540;">Chrome → 인쇄 → PDF저장 또는 개발자도구 캡처 (Ctrl+Shift+I → Capture screenshot)</span>
+    <span class="file-spec">—</span>
+  </div>
+</div>
+
+</body>
+</html>
