@@ -2215,3 +2215,24 @@ img {
 
 .btn-primary--dark:active { opacity: 0.8; }
 .btn-primary--dark:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── HOME EMPTY STATE ──────────────── */
+.empty-state-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-decoration: none;
+  background: linear-gradient(135deg, #C9A04A, #7A5E1F);
+  transition: opacity 0.18s;
+}
+
+.empty-state-cta:active {
+  opacity: 0.82;
+}
