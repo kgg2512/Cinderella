@@ -29,6 +29,7 @@ const SORTS: { value: string; label: string }[] = [
 
 export default function HomeClient() {
   const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
   const [activeBrand, setActiveBrand] = useState("All Brands");
   const [activeSort, setActiveSort] = useState("popular");
@@ -42,6 +43,7 @@ export default function HomeClient() {
       .limit(40)
       .then(({ data }: { data: Item[] | null }) => {
         setItems(data ?? []);
+        setLoading(false);
       });
   }, []);
 
@@ -132,9 +134,29 @@ export default function HomeClient() {
 
       {/* 아이템 그리드 */}
       <div className="grid grid-cols-2 gap-px bg-[#E8E3DC]">
-        {sorted.length === 0 ? (
-          <div className="col-span-2 flex flex-col items-center py-16 text-muted gap-2 bg-cream">
-            <p className="text-sm">등록된 물품이 없습니다</p>
+        {loading ? (
+          /* 로딩 스켈레톤 */
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white block">
+              <div className="aspect-square bg-[#F0EDE8] animate-pulse" />
+              <div className="px-3 pt-2.5 pb-3 space-y-2">
+                <div className="h-2 w-12 bg-[#EAE5DF] rounded animate-pulse" />
+                <div className="h-3 w-full bg-[#EAE5DF] rounded animate-pulse" />
+                <div className="h-3 w-2/3 bg-[#EAE5DF] rounded animate-pulse" />
+                <div className="h-4 w-16 bg-[#EAE5DF] rounded animate-pulse mt-1" />
+              </div>
+            </div>
+          ))
+        ) : sorted.length === 0 ? (
+          <div className="col-span-2 flex flex-col items-center py-16 gap-4 bg-[#FAF9F7]">
+            <div className="text-4xl">✨</div>
+            <p className="text-[13px] font-medium text-[#1A1816] tracking-wide">아직 등록된 아이템이 없어요</p>
+            <p className="text-[11.5px] text-[#A09589] text-center leading-relaxed px-8">
+              첫 번째 요정이 되어보세요.<br />사용하지 않는 명품으로 수익을 만드세요.
+            </p>
+            <a href="/sell" className="empty-state-cta">
+              요정 되기
+            </a>
           </div>
         ) : (
           sorted.map((item) => (
