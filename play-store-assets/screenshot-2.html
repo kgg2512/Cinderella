@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cinderella — Screenshot 2: 아이템 상세 / 렌탈 예약</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #E8E3DC;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .phone-frame {
+    width: 432px; height: 768px;
+    background: #FAF9F7;
+    border-radius: 44px;
+    overflow: hidden; position: relative;
+    box-shadow: 0 32px 80px rgba(26,24,22,0.28), 0 0 0 1px rgba(26,24,22,0.06);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 44px; background: transparent;
+    position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px 0 20px;
+    font-size: 11px; font-weight: 600; color: #fff;
+  }
+  .status-right { display: flex; gap: 5px; align-items: center; }
+
+  /* Product image hero */
+  .product-hero {
+    width: 100%; height: 260px;
+    background: linear-gradient(165deg, #F3F0EB 0%, #E8E2D9 100%);
+    position: relative; overflow: hidden;
+  }
+  .product-hero-bg {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .det-back, .det-wish {
+    position: absolute; top: 14px; width: 36px; height: 36px;
+    border-radius: 50%; background: rgba(255,255,255,0.92);
+    box-shadow: 0 2px 12px rgba(26,24,22,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: #1A1816; z-index: 2;
+  }
+  .det-back { left: 14px; font-size: 16px; }
+  .det-wish { right: 14px; font-size: 18px; }
+
+  /* Image dots */
+  .img-dots {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; z-index: 2;
+  }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .dot.on { background: white; width: 18px; border-radius: 3px; }
+
+  /* Detail body */
+  .det-body { background: #fff; }
+
+  .det-header { padding: 18px 18px 14px; border-bottom: 1px solid #E8E3DC; }
+  .det-badges { display: flex; gap: 7px; margin-bottom: 10px; }
+  .badge {
+    font-size: 9px; font-weight: 700; padding: 4px 11px; border-radius: 10px;
+    letter-spacing: 0.1em;
+  }
+  .badge-brand { color: #B8963E; background: rgba(184,150,62,0.1); border: 1px solid rgba(184,150,62,0.2); text-transform: uppercase; letter-spacing: 0.18em; }
+  .badge-grade { color: #2E7D32; background: #F1F8F1; border: 1px solid rgba(46,125,50,0.15); }
+  .badge-auth { color: #1976D2; background: rgba(25,118,210,0.08); border: 1px solid rgba(25,118,210,0.18); }
+
+  .det-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 26px; font-weight: 300; font-style: italic;
+    line-height: 1.2; color: #1A1816; margin-bottom: 10px;
+  }
+  .det-price-row { display: flex; align-items: baseline; gap: 6px; }
+  .det-price { font-size: 24px; font-weight: 700; color: #1A1816; }
+  .det-per { font-size: 12px; color: #A09589; }
+  .det-stars { color: #B8963E; font-size: 12px; letter-spacing: 2px; margin-left: auto; }
+  .det-rc { font-size: 11px; color: #A09589; }
+
+  /* Seller card */
+  .seller-card {
+    display: flex; align-items: center; gap: 13px;
+    padding: 13px 18px; border-bottom: 1px solid #E8E3DC;
+    background: #fff;
+  }
+  .seller-av {
+    width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+    border: 2px solid #E8E3DC; flex-shrink: 0;
+    background: linear-gradient(135deg, #F3F0EB, #E8E3DC);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .seller-info { flex: 1; }
+  .seller-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; color: #1A1816; }
+  .seller-rating { font-size: 11px; color: #B8963E; display: flex; align-items: center; gap: 5px; }
+  .seller-loc { font-size: 11px; color: #A09589; margin-top: 2px; }
+  .chat-btn {
+    padding: 7px 15px; border: 1.5px solid #E8E3DC; border-radius: 18px;
+    font-size: 12px; color: #6B6159; font-weight: 500; font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  /* Insurance box */
+  .ins-box {
+    margin: 14px 18px;
+    padding: 13px 15px; border-radius: 14px;
+    background: #F1F8F1; border: 1px solid rgba(46,125,50,0.18);
+  }
+  .ins-title { font-size: 11px; font-weight: 700; color: #2E7D32; margin-bottom: 3px; }
+  .ins-desc { font-size: 11px; color: #6B6159; line-height: 1.55; }
+
+  /* CTA area (bottom sheet visible) */
+  .sheet-overlay-partial {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(26,24,22,0.45);
+    height: 190px;
+    display: flex; align-items: flex-end;
+    border-radius: 0 0 44px 44px;
+  }
+  .sheet {
+    background: #fff; width: 100%;
+    border-radius: 22px 22px 0 0;
+    padding: 6px 18px 28px;
+  }
+  .sheet-handle {
+    width: 34px; height: 4px; background: #E8E3DC;
+    border-radius: 2px; margin: 12px auto 18px;
+  }
+  .sheet-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px; font-style: italic; font-weight: 300;
+    color: #1A1816; margin-bottom: 3px;
+  }
+  .sheet-sub { font-size: 11px; color: #A09589; margin-bottom: 14px; }
+  .hour-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .hour-btn {
+    padding: 8px 14px; border-radius: 10px; border: 1.5px solid #E8E3DC;
+    color: #6B6159; font-size: 12px; font-weight: 500; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .hour-btn.sel { background: #1A1816; color: #fff; border-color: #1A1816; }
+
+  .cta-row { display: flex; gap: 10px; }
+  .cta-wish-btn {
+    width: 48px; height: 48px; border-radius: 12px;
+    border: 1.5px solid #E8E3DC; display: flex;
+    align-items: center; justify-content: center; font-size: 20px;
+  }
+  .cta-rent-btn {
+    flex: 1; padding: 14px; background: #1A1816; color: #fff;
+    border-radius: 12px; font-size: 14px; font-weight: 600;
+    letter-spacing: 0.07em; font-family: 'Noto Sans KR', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Product Hero Image -->
+  <div class="product-hero">
+    <div class="product-hero-bg">
+      <svg width="100%" height="100%" viewBox="0 0 432 260">
+        <rect width="432" height="260" fill="#F3F0EB"/>
+        <!-- Sophisticated Chanel bag illustration -->
+        <!-- Background soft light -->
+        <ellipse cx="216" cy="130" rx="160" ry="110" fill="white" opacity="0.3"/>
+        <!-- Bag body -->
+        <rect x="88" y="62" width="256" height="166" rx="16" fill="#1A1816"/>
+        <rect x="88" y="62" width="256" height="166" rx="16" fill="none" stroke="#2A2A2A" stroke-width="1.5"/>
+        <!-- Quilted grid -->
+        <defs>
+          <pattern id="quilt" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+            <path d="M 0 16 L 16 0 L 32 16 L 16 32 Z" fill="none" stroke="#2D2D2D" stroke-width="0.8"/>
+          </pattern>
+        </defs>
+        <rect x="88" y="62" width="256" height="166" rx="16" fill="url(#quilt)" opacity="0.6"/>
+        <!-- CC clasp center -->
+        <circle cx="216" cy="145" r="18" fill="none" stroke="#B8963E" stroke-width="3"/>
+        <text x="216" y="151" text-anchor="middle" font-family="serif" font-size="18" font-weight="bold" fill="#B8963E">CC</text>
+        <!-- Chain strap -->
+        <path d="M 120 62 Q 100 30 216 24 Q 332 30 312 62" fill="none" stroke="#B8963E" stroke-width="6" stroke-dasharray="4 3.5"/>
+        <!-- Highlight reflection -->
+        <path d="M 100 70 Q 106 66 130 68 Q 160 72 200 72 L 200 82 Q 158 80 126 78 Q 104 76 100 70 Z" fill="white" opacity="0.12"/>
+      </svg>
+    </div>
+    <!-- Status bar on image -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-right" style="font-size:10px;">
+        <svg width="14" height="12" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="0.5" fill="white"/><rect x="4" y="2" width="3" height="10" rx="0.5" fill="white"/><rect x="8" y="0" width="3" height="12" rx="0.5" fill="white"/></svg>
+        <span style="color:white;">100%</span>
+      </div>
+    </div>
+    <div class="det-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="det-wish">♡</div>
+    <div class="img-dots">
+      <div class="dot on"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- Detail Body -->
+  <div class="det-body">
+    <div class="det-header">
+      <div class="det-badges">
+        <div class="badge badge-brand">Chanel</div>
+        <div class="badge badge-grade">A급</div>
+        <div class="badge badge-auth">정품 인증</div>
+      </div>
+      <div class="det-name">Classic Flap Bag Medium</div>
+      <div class="det-price-row">
+        <div class="det-price">65,000원</div>
+        <div class="det-per">/일</div>
+        <div class="det-stars" style="margin-left:auto;">★★★★★</div>
+        <div class="det-rc">(24)</div>
+      </div>
+    </div>
+
+    <!-- Seller -->
+    <div class="seller-card">
+      <div class="seller-av">👩</div>
+      <div class="seller-info">
+        <div class="seller-name">김유진</div>
+        <div class="seller-rating">★★★★★ <span style="color:#A09589;">FairyRating 4.9</span></div>
+        <div class="seller-loc">서울 강남구 청담동</div>
+      </div>
+      <div class="chat-btn">채팅하기</div>
+    </div>
+
+    <!-- Insurance -->
+    <div class="ins-box">
+      <div class="ins-title">보험 적용 상품</div>
+      <div class="ins-desc">렌탈 기간 중 파손·분실 시 최대 300만원까지 보상됩니다. 안심하고 빌리세요.</div>
+    </div>
+  </div>
+
+  <!-- Bottom sheet: rental booking -->
+  <div class="sheet-overlay-partial">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-name">Classic Flap Medium</div>
+      <div class="sheet-sub">렌탈 기간을 선택하세요</div>
+      <div class="hour-row">
+        <div class="hour-btn">1일</div>
+        <div class="hour-btn sel">2일</div>
+        <div class="hour-btn">3일</div>
+        <div class="hour-btn">7일</div>
+      </div>
+      <div class="cta-row">
+        <div class="cta-wish-btn">♡</div>
+        <div class="cta-rent-btn">130,000원 · 렌탈 신청</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

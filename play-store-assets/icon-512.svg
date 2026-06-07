@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FAF9F7"/>
+      <stop offset="100%" style="stop-color:#F0EDE8"/>
+    </linearGradient>
+    <!-- Gold shimmer for the slipper -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4B86A"/>
+      <stop offset="45%" style="stop-color:#B8963E"/>
+      <stop offset="100%" style="stop-color:#8C6D20"/>
+    </linearGradient>
+    <!-- Inner glow -->
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FAF9F7;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#FAF9F7;stop-opacity:0"/>
+    </radialGradient>
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#1A1816" flood-opacity="0.18"/>
+    </filter>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1A1816" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Background: rounded rect -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+
+  <!-- Subtle corner decoration: thin gold arc top-right -->
+  <path d="M 340 40 Q 472 40 472 172" stroke="#B8963E" stroke-width="1.5" fill="none" opacity="0.25"/>
+  <!-- Bottom-left arc -->
+  <path d="M 172 472 Q 40 472 40 340" stroke="#B8963E" stroke-width="1.5" fill="none" opacity="0.25"/>
+
+  <!-- Glass slipper — main body -->
+  <!-- Sole -->
+  <ellipse cx="258" cy="354" rx="108" ry="18" fill="#1A1816" opacity="0.08"/>
+
+  <!-- Heel -->
+  <path d="M 184 334 L 178 356 Q 176 364 184 364 L 198 364 Q 204 364 204 356 L 202 334 Z"
+        fill="url(#goldGrad)" filter="url(#softShadow)"/>
+  <!-- Heel highlight -->
+  <path d="M 188 336 L 186 356 Q 185 361 188 362"
+        stroke="#D4B86A" stroke-width="1.5" fill="none" opacity="0.5"/>
+
+  <!-- Shoe sole platform -->
+  <path d="M 178 354 Q 220 368 310 360 Q 340 357 348 350 L 344 344 Q 316 352 306 354 Q 216 362 196 350 Z"
+        fill="#1A1816" opacity="0.65"/>
+
+  <!-- Main upper shoe body -->
+  <path d="M 200 330
+           Q 200 290 230 268
+           Q 258 248 298 248
+           Q 334 248 352 272
+           Q 368 296 358 320
+           Q 346 344 306 350
+           Q 240 358 200 330 Z"
+        fill="url(#goldGrad)" filter="url(#shadow)"/>
+
+  <!-- Glass effect overlay on upper -->
+  <path d="M 212 318
+           Q 218 282 248 264
+           Q 274 250 304 252
+           Q 328 254 344 274
+           Q 346 268 338 260
+           Q 318 240 286 240
+           Q 250 240 226 262
+           Q 204 282 206 316 Z"
+        fill="white" opacity="0.22"/>
+
+  <!-- Ankle strap -->
+  <path d="M 202 320 Q 196 296 216 280 Q 228 270 248 270"
+        stroke="#D4B86A" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M 202 320 Q 196 296 216 280 Q 228 270 248 270"
+        stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.35"/>
+
+  <!-- Decorative bow on toe -->
+  <!-- Bow left loop -->
+  <path d="M 316 276 Q 298 260 292 272 Q 288 282 302 284 Z"
+        fill="#D4B86A" opacity="0.9"/>
+  <!-- Bow right loop -->
+  <path d="M 340 276 Q 358 260 364 272 Q 368 282 354 284 Z"
+        fill="#D4B86A" opacity="0.9"/>
+  <!-- Bow center -->
+  <ellipse cx="328" cy="279" rx="9" ry="8" fill="#B8963E"/>
+  <ellipse cx="328" cy="279" rx="4" ry="3.5" fill="#D4B86A" opacity="0.7"/>
+
+  <!-- Sparkle dots — fairy magic -->
+  <circle cx="150" cy="180" r="4" fill="#B8963E" opacity="0.7"/>
+  <circle cx="162" cy="165" r="2.5" fill="#D4B86A" opacity="0.55"/>
+  <circle cx="140" cy="165" r="2" fill="#B8963E" opacity="0.45"/>
+
+  <circle cx="368" cy="188" r="4.5" fill="#B8963E" opacity="0.65"/>
+  <circle cx="382" cy="174" r="2.5" fill="#D4B86A" opacity="0.5"/>
+  <circle cx="358" cy="170" r="2" fill="#B8963E" opacity="0.4"/>
+
+  <circle cx="256" cy="148" r="3.5" fill="#B8963E" opacity="0.55"/>
+  <circle cx="270" cy="136" r="2" fill="#D4B86A" opacity="0.45"/>
+  <circle cx="242" cy="138" r="1.8" fill="#B8963E" opacity="0.38"/>
+
+  <!-- Star sparkles (4-pointed) -->
+  <!-- Top center star -->
+  <g transform="translate(256,120)" opacity="0.7">
+    <line x1="0" y1="-10" x2="0" y2="10" stroke="#B8963E" stroke-width="1.5"/>
+    <line x1="-10" y1="0" x2="10" y2="0" stroke="#B8963E" stroke-width="1.5"/>
+    <line x1="-6" y1="-6" x2="6" y2="6" stroke="#D4B86A" stroke-width="0.8" opacity="0.5"/>
+    <line x1="6" y1="-6" x2="-6" y2="6" stroke="#D4B86A" stroke-width="0.8" opacity="0.5"/>
+  </g>
+
+  <!-- Small star left -->
+  <g transform="translate(132,228)" opacity="0.55">
+    <line x1="0" y1="-6" x2="0" y2="6" stroke="#B8963E" stroke-width="1.2"/>
+    <line x1="-6" y1="0" x2="6" y2="0" stroke="#B8963E" stroke-width="1.2"/>
+  </g>
+
+  <!-- Small star right -->
+  <g transform="translate(388,228)" opacity="0.5">
+    <line x1="0" y1="-6" x2="0" y2="6" stroke="#B8963E" stroke-width="1.2"/>
+    <line x1="-6" y1="0" x2="6" y2="0" stroke="#B8963E" stroke-width="1.2"/>
+  </g>
+
+  <!-- Wordmark: "C" letterform (Cormorant style serif italic) -->
+  <!-- Using path for an elegant italic C -->
+  <text x="256" y="448"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="52"
+        font-style="italic"
+        font-weight="300"
+        fill="#1A1816"
+        text-anchor="middle"
+        letter-spacing="6"
+        opacity="0.82">Cinderella</text>
+
+  <!-- Gold underline beneath wordmark -->
+  <line x1="156" y1="456" x2="356" y2="456" stroke="url(#goldGrad)" stroke-width="1" opacity="0.5"/>
+</svg>

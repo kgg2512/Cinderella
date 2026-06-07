@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cinderella — Screenshot 1: 홈 피드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Canvas wrapper: 1080x1920 at 2.5x = 432x768 viewport ── */
+  body {
+    background: #E8E3DC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .phone-frame {
+    width: 432px;
+    height: 768px;
+    background: #FAF9F7;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 32px 80px rgba(26,24,22,0.28), 0 0 0 1px rgba(26,24,22,0.06);
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 44px;
+    background: rgba(250,249,247,0.97);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px 0 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1A1816;
+    border-bottom: 1px solid #E8E3DC;
+  }
+  .status-right { display: flex; gap: 5px; align-items: center; font-size: 10px; }
+
+  /* Topbar */
+  .topbar {
+    height: 52px;
+    background: rgba(250,249,247,0.97);
+    border-bottom: 1px solid #E8E3DC;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 10px;
+  }
+  .topbar-logo {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.08em;
+    color: #1A1816;
+    flex: 1;
+  }
+  .topbar-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #1A1816;
+  }
+
+  /* Hero */
+  .home-hero {
+    padding: 18px 20px 14px;
+    background: #fff;
+    border-bottom: 1px solid #E8E3DC;
+  }
+  .hero-eyebrow {
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: #B8963E; font-weight: 600; margin-bottom: 7px;
+  }
+  .hero-headline {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 30px; font-weight: 300; line-height: 1.2;
+    color: #1A1816; margin-bottom: 6px;
+  }
+  .hero-headline em { font-style: italic; }
+  .hero-sub {
+    font-size: 11px; color: #A09589; line-height: 1.6; margin-bottom: 10px;
+  }
+  .badges { display: flex; gap: 8px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 10px; font-weight: 700;
+  }
+  .badge-green { background: #F1F8F1; color: #2E7D32; border: 1px solid rgba(46,125,50,0.22); }
+  .badge-gold  { background: rgba(184,150,62,0.08); color: #B8963E; border: 1px solid rgba(184,150,62,0.22); }
+
+  /* Category pills */
+  .filter-section { background: #fff; border-bottom: 1px solid #E8E3DC; padding: 0 0 10px; }
+  .cat-pills { display: flex; gap: 7px; padding: 12px 16px 0; overflow-x: hidden; }
+  .cat-pill {
+    flex-shrink: 0; padding: 6px 15px; border-radius: 20px;
+    border: 1.5px solid #E8E3DC; font-size: 12px; font-weight: 500;
+    color: #6B6159; background: #fff;
+  }
+  .cat-pill.active { background: #1A1816; color: #fff; border-color: #1A1816; }
+
+  /* Brand pills */
+  .brand-pills { display: flex; gap: 6px; padding: 9px 16px 0; overflow-x: hidden; }
+  .brand-pill {
+    flex-shrink: 0; padding: 4px 11px; border-radius: 14px;
+    border: 1px solid #E8E3DC; font-size: 11px; color: #6B6159; background: #fff;
+  }
+  .brand-pill.active { background: #1A1816; color: #fff; border-color: #1A1816; }
+
+  /* Sort row */
+  .sort-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 18px 0; }
+  .results-txt { font-size: 11px; color: #A09589; }
+  .sort-pills { display: flex; gap: 4px; }
+  .sort-pill { font-size: 11px; color: #A09589; padding: 3px 9px; border-radius: 10px; font-weight: 500; }
+  .sort-pill.active { color: #1A1816; background: #F3F0EB; font-weight: 700; }
+
+  /* Item grid */
+  .item-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: #E8E3DC; flex: 1;
+  }
+  .item-card { background: #fff; }
+  .item-img {
+    aspect-ratio: 1; overflow: hidden; background: #F3F0EB;
+    position: relative;
+  }
+  .item-img-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Product image placeholders using CSS art */
+  .prod-bag {
+    width: 68%; height: 68%;
+    border-radius: 8px 8px 4px 4px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .item-meta { padding: 10px 12px 12px; }
+  .item-brand-tag {
+    font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #B8963E; font-weight: 700; margin-bottom: 2px;
+  }
+  .item-name { font-size: 12px; font-weight: 500; color: #1A1816; line-height: 1.35; margin-bottom: 5px; }
+  .item-price { font-size: 13px; font-weight: 700; color: #1A1816; }
+  .item-price span { font-size: 10px; color: #A09589; font-weight: 400; margin-left: 2px; }
+
+  /* Grade badge */
+  .grade-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(26,24,22,0.7); color: #fff;
+    font-size: 7px; letter-spacing: 0.1em; font-weight: 700;
+    padding: 2px 7px; border-radius: 8px;
+  }
+  .heart-btn {
+    position: absolute; top: 7px; right: 7px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+
+  /* Bottom nav */
+  .navbar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: rgba(250,249,247,0.98);
+    border-top: 1px solid #E8E3DC;
+    display: flex;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px; color: #A09589; font-size: 9px; letter-spacing: 0.04em;
+  }
+  .nav-btn.active { color: #1A1816; }
+  .nav-center-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    padding-bottom: 8px;
+  }
+  .nav-center-btn {
+    width: 48px; height: 48px; background: #1A1816;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 2px;
+  }
+
+  /* Product visual styles */
+  .bag-lv { background: linear-gradient(145deg, #8B6914, #C49A26, #8B6914); }
+  .bag-chanel { background: linear-gradient(145deg, #1A1816, #3A3A3A, #1A1816); }
+  .bag-hermes { background: linear-gradient(145deg, #CC4400, #E05820, #CC4400); }
+  .bag-dior { background: linear-gradient(145deg, #D4B8A0, #C0977E, #D4B8A0); }
+  .bag-gucci { background: linear-gradient(145deg, #2D5A1B, #3E7A28, #2D5A1B); }
+  .bag-cartier { background: linear-gradient(145deg, #B8963E, #D4B86A, #B8963E); }
+
+  .inner-scroll {
+    overflow: hidden;
+    height: calc(768px - 44px - 52px - 64px);
+    display: flex;
+    flex-direction: column;
+  }
+  .scroll-content {
+    flex: 1;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-right">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="4" width="3" height="8" rx="0.5" fill="#1A1816"/><rect x="4" y="2" width="3" height="10" rx="0.5" fill="#1A1816"/><rect x="8" y="0" width="3" height="12" rx="0.5" fill="#1A1816"/><rect x="12" y="0" width="3" height="12" rx="0.5" fill="#E8E3DC"/></svg>
+      <svg width="14" height="12" viewBox="0 0 14 12"><path d="M7 2 Q11 2 13 6 Q11 10 7 10 Q3 10 1 6 Q3 2 7 2Z" fill="none" stroke="#1A1816" stroke-width="1.2"/><circle cx="7" cy="6" r="2" fill="#1A1816"/></svg>
+      <span>100%</span>
+    </div>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo">Cinderella</div>
+    <div class="topbar-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <div class="topbar-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    </div>
+  </div>
+
+  <!-- Content area (no overflow) -->
+  <div class="inner-scroll">
+
+    <!-- Hero -->
+    <div class="home-hero">
+      <div class="hero-eyebrow">P2P Luxury Rental Platform</div>
+      <div class="hero-headline">럭셔리를 <em>나의 것</em>으로</div>
+      <div class="hero-sub">요정들의 명품을 빌려 당신만의 신데렐라 순간을 만드세요</div>
+      <div class="badges">
+        <div class="badge badge-green">✓ 인증 정품 100% 보장</div>
+        <div class="badge badge-gold">FairyRating 검증</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+      <div class="cat-pills">
+        <div class="cat-pill active">전체</div>
+        <div class="cat-pill">핸드백</div>
+        <div class="cat-pill">시계</div>
+        <div class="cat-pill">주얼리</div>
+        <div class="cat-pill">슈즈</div>
+      </div>
+      <div class="brand-pills">
+        <div class="brand-pill active">All Brands</div>
+        <div class="brand-pill">Louis Vuitton</div>
+        <div class="brand-pill">Chanel</div>
+        <div class="brand-pill">Hermès</div>
+        <div class="brand-pill">Dior</div>
+      </div>
+      <div class="sort-row">
+        <div class="results-txt">24개 아이템</div>
+        <div class="sort-pills">
+          <div class="sort-pill active">인기순</div>
+          <div class="sort-pill">낮은가격</div>
+          <div class="sort-pill">신상품</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item Grid -->
+    <div class="scroll-content">
+      <div class="item-grid">
+
+        <!-- Item 1: LV Neverfull -->
+        <div class="item-card">
+          <div class="item-img">
+            <div class="item-img-inner">
+              <svg width="100%" height="100%" viewBox="0 0 215 215">
+                <rect width="215" height="215" fill="#F3F0EB"/>
+                <!-- LV style bag -->
+                <rect x="42" y="58" width="131" height="105" rx="6" fill="#C49A26" opacity="0.95"/>
+                <rect x="42" y="58" width="131" height="105" rx="6" fill="none" stroke="#8B6914" stroke-width="1.5"/>
+                <!-- LV monogram hint -->
+                <text x="107" y="118" text-anchor="middle" font-family="serif" font-size="34" font-weight="bold" fill="#8B6914" opacity="0.6">LV</text>
+                <!-- Handle -->
+                <path d="M 75 58 Q 75 34 107 34 Q 139 34 139 58" fill="none" stroke="#8B6914" stroke-width="7" stroke-linecap="round"/>
+                <!-- Clasp -->
+                <rect x="97" y="96" width="22" height="14" rx="3" fill="#8B6914"/>
+                <rect x="100" y="99" width="16" height="8" rx="1.5" fill="#C49A26"/>
+              </svg>
+            </div>
+            <div class="grade-badge">S급</div>
+            <div class="heart-btn">♡</div>
+          </div>
+          <div class="item-meta">
+            <div class="item-brand-tag">Louis Vuitton</div>
+            <div class="item-name">Neverfull MM Monogram</div>
+            <div class="item-price">38,000원<span>/일</span></div>
+          </div>
+        </div>
+
+        <!-- Item 2: Chanel Classic Flap -->
+        <div class="item-card">
+          <div class="item-img">
+            <div class="item-img-inner">
+              <svg width="100%" height="100%" viewBox="0 0 215 215">
+                <rect width="215" height="215" fill="#F3F0EB"/>
+                <!-- Chanel Flap bag -->
+                <rect x="38" y="68" width="139" height="100" rx="12" fill="#1A1816"/>
+                <rect x="38" y="68" width="139" height="100" rx="12" fill="none" stroke="#333" stroke-width="1"/>
+                <!-- Quilted pattern hint -->
+                <path d="M 38 88 L 177 88 M 38 108 L 177 108 M 38 128 L 177 128 M 38 148 L 177 148" stroke="#2A2A2A" stroke-width="0.8" opacity="0.7"/>
+                <path d="M 68 68 L 68 168 M 98 68 L 98 168 M 128 68 L 128 168 M 158 68 L 158 168" stroke="#2A2A2A" stroke-width="0.8" opacity="0.7"/>
+                <!-- CC clasp -->
+                <circle cx="107" cy="118" r="10" fill="none" stroke="#B8963E" stroke-width="2.5"/>
+                <text x="107" y="123" text-anchor="middle" font-size="12" fill="#B8963E" font-weight="bold">CC</text>
+                <!-- Chain strap -->
+                <path d="M 55 68 Q 45 50 107 44 Q 169 50 159 68" fill="none" stroke="#B8963E" stroke-width="4" stroke-dasharray="3 3"/>
+              </svg>
+            </div>
+            <div class="grade-badge">A급</div>
+            <div class="heart-btn">♡</div>
+          </div>
+          <div class="item-meta">
+            <div class="item-brand-tag">Chanel</div>
+            <div class="item-name">Classic Flap Medium Black</div>
+            <div class="item-price">65,000원<span>/일</span></div>
+          </div>
+        </div>
+
+        <!-- Item 3: Hermès Kelly -->
+        <div class="item-card">
+          <div class="item-img">
+            <div class="item-img-inner">
+              <svg width="100%" height="100%" viewBox="0 0 215 215">
+                <rect width="215" height="215" fill="#F3F0EB"/>
+                <!-- Hermes Kelly -->
+                <path d="M 44 80 L 44 162 Q 44 170 52 170 L 163 170 Q 171 170 171 162 L 171 80 Z" fill="#CC4400"/>
+                <rect x="44" y="68" width="127" height="16" rx="3" fill="#B83C00"/>
+                <!-- Clasp hardware -->
+                <rect x="88" y="80" width="39" height="22" rx="3" fill="#CC4400" stroke="#B8963E" stroke-width="1.5"/>
+                <rect x="96" y="85" width="23" height="12" rx="2" fill="#D4B86A"/>
+                <!-- Handle -->
+                <path d="M 72 68 Q 72 42 107 42 Q 142 42 142 68" fill="none" stroke="#B83C00" stroke-width="8" stroke-linecap="round"/>
+                <!-- Stitching detail -->
+                <path d="M 48 88 L 48 166 M 167 88 L 167 166" stroke="#E05820" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+              </svg>
+            </div>
+            <div class="grade-badge">S급</div>
+            <div class="heart-btn">♡</div>
+          </div>
+          <div class="item-meta">
+            <div class="item-brand-tag">Hermès</div>
+            <div class="item-name">Kelly 28 Orange Togo</div>
+            <div class="item-price">120,000원<span>/일</span></div>
+          </div>
+        </div>
+
+        <!-- Item 4: Dior Saddle -->
+        <div class="item-card">
+          <div class="item-img">
+            <div class="item-img-inner">
+              <svg width="100%" height="100%" viewBox="0 0 215 215">
+                <rect width="215" height="215" fill="#F3F0EB"/>
+                <!-- Dior Saddle bag -->
+                <path d="M 60 90 Q 55 110 58 135 Q 62 158 107 162 Q 152 158 156 135 Q 159 110 154 90 Q 140 72 107 70 Q 74 72 60 90 Z" fill="#D4B8A0"/>
+                <!-- CD logo -->
+                <text x="107" y="125" text-anchor="middle" font-family="serif" font-size="22" font-weight="600" fill="#8B6060" opacity="0.65">CD</text>
+                <!-- Strap -->
+                <path d="M 82 70 Q 82 44 107 44 Q 132 44 132 70" fill="none" stroke="#C0977E" stroke-width="7" stroke-linecap="round"/>
+                <!-- Clasp -->
+                <ellipse cx="107" cy="92" rx="14" ry="10" fill="#B8963E" opacity="0.9"/>
+                <ellipse cx="107" cy="92" rx="9" ry="6" fill="#D4B86A" opacity="0.8"/>
+              </svg>
+            </div>
+            <div class="grade-badge">A급</div>
+            <div class="heart-btn">♡</div>
+          </div>
+          <div class="item-meta">
+            <div class="item-brand-tag">Dior</div>
+            <div class="item-name">Saddle Bag Beige Small</div>
+            <div class="item-price">55,000원<span>/일</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="navbar">
+    <div class="nav-btn active">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>홈</span>
+    </div>
+    <div class="nav-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>탐색</span>
+    </div>
+    <div class="nav-center-wrap">
+      <div class="nav-center-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span style="font-size:9px;color:#A09589;letter-spacing:0.04em">등록</span>
+    </div>
+    <div class="nav-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      <span>위시</span>
+    </div>
+    <div class="nav-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+      <span>마이</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
