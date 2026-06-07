@@ -20,12 +20,12 @@ export default function ProfilePage() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
         router.replace("/login");
         return;
       }
-      setUser(user);
+      setUser(session.user);
       setLoading(false);
     });
   }, [router]);
