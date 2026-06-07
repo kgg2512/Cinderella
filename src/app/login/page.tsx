@@ -54,7 +54,7 @@ export default function LoginPage() {
       {/* Hero 이미지 */}
       <div className="relative overflow-hidden bg-charcoal" style={{ height: "56vh" }}>
         <img
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=860&q=85"
+          src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=860&q=85"
           alt=""
           className="w-full h-full object-cover block"
         />
