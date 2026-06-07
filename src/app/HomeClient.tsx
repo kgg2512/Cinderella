@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase as _supabase } from "@/lib/supabase";
 import type { ItemCategory } from "@/types";
@@ -33,6 +33,7 @@ export default function HomeClient() {
   const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
   const [activeBrand, setActiveBrand] = useState("All Brands");
   const [activeSort, setActiveSort] = useState("popular");
+  const heroBgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase
@@ -45,6 +46,15 @@ export default function HomeClient() {
         setItems(data ?? []);
         setLoading(false);
       });
+  }, []);
+
+  // Hero 배경 이미지 로드 후 ken-burns 효과 시작
+  useEffect(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    const img = new Image();
+    img.src = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=860&q=85";
+    img.onload = () => el.classList.add("loaded");
   }, []);
 
   const filtered = items.filter((item) => {
@@ -80,12 +90,26 @@ export default function HomeClient() {
 
       {/* 홈 Hero */}
       <div className="home-hero">
-        <div className="home-hero-eyebrow">P2P Luxury Rental Platform</div>
-        <div className="home-hero-headline">럭셔리를 <em>나의 것</em>으로</div>
-        <div className="home-hero-sub">요정들의 명품을 빌려 당신만의 신데렐라 순간을 만드세요</div>
-        <div className="cert-badges">
-          <div className="cert-badge cert-badge-auth">✓ 인증 정품 100% 보장</div>
-          <div className="cert-badge cert-badge-verified">FairyRating 검증</div>
+        {/* 배경 이미지 */}
+        <div className="home-hero-bg" ref={heroBgRef} />
+        {/* 어두운 그라디언트 오버레이 */}
+        <div className="home-hero-overlay" />
+        {/* 별빛 반짝임 */}
+        <div className="home-hero-sparkles" />
+        {/* 텍스트 콘텐츠 */}
+        <div className="home-hero-content">
+          <div className="home-hero-eyebrow">✦ P2P Luxury Rental Platform ✦</div>
+          <div className="home-hero-headline">
+            럭셔리를<br /><em>나의 것</em>으로
+          </div>
+          <div className="home-hero-divider" />
+          <div className="home-hero-sub">
+            요정들의 명품을 빌려<br />당신만의 신데렐라 순간을 만드세요
+          </div>
+          <div className="cert-badges">
+            <div className="cert-badge cert-badge-auth">✓ 인증 정품 100%</div>
+            <div className="cert-badge cert-badge-verified">✦ FairyRating 검증</div>
+          </div>
         </div>
       </div>
 

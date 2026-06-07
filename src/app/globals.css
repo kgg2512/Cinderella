@@ -187,68 +187,177 @@ img {
 
 /* ── HOME HERO ─────────────────────── */
 .home-hero {
-  padding: 20px 20px 14px;
-  background: #ffffff;
+  position: relative;
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0;
+  overflow: hidden;
   border-bottom: 1px solid var(--border);
 }
 
+.home-hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=860&q=85');
+  background-size: cover;
+  background-position: center 20%;
+  transform: scale(1.04);
+  transition: transform 8s ease-out;
+  will-change: transform;
+}
+
+.home-hero-bg.loaded {
+  transform: scale(1);
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    170deg,
+    rgba(10, 8, 6, 0.15) 0%,
+    rgba(10, 8, 6, 0.35) 40%,
+    rgba(10, 8, 6, 0.72) 100%
+  );
+}
+
+/* 별빛 반짝임 파티클 */
+.home-hero-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.home-hero-sparkles::before,
+.home-hero-sparkles::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  box-shadow:
+    18px 24px 0 rgba(212, 184, 106, 0.9),
+    52px 10px 0 rgba(255, 255, 255, 0.7),
+    88px 38px 0 rgba(212, 184, 106, 0.6),
+    130px 16px 0 rgba(255, 255, 255, 0.8),
+    170px 48px 0 rgba(212, 184, 106, 0.75),
+    215px 22px 0 rgba(255, 255, 255, 0.5),
+    255px 56px 0 rgba(212, 184, 106, 0.65),
+    300px 8px 0 rgba(255, 255, 255, 0.7),
+    340px 40px 0 rgba(212, 184, 106, 0.55),
+    380px 18px 0 rgba(255, 255, 255, 0.6);
+  animation: hero-sparkle 3.2s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+.home-hero-sparkles::after {
+  top: 50px;
+  left: 20px;
+  box-shadow:
+    24px 30px 0 rgba(255, 255, 255, 0.5),
+    68px 8px 0 rgba(212, 184, 106, 0.7),
+    100px 44px 0 rgba(255, 255, 255, 0.6),
+    148px 20px 0 rgba(212, 184, 106, 0.8),
+    192px 52px 0 rgba(255, 255, 255, 0.45),
+    236px 14px 0 rgba(212, 184, 106, 0.6),
+    278px 38px 0 rgba(255, 255, 255, 0.7),
+    320px 28px 0 rgba(212, 184, 106, 0.5),
+    360px 56px 0 rgba(255, 255, 255, 0.55),
+    400px 10px 0 rgba(212, 184, 106, 0.65);
+  animation-delay: 1.6s;
+  animation-duration: 4s;
+}
+
+@keyframes hero-sparkle {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 20px 20px;
+}
+
 .home-hero-eyebrow {
-  font-size: 9.5px;
-  letter-spacing: 0.22em;
+  font-size: 9px;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-lt);
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  opacity: 0.92;
 }
 
 .home-hero-headline {
   font-family: var(--font-cormorant), serif;
-  font-size: 32px;
+  font-size: 38px;
   font-weight: 300;
-  line-height: 1.2;
-  color: var(--charcoal);
-  margin-bottom: 6px;
+  font-style: italic;
+  line-height: 1.15;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 24px rgba(10, 8, 6, 0.45);
+  letter-spacing: 0.01em;
 }
 
 .home-hero-headline em {
   font-style: italic;
+  color: var(--gold-lt);
 }
 
 .home-hero-sub {
   font-size: 12px;
-  color: var(--muted);
-  line-height: 1.6;
-  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.65;
+  margin-bottom: 16px;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+/* 골드 구분선 */
+.home-hero-divider {
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-lt), transparent);
+  margin-bottom: 14px;
+  opacity: 0.7;
 }
 
 .cert-badges {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 4px;
 }
 
 .cert-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
+  padding: 5px 11px;
   border-radius: 20px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
 .cert-badge-auth {
-  background: var(--green-bg);
-  color: var(--green);
-  border: 1px solid rgba(46, 125, 50, 0.25);
+  background: rgba(46, 125, 50, 0.22);
+  color: #6fcf7a;
+  border: 1px solid rgba(111, 207, 122, 0.35);
 }
 
 .cert-badge-verified {
-  background: rgba(184, 150, 62, 0.08);
-  color: var(--gold);
-  border: 1px solid rgba(184, 150, 62, 0.22);
+  background: rgba(184, 150, 62, 0.18);
+  color: var(--gold-lt);
+  border: 1px solid rgba(212, 184, 106, 0.38);
 }
 
 /* ── FILTERS ───────────────────────── */
