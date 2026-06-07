@@ -104,8 +104,10 @@ const MOCK_ITEMS: Item[] = [
 ];
 
 export default function HomeClient() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+  // 초기값: MOCK_ITEMS로 설정 → SSR/CSR 모두 즉시 6개 아이템 표시
+  // useEffect에서 Supabase 실데이터가 오면 교체됨
+  const [items, setItems] = useState<Item[]>(MOCK_ITEMS);
+  const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
   const [activeBrand, setActiveBrand] = useState("All Brands");
   const [activeSort, setActiveSort] = useState("popular");
