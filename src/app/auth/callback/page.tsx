@@ -9,17 +9,38 @@ function AuthCallbackInner() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const code = searchParams.get("code");
+    const errorParam = searchParams.get("error");
     const next = searchParams.get("next") ?? "/";
     const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        router.replace(error ? "/login?error=auth_failed" : safeNext);
-      });
-    } else {
-      router.replace("/login?error=auth_failed");
+    if (errorParam) {
+      router.replace(`/login?error=${encodeURIComponent(errorParam)}`);
+      return;
     }
+
+    // detectSessionInUrl:true + flowType:'pkce' → 클라이언트 초기화 시 code 자동 교환
+    // SIGNED_IN 이벤트 수신 후 리디렉션
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        subscription.unsubscribe();
+        router.replace(safeNext);
+      } else if (event === "SIGNED_OUT") {
+        subscription.unsubscribe();
+        router.replace("/login?error=auth_failed");
+      }
+    });
+
+    // code 교환이 이미 완료된 경우 대비 fallback
+    const timeout = setTimeout(async () => {
+      subscription.unsubscribe();
+      const { data } = await supabase.auth.getSession();
+      router.replace(data.session ? safeNext : "/login?error=timeout");
+    }, 3000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   return (
