@@ -124,6 +124,8 @@ CREATE POLICY "transaction_photos_insert_party" ON transaction_photos
   );
 
 -- ─── 9. Storage: transaction-photos 버킷 정책 ────────────────
+DROP POLICY IF EXISTS "storage_upload_party" ON storage.objects;
+DROP POLICY IF EXISTS "storage_select_party" ON storage.objects;
 -- 버킷이 없으면 먼저 생성 (Dashboard에서 해도 됨)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('transaction-photos', 'transaction-photos', false)
