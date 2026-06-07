@@ -41,7 +41,7 @@ function AuthCallbackInner() {
       subscription.unsubscribe();
       clearTimeout(timeout);
     };
-  }, []);
+  }, [router, searchParams]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
