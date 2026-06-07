@@ -27,6 +27,82 @@ const SORTS: { value: string; label: string }[] = [
   { value: "new", label: "신상품" },
 ];
 
+// Supabase DB에 데이터가 없을 때 보여줄 데모 아이템
+const MOCK_ITEMS: Item[] = [
+  {
+    id: "mock-1",
+    user_id: "demo",
+    title: "Neverfull MM Monogram Canvas",
+    brand: "Louis Vuitton",
+    category: "bags",
+    price_per_day: 28000,
+    description: null,
+    images: ["https://images.unsplash.com/photo-1529025530948-67e8a5c69b58?auto=format&fit=crop&w=400&q=82"],
+    status: "available",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "mock-2",
+    user_id: "demo",
+    title: "Classic Flap Medium Caviar Black",
+    brand: "Chanel",
+    category: "bags",
+    price_per_day: 45000,
+    description: null,
+    images: ["https://images.unsplash.com/photo-1593418632104-71bd668d1af1?auto=format&fit=crop&w=400&q=82"],
+    status: "available",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "mock-3",
+    user_id: "demo",
+    title: "Birkin 30 Togo Fauve Gold HW",
+    brand: "Hermès",
+    category: "bags",
+    price_per_day: 90000,
+    description: null,
+    images: ["https://images.unsplash.com/photo-1691480250099-a63081ecfcb8?auto=format&fit=crop&w=400&q=82"],
+    status: "available",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "mock-4",
+    user_id: "demo",
+    title: "Datejust 36 Jubilee White Dial",
+    brand: "Rolex",
+    category: "watches",
+    price_per_day: 65000,
+    description: null,
+    images: ["https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=400&q=82"],
+    status: "available",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "mock-5",
+    user_id: "demo",
+    title: "Love Necklace 18K Yellow Gold",
+    brand: "Cartier",
+    category: "jewelry",
+    price_per_day: 35000,
+    description: null,
+    images: ["https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=400&q=82"],
+    status: "available",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "mock-6",
+    user_id: "demo",
+    title: "Signoria Pump 100mm Black",
+    brand: "Gucci",
+    category: "shoes",
+    price_per_day: 18000,
+    description: null,
+    images: ["https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=400&q=82"],
+    status: "available",
+    created_at: new Date().toISOString(),
+  },
+];
+
 export default function HomeClient() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,8 +118,13 @@ export default function HomeClient() {
       .eq("status", "available")
       .order("created_at", { ascending: false })
       .limit(40)
-      .then(({ data }: { data: Item[] | null }) => {
-        setItems(data ?? []);
+      .then(({ data, error }: { data: Item[] | null; error: unknown }) => {
+        // DB에 실제 아이템이 없거나 Supabase 오류 시 MOCK_ITEMS 폴백
+        if (error || !data || data.length === 0) {
+          setItems(MOCK_ITEMS);
+        } else {
+          setItems(data);
+        }
         setLoading(false);
       });
   }, []);
