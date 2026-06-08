@@ -241,7 +241,16 @@ export default function HomeClient() {
 
       {/* 아이템 그리드 */}
       <div className="grid grid-cols-2 gap-px bg-[#E8E3DC]">
-        {loading ? (
+        {dbError ? (
+          <div className="col-span-2 flex flex-col items-center py-16 gap-3 bg-[#FAF9F7]">
+            <div className="text-3xl">⚠️</div>
+            <p className="text-[13px] font-medium text-[#1A1816]">데이터베이스 연결 오류</p>
+            <p className="text-[11px] text-[#A09589] text-center px-8 leading-relaxed">
+              Supabase 시드 데이터를 삽입하면 아이템이 표시됩니다.<br />
+              <code className="text-[10px] bg-[#F0EDE8] px-1 rounded">supabase/seed.sql</code> 실행 필요
+            </p>
+          </div>
+        ) : loading ? (
           /* 로딩 스켈레톤 */
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-white block">
@@ -280,7 +289,7 @@ export default function HomeClient() {
               <div className="px-3 pt-2.5 pb-3">
                 <div className="text-[9px] tracking-[.18em] uppercase text-[#B8963E] font-bold mb-0.5">{item.brand ?? ""}</div>
                 <div className="text-[12.5px] font-medium text-[#1A1816] leading-snug line-clamp-2 mb-1.5">{item.title}</div>
-                <div className="text-[14px] font-bold text-[#1A1816]">{item.price_per_day.toLocaleString()}원<span className="text-[10px] text-[#A09589] font-normal ml-1">/일</span></div>
+                <div className="text-[14px] font-bold text-[#1A1816]">{item.price_per_day.toLocaleString()}원<span className="text-[10px] text-[#A09589] font-normal ml-1">/4시간</span></div>
               </div>
             </Link>
           ))
