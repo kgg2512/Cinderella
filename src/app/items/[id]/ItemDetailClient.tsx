@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { requestTransaction } from "@/app/transactions/client-actions";
+import { addWishlist, removeWishlist, checkWishlisted } from "@/app/wishlist/client-actions";
 import { calcDeposit } from "@/lib/toss";
 import type { Database } from "@/types/database";
 
@@ -31,6 +32,10 @@ export default function ItemDetailClient({ item }: Props) {
   const [currentImage, setCurrentImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
+
+  useEffect(() => {
+    checkWishlisted(item.id).then(setWishlisted);
+  }, [item.id]);
   const [toast, setToast] = useState("");
   const [startDate, setStartDate] = useState(today());
   const [endDate, setEndDate] = useState(tomorrow());
@@ -61,8 +66,15 @@ export default function ItemDetailClient({ item }: Props) {
   };
 
   const toggleWish = () => {
-    setWishlisted((v) => !v);
-    showToastMsg(wishlisted ? "찜 해제됐습니다" : "찜 목록에 추가됐습니다");
+    if (wishlisted) {
+      setWishlisted(false);
+      showToastMsg("찜 해제됐습니다");
+      removeWishlist(item.id).then((r) => { if (!r.success) setWishlisted(true); });
+    } else {
+      setWishlisted(true);
+      showToastMsg("찜 목록에 추가됐습니다");
+      addWishlist(item.id).then((r) => { if (!r.success) setWishlisted(false); });
+    }
   };
 
   return (

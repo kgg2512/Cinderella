@@ -36,3 +36,15 @@ export async function removeWishlist(itemId: string): Promise<{ success: boolean
   if (error) return { success: false, error: "찜 해제에 실패했습니다." };
   return { success: true };
 }
+
+export async function checkWishlisted(itemId: string): Promise<boolean> {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return false;
+  const { data } = await supabase
+    .from("wishlist")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("item_id", itemId)
+    .single();
+  return !!data;
+}
