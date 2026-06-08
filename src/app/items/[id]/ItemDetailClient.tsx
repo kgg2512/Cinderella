@@ -31,10 +31,15 @@ export default function ItemDetailClient({ item }: Props) {
   const router = useRouter();
   const [currentImage, setCurrentImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(true);
   const [showSheet, setShowSheet] = useState(false);
 
   useEffect(() => {
-    checkWishlisted(item.id).then(setWishlisted);
+    setWishlistLoading(true);
+    checkWishlisted(item.id).then((v) => {
+      setWishlisted(v);
+      setWishlistLoading(false);
+    });
   }, [item.id]);
   const [toast, setToast] = useState("");
   const [startDate, setStartDate] = useState(today());
@@ -95,8 +100,8 @@ export default function ItemDetailClient({ item }: Props) {
           </svg>
         </button>
 
-        <button type="button" className="det-wish" aria-label={wishlisted ? "찜 해제" : "찜하기"} onClick={toggleWish}>
-          {wishlisted ? "♥" : "♡"}
+        <button type="button" className="det-wish" aria-label={wishlisted ? "찜 해제" : "찜하기"} onClick={toggleWish} disabled={wishlistLoading}>
+          {wishlistLoading ? "♡" : wishlisted ? "♥" : "♡"}
         </button>
 
         {imgs.length > 1 && (
@@ -190,8 +195,8 @@ export default function ItemDetailClient({ item }: Props) {
 
       {/* 하단 CTA */}
       <div className="det-cta">
-        <button type="button" className="cta-wish" aria-label={wishlisted ? "찜 해제" : "찜하기"} onClick={toggleWish}>
-          {wishlisted ? "♥" : "♡"}
+        <button type="button" className="cta-wish" aria-label={wishlisted ? "찜 해제" : "찜하기"} onClick={toggleWish} disabled={wishlistLoading}>
+          {wishlistLoading ? "♡" : wishlisted ? "♥" : "♡"}
         </button>
         <button type="button" className="cta-rent" onClick={() => setShowSheet(true)}>
           지금 빌리기

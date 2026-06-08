@@ -229,10 +229,11 @@ export default function NewItemPage() {
               id="price"
               name="price"
               type="number"
-              min={0}
+              min={1000}
+              step={500}
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="0"
+              placeholder="최소 1,000원"
               className="form-input"
             />
             <span className="price-unit-txt">원 / 4시간</span>

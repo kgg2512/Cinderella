@@ -28,9 +28,14 @@ interface Props {
 export default function WishlistClient({ initialWishlist }: Props) {
   const [wishlist, setWishlist] = useState(initialWishlist);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(true);
 
   useEffect(() => {
-    getWishlist().then((data) => setWishlist(data as WishItem[]));
+    setRefreshing(true);
+    getWishlist().then((data) => {
+      setWishlist(data as WishItem[]);
+      setRefreshing(false);
+    });
   }, []);
 
   const handleRemove = async (itemId: string, wishId: string) => {
@@ -87,7 +92,7 @@ export default function WishlistClient({ initialWishlist }: Props) {
                 <button
                   type="button"
                   aria-label="찜 해제"
-                  disabled={removing === w.id}
+                  disabled={removing === w.id || refreshing}
                   onClick={() => handleRemove(item.id, w.id)}
                   className="wish-remove-btn"
                 >
