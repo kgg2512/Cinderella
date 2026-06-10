@@ -176,7 +176,7 @@ export default function ProfilePage() {
           <div className="role-desc">명품 빌리기</div>
         </div>
         <div className="role-card">
-          <div className="role-name">요정</div>
+          <div className="role-name">페어리</div>
           <div className="role-desc">명품 빌려주기</div>
         </div>
       </div>

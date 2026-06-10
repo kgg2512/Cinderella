@@ -191,7 +191,7 @@ export default function HomeClient() {
           </div>
           <div className="home-hero-divider" />
           <div className="home-hero-sub">
-            요정들의 명품을 빌려<br />당신만의 신데렐라 순간을 만드세요
+            페어리들의 명품을 빌려<br />당신만의 신데렐라 순간을 만드세요
           </div>
           <div className="cert-badges">
             <div className="cert-badge cert-badge-auth">✓ 인증 정품 100%</div>
@@ -272,10 +272,10 @@ export default function HomeClient() {
             <div className="text-4xl">✨</div>
             <p className="text-[13px] font-medium text-[#1A1816] tracking-wide">아직 등록된 아이템이 없어요</p>
             <p className="text-[11.5px] text-[#A09589] text-center leading-relaxed px-8">
-              첫 번째 요정이 되어보세요.<br />사용하지 않는 명품으로 수익을 만드세요.
+              첫 번째 페어리가 되어보세요.<br />사용하지 않는 명품으로 수익을 만드세요.
             </p>
             <a href="/sell" className="empty-state-cta">
-              요정 되기
+              페어리 되기
             </a>
           </div>
         ) : (

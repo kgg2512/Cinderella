@@ -16,6 +16,7 @@ import { spawnSync } from "node:child_process";
 const PAGES = [
   "src/app/items/[id]/page.tsx",
   "src/app/transactions/[id]/page.tsx",
+  "src/app/chats/[id]/page.tsx",
 ];
 
 const WEB_BLOCK = `export const dynamicParams = true;

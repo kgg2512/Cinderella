@@ -7,16 +7,20 @@ const NAV_ITEMS = [
   { href: "/", label: "홈", icon: HomeIcon },
   { href: "/search", label: "검색", icon: SearchIcon },
   { href: "/items/new", label: "등록", icon: PlusIcon, center: true },
+  { href: "/chats", label: "채팅", icon: ChatIcon },
   { href: "/wishlist", label: "좋아요", icon: HeartIcon },
   { href: "/profile", label: "마이", icon: UserIcon },
 ];
 
 const HIDE_ON = ["/login", "/auth"];
+// 채팅방(/chats/[id])은 하단 입력 바와 겹치므로 네비 숨김 (목록 /chats 는 표시)
+const HIDE_PATTERNS = [/^\/chats\/.+/];
 
 export default function Navbar() {
   const pathname = usePathname();
 
   if (HIDE_ON.some((p) => pathname.startsWith(p))) return null;
+  if (HIDE_PATTERNS.some((re) => re.test(pathname))) return null;
 
   return (
     <nav className="navbar" aria-label="하단 네비게이션">
@@ -66,6 +70,14 @@ function PlusIcon({ active }: { active: boolean; center?: boolean }) {
         <line x1="8" y1="12" x2="16" y2="12" />
       </svg>
     </div>
+  );
+}
+
+function ChatIcon({ active }: { active: boolean; center?: boolean }) {
+  return (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2 : 1.7}>
+      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
+    </svg>
   );
 }
 

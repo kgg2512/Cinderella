@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { requestTransaction } from "@/app/transactions/client-actions";
 import { addWishlist, removeWishlist, checkWishlisted } from "@/app/wishlist/client-actions";
+import { getOrCreateChat } from "@/app/chats/client-actions";
 import { calcDeposit } from "@/lib/toss";
+import { supabase } from "@/lib/supabase";
 import type { Database } from "@/types/database";
 
 type ItemRow = Database["public"]["Tables"]["items"]["Row"];
@@ -33,6 +35,8 @@ export default function ItemDetailClient({ item }: Props) {
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(true);
   const [showSheet, setShowSheet] = useState(false);
+  const [myId, setMyId] = useState<string | null>(null);
+  const [chatOpening, setChatOpening] = useState(false);
 
   useEffect(() => {
     setWishlistLoading(true);
@@ -40,6 +44,8 @@ export default function ItemDetailClient({ item }: Props) {
       setWishlisted(v);
       setWishlistLoading(false);
     });
+    // CISO 제약 4: getUser() 사용 (비로그인도 상세 열람 가능 — 실패 시 null 유지)
+    supabase.auth.getUser().then(({ data: { user } }) => setMyId(user?.id ?? null));
   }, [item.id]);
   const [toast, setToast] = useState("");
   const [startDate, setStartDate] = useState(today());
@@ -68,6 +74,18 @@ export default function ItemDetailClient({ item }: Props) {
   const showToastMsg = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(""), 2000);
+  };
+
+  const handleChatOpen = async () => {
+    if (chatOpening) return;
+    setChatOpening(true);
+    const result = await getOrCreateChat(item.id);
+    setChatOpening(false);
+    if (result.success) {
+      router.push(`/chats/${result.data.chatId}`);
+    } else {
+      showToastMsg(result.error);
+    }
   };
 
   const toggleWish = () => {
@@ -160,7 +178,7 @@ export default function ItemDetailClient({ item }: Props) {
           <div className="seller-card">
             <div className="seller-av">
               {item.owner.avatar_url ? (
-                <img src={item.owner.avatar_url} alt={item.owner.name ?? "판매자"} />
+                <img src={item.owner.avatar_url} alt={item.owner.name ?? "페어리"} />
               ) : (
                 <div className="w-full h-full bg-[#E8E3DC] flex items-center justify-center text-[#A09589] text-lg">
                   {(item.owner.name ?? "?")[0]}
@@ -168,12 +186,14 @@ export default function ItemDetailClient({ item }: Props) {
               )}
             </div>
             <div className="seller-info">
-              <div className="seller-name">{item.owner.name ?? "판매자"}</div>
-              <div className="seller-loc-txt">인증 판매자</div>
+              <div className="seller-name">{item.owner.name ?? "페어리"}</div>
+              <div className="seller-loc-txt">인증 페어리</div>
             </div>
-            <button type="button" className="seller-chat-btn" onClick={() => showToastMsg("채팅 기능 준비 중입니다")}>
-              채팅하기
-            </button>
+            {myId !== item.user_id && (
+              <button type="button" className="seller-chat-btn" onClick={handleChatOpen} disabled={chatOpening}>
+                {chatOpening ? "여는 중..." : "페어리에게 문의하기"}
+              </button>
+            )}
           </div>
         )}
 

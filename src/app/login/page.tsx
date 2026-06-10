@@ -86,7 +86,7 @@ export default function LoginPage() {
       {/* 로그인 바디 */}
       <div className="flex-1 bg-white px-6 pt-8 pb-11 flex flex-col gap-5">
         <p className="text-sm text-mid leading-relaxed">
-          요정의 명품을 빌려{" "}
+          페어리의 명품을 빌려{" "}
           <strong className="text-charcoal font-semibold">나만의 신데렐라 순간</strong>을 만드세요.
           <br />결혼식, 소개팅, 특별한 그 날을 위해.
         </p>

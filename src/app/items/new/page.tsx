@@ -105,7 +105,7 @@ export default function NewItemPage() {
 
       {/* 헤더 */}
       <div className="reg-header">
-        <div className="reg-title">요정이 되어보세요</div>
+        <div className="reg-title">페어리가 되어보세요</div>
         <div className="reg-sub">
           사용하지 않는 명품으로 수익을 만들어보세요.<br />
           FairyRating 인증 후 플랫폼에 등록되며, 정품 보증 정책이 적용됩니다.
@@ -243,7 +243,7 @@ export default function NewItemPage() {
 
         {/* 예상 수익 */}
         <div className="earn-box">
-          <div className="earn-eyebrow">예상 수익 (요정 몫 85%)</div>
+          <div className="earn-eyebrow">예상 수익 (페어리 몫 85%)</div>
           <div className="earn-row">
             <div className="earn-desc">1일 (4시간×2) 기준</div>
             <div className="earn-val">₩{earnDay.toLocaleString()}</div>

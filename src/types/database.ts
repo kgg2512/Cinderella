@@ -204,6 +204,55 @@ export interface Database {
           created_at?: string;
         };
       };
+      chats: {
+        Row: {
+          id: string;
+          item_id: string;
+          borrower_id: string;
+          owner_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          item_id: string;
+          borrower_id: string;
+          owner_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          item_id?: string;
+          borrower_id?: string;
+          owner_id?: string;
+          created_at?: string;
+        };
+      };
+      messages: {
+        Row: {
+          id: string;
+          chat_id: string;
+          sender_id: string;
+          content: string;
+          created_at: string;
+          read_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          chat_id: string;
+          sender_id: string;
+          content: string;
+          created_at?: string;
+          read_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          chat_id?: string;
+          sender_id?: string;
+          content?: string;
+          created_at?: string;
+          read_at?: string | null;
+        };
+      };
     };
     Views: {};
     Functions: {};
