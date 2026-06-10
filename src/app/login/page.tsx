@@ -9,6 +9,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // auth/callback에서 실패 시 /login?error=... 로 돌려보내므로 여기서 표시
+  useEffect(() => {
+    const err = new URLSearchParams(window.location.search).get("error");
+    if (err) {
+      setError(
+        err === "timeout"
+          ? "로그인 시간이 초과되었습니다. 다시 시도해주세요."
+          : `로그인에 실패했습니다: ${err}`,
+      );
+    }
+  }, []);
+
   // 모바일 환경에서 앱 URL 딥링크 리스너 등록
   // 웹 환경에서는 아무 동작 없음
   useEffect(() => {

@@ -82,8 +82,8 @@ export default function SettingsPage() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) router.replace("/login");
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.replace("/login");
     });
   }, [router]);
 

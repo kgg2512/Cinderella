@@ -51,13 +51,13 @@ export default function ProfilePage() {
   useEffect(() => {
     (async () => {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
+        data: { user: u },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !u) {
         router.replace("/login");
         return;
       }
-      const u = session.user;
       setUser(u);
 
       // 병렬 조회: 완료 거래 수, 찜 수, 진행 중 거래
