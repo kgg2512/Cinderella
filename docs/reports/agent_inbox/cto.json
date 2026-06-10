@@ -1,0 +1,13 @@
+[
+  {
+    "sender": "ciso",
+    "recipient": "cto",
+    "message_type": "SECURITY_CONSTRAINT",
+    "summary": "신데렐라 보안감사 완료(MEDIUM). 즉시패치: 1)profile+settings getSession->getUser 교체 2)transaction-photos storage 경로기반 접근제어. 배포전: 이미지 서버MIME검증, supabase as any 제거",
+    "priority": "HIGH",
+    "created_at": "2026-06-10 22:20",
+    "expires_at": "2026-06-11 22:20",
+    "github_run_id": "claude-code-session",
+    "signature": "a0856a6cf0c6d11e"
+  }
+]

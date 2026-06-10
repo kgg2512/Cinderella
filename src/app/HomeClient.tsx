@@ -108,6 +108,7 @@ export default function HomeClient() {
   // useEffect에서 Supabase 실데이터가 오면 교체됨
   const [items, setItems] = useState<Item[]>(MOCK_ITEMS);
   const [loading, setLoading] = useState(false);
+  const [dbError, setDbError] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
   const [activeBrand, setActiveBrand] = useState("All Brands");
   const [activeSort, setActiveSort] = useState("popular");
@@ -122,7 +123,10 @@ export default function HomeClient() {
       .limit(40)
       .then(({ data, error }: { data: Item[] | null; error: unknown }) => {
         // DB에 실제 아이템이 없거나 Supabase 오류 시 MOCK_ITEMS 폴백
-        if (error || !data || data.length === 0) {
+        if (error) {
+          setDbError(true);
+          setItems(MOCK_ITEMS);
+        } else if (!data || data.length === 0) {
           setItems(MOCK_ITEMS);
         } else {
           setItems(data);
