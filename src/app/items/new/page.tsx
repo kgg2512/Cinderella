@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 import type { ItemCategory } from "@/types";
 import { submitItem } from "./client-actions";
 import type { SubmitItemResult } from "./client-actions";
@@ -33,6 +35,12 @@ export default function NewItemPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.replace(loginPathWithNext());
+    });
+  }, [router]);
 
   const priceNum = Number(price) || 0;
   const earnDay = Math.round(priceNum * 2 * 0.85);
