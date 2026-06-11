@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 import type { TransactionStatus } from "@/types/transaction";
 import { TRANSACTION_STATUS_LABEL } from "@/types/transaction";
 
@@ -95,7 +96,7 @@ export default function TransactionsPage() {
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/login"); return; }
+      if (!user) { router.replace(loginPathWithNext()); return; }
       setMyId(user.id);
       await loadTransactions(user.id);
     })();

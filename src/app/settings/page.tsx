@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 
 interface SettingRow {
   label: string;
@@ -83,7 +84,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) router.replace("/login");
+      if (!user) router.replace(loginPathWithNext());
     });
   }, [router]);
 

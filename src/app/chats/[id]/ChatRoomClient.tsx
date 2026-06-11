@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 import {
   getChatDetail,
   getMessages,
@@ -55,7 +56,7 @@ export default function ChatRoomClient() {
     (async () => {
       // CISO 제약 4: getUser()로 인증 확인 (getSession() 금지)
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/login"); return; }
+      if (!user) { router.replace(loginPathWithNext()); return; }
       setMyId(user.id);
 
       const [detail, msgs] = await Promise.all([getChatDetail(id), getMessages(id)]);

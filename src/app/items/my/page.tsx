@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 
 interface MyItem {
   id: string;
@@ -28,7 +29,7 @@ export default function MyItemsPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        router.replace("/login");
+        router.replace(loginPathWithNext());
         return;
       }
       await fetchItems(user.id);

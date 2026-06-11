@@ -243,13 +243,13 @@ export default function HomeClient() {
         </div>
       </div>
 
-      {/* 아이템 그리드 */}
-      <div className="grid grid-cols-2 gap-px bg-[#E8E3DC]">
+      {/* 아이템 그리드 — 부티크 카드 */}
+      <div className="home-grid">
         {dbError ? (
-          <div className="col-span-2 flex flex-col items-center py-16 gap-3 bg-[#FAF9F7]">
-            <div className="text-3xl">⚠️</div>
-            <p className="text-[13px] font-medium text-[#1A1816]">데이터베이스 연결 오류</p>
-            <p className="text-[11px] text-[#A09589] text-center px-8 leading-relaxed">
+          <div className="home-grid-empty">
+            <div className="home-grid-empty-icon">✦</div>
+            <p className="home-grid-empty-title">데이터베이스 연결 오류</p>
+            <p className="home-grid-empty-sub">
               Supabase 시드 데이터를 삽입하면 아이템이 표시됩니다.<br />
               <code className="text-[10px] bg-[#F0EDE8] px-1 rounded">supabase/seed.sql</code> 실행 필요
             </p>
@@ -257,7 +257,7 @@ export default function HomeClient() {
         ) : loading ? (
           /* 로딩 스켈레톤 */
           Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white block">
+            <div key={i} className="home-card-skeleton">
               <div className="aspect-square bg-[#F0EDE8] animate-pulse" />
               <div className="px-3 pt-2.5 pb-3 space-y-2">
                 <div className="h-2 w-12 bg-[#EAE5DF] rounded animate-pulse" />
@@ -268,10 +268,10 @@ export default function HomeClient() {
             </div>
           ))
         ) : sorted.length === 0 ? (
-          <div className="col-span-2 flex flex-col items-center py-16 gap-4 bg-[#FAF9F7]">
-            <div className="text-4xl">✨</div>
-            <p className="text-[13px] font-medium text-[#1A1816] tracking-wide">아직 등록된 아이템이 없어요</p>
-            <p className="text-[11.5px] text-[#A09589] text-center leading-relaxed px-8">
+          <div className="home-grid-empty">
+            <div className="home-grid-empty-icon">✦</div>
+            <p className="home-grid-empty-title">아직 등록된 아이템이 없어요</p>
+            <p className="home-grid-empty-sub">
               첫 번째 페어리가 되어보세요.<br />사용하지 않는 명품으로 수익을 만드세요.
             </p>
             <a href="/sell" className="empty-state-cta">
@@ -280,20 +280,23 @@ export default function HomeClient() {
           </div>
         ) : (
           sorted.map((item) => (
-            <Link key={item.id} href={`/items/${item.id}`} className="bg-white block">
-              <div className="relative aspect-square overflow-hidden bg-[#F3F0EB]">
+            <Link key={item.id} href={`/items/${item.id}`} className="home-card">
+              <div className="home-card-img">
                 {item.images?.[0] ? (
-                  <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover" />
+                  <img src={item.images[0]} alt={item.title} />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[#A09589] text-xs">
                     사진 없음
                   </div>
                 )}
               </div>
-              <div className="px-3 pt-2.5 pb-3">
-                <div className="text-[9px] tracking-[.18em] uppercase text-[#B8963E] font-bold mb-0.5">{item.brand ?? ""}</div>
-                <div className="text-[12.5px] font-medium text-[#1A1816] leading-snug line-clamp-2 mb-1.5">{item.title}</div>
-                <div className="text-[14px] font-bold text-[#1A1816]">{item.price_per_day.toLocaleString()}원<span className="text-[10px] text-[#A09589] font-normal ml-1">/4시간</span></div>
+              <div className="home-card-body">
+                <div className="home-card-brand">{item.brand ?? " "}</div>
+                <div className="home-card-title">{item.title}</div>
+                <div className="home-card-price">
+                  {item.price_per_day.toLocaleString()}원
+                  <span className="home-card-price-unit">/4시간</span>
+                </div>
               </div>
             </Link>
           ))

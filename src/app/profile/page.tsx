@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 import type { User } from "@supabase/supabase-js";
 
 const MENU_ITEMS = [
@@ -15,12 +16,26 @@ const MENU_ITEMS = [
 // 진행 중 거래 상태 (completed, cancelled, disputed 제외)
 const ACTIVE_STATUSES = ["requested", "deposit_requested", "deposit_confirmed", "handed_over", "returned"];
 
+// 역할 모드 localStorage 키 (재방문 시 유지)
+const ROLE_STORAGE_KEY = "cinderella_role_mode";
+
+type RoleMode = "cinderella" | "fairy";
+
 interface ActiveTx {
   id: string;
   status: string;
   start_date: string;
   end_date: string;
   item?: { title: string; brand: string | null; images: string[] } | null;
+}
+
+interface MyItemRow {
+  id: string;
+  title: string;
+  brand: string | null;
+  price_per_day: number;
+  images: string[];
+  status: string;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -39,34 +54,62 @@ const STATUS_CSS: Record<string, string> = {
   returned: "s-returned",
 };
 
+/**
+ * 페어리 온도 (신뢰도 지표)
+ * 기본 36.5 + 완료 거래(차용·대여 모두) 1건당 +1.5, 상한 99.
+ * DB 변경 없음 — 기존 transactions 테이블 집계만 사용.
+ */
+function calcTemperature(completedCount: number): number {
+  return Math.min(99, 36.5 + completedCount * 1.5);
+}
+
+function tempEmoji(t: number): string {
+  if (t < 38) return "🙂";
+  if (t < 45) return "😊";
+  if (t < 60) return "😍";
+  return "🔥";
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [role, setRole] = useState<RoleMode>("cinderella");
   const [rentalCount, setRentalCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
   const [wishCount, setWishCount] = useState(0);
   const [activeTxs, setActiveTxs] = useState<ActiveTx[]>([]);
+  const [myItems, setMyItems] = useState<MyItemRow[]>([]);
+  const [incomingTxs, setIncomingTxs] = useState<ActiveTx[]>([]);
 
   useEffect(() => {
+    // 저장된 역할 모드 복원 (재방문 시 유지)
+    try {
+      const saved = window.localStorage.getItem(ROLE_STORAGE_KEY);
+      if (saved === "fairy" || saved === "cinderella") setRole(saved);
+    } catch {
+      // localStorage 접근 불가 환경(시크릿 등)은 기본값 유지
+    }
+
     (async () => {
       const {
         data: { user: u },
         error: userError,
       } = await supabase.auth.getUser();
       if (userError || !u) {
-        router.replace("/login");
+        router.replace(loginPathWithNext());
         return;
       }
       setUser(u);
 
-      // 병렬 조회: 완료 거래 수, 찜 수, 진행 중 거래
-      const [completedRes, wishRes, activeTxRes] = await Promise.all([
+      // 병렬 조회: 완료 거래(온도), 찜 수, 진행 중 거래(신데렐라), 내 물품·들어온 요청(페어리)
+      const [completedRes, wishRes, activeTxRes, myItemsRes, incomingRes] = await Promise.all([
         supabase
           .from("transactions")
-          .select("id", { count: "exact", head: true })
-          .eq("borrower_id", u.id)
-          .eq("status", "completed"),
+          .select("id, borrower_id, lender_id")
+          .eq("status", "completed")
+          .or(`borrower_id.eq.${u.id},lender_id.eq.${u.id}`),
         supabase
           .from("wishlist")
           .select("id", { count: "exact", head: true })
@@ -81,15 +124,46 @@ export default function ProfilePage() {
           .in("status", ACTIVE_STATUSES)
           .order("created_at", { ascending: false })
           .limit(5),
+        supabase
+          .from("items")
+          .select("id, title, brand, price_per_day, images, status")
+          .eq("user_id", u.id)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase
+          .from("transactions")
+          .select(`
+            id, status, start_date, end_date,
+            item:items(title, brand, images)
+          `)
+          .eq("lender_id", u.id)
+          .in("status", ACTIVE_STATUSES)
+          .order("created_at", { ascending: false })
+          .limit(5),
       ]);
 
-      if (!completedRes.error) setRentalCount(completedRes.count ?? 0);
+      if (!completedRes.error) {
+        const rows = (completedRes.data ?? []) as { borrower_id: string; lender_id: string }[];
+        setCompletedCount(rows.length);
+        setRentalCount(rows.filter((r) => r.borrower_id === u.id).length);
+      }
       if (!wishRes.error) setWishCount(wishRes.count ?? 0);
       if (!activeTxRes.error) setActiveTxs((activeTxRes.data ?? []) as ActiveTx[]);
+      if (!myItemsRes.error) setMyItems((myItemsRes.data ?? []) as MyItemRow[]);
+      if (!incomingRes.error) setIncomingTxs((incomingRes.data ?? []) as ActiveTx[]);
 
       setLoading(false);
     })();
   }, [router]);
+
+  const switchRole = (next: RoleMode) => {
+    setRole(next);
+    try {
+      window.localStorage.setItem(ROLE_STORAGE_KEY, next);
+    } catch {
+      // 저장 실패해도 화면 전환은 유지
+    }
+  };
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -118,6 +192,34 @@ export default function ProfilePage() {
     user.user_metadata?.picture ??
     "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=100&q=80";
 
+  const temperature = calcTemperature(completedCount);
+  const tempDisplay = temperature.toFixed(1);
+
+  const renderTxRow = (tx: ActiveTx) => {
+    const thumb = tx.item?.images?.[0];
+    return (
+      <Link key={tx.id} href={`/transactions/${tx.id}`} className="rental-row">
+        <div className="rental-thumb">
+          {thumb ? (
+            <img src={thumb} alt={tx.item?.title ?? "물품"} />
+          ) : (
+            <div className="rental-thumb" />
+          )}
+        </div>
+        <div className="rental-info">
+          {tx.item?.brand && <div className="rental-brand">{tx.item.brand}</div>}
+          <div className="rental-name">{tx.item?.title ?? "물품"}</div>
+          <div className="rental-date">
+            {tx.start_date} ~ {tx.end_date}
+          </div>
+        </div>
+        <span className={`status-pill ${STATUS_CSS[tx.status] ?? "s-requested"}`}>
+          {STATUS_LABEL[tx.status] ?? tx.status}
+        </span>
+      </Link>
+    );
+  };
+
   return (
     <div className="min-h-screen">
       {/* 탑바 */}
@@ -143,14 +245,42 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* FairyRating 카드 */}
-      <div className="fairy-card">
-        <div className="fairy-label">FairyRating</div>
-        <div className="fairy-row">
-          <span className="fairy-stars">{"★".repeat(5)}</span>
-          <span className="fairy-score">신규</span>
-          <span className="fairy-meta">첫 거래를 시작해보세요</span>
+      {/* 페어리 온도 — 신뢰도 지표 (완료 거래 기반) */}
+      <div className="my-temp-card">
+        <div className="my-temp-row">
+          <div className="my-temp-num">{tempDisplay}°</div>
+          <div className="my-temp-emoji">{tempEmoji(temperature)}</div>
+          <div className="my-temp-label">
+            페어리 온도
+            <br />
+            <span className="my-temp-sub">신뢰도 지표</span>
+          </div>
         </div>
+        <div className="my-temp-bar-wrap">
+          <div className="my-temp-bar" style={{ width: `${temperature}%` }} />
+        </div>
+      </div>
+
+      {/* 역할 전환 — 신데렐라(빌리기) ↔ 페어리(빌려주기) */}
+      <div className="my-role-row">
+        <button
+          type="button"
+          className={`role-card${role === "cinderella" ? " active" : ""}`}
+          onClick={() => switchRole("cinderella")}
+        >
+          <div className="role-icon">👗</div>
+          <div className="role-name">신데렐라</div>
+          <div className="role-desc">명품 빌리기</div>
+        </button>
+        <button
+          type="button"
+          className={`role-card${role === "fairy" ? " active" : ""}`}
+          onClick={() => switchRole("fairy")}
+        >
+          <div className="role-icon">✨</div>
+          <div className="role-name">페어리</div>
+          <div className="role-desc">명품 빌려주기</div>
+        </button>
       </div>
 
       {/* 통계 — Supabase 실데이터 */}
@@ -160,7 +290,7 @@ export default function ProfilePage() {
           <div className="stat-label">대여 횟수</div>
         </div>
         <div className="stat-cell">
-          <div className="stat-val">신규</div>
+          <div className="stat-val">{completedCount > 0 ? tempDisplay + "°" : "신규"}</div>
           <div className="stat-label">평점</div>
         </div>
         <div className="stat-cell">
@@ -169,53 +299,77 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* 역할 카드 */}
-      <div className="my-role-row">
-        <div className="role-card active">
-          <div className="role-name">신데렐라</div>
-          <div className="role-desc">명품 빌리기</div>
-        </div>
-        <div className="role-card">
-          <div className="role-name">페어리</div>
-          <div className="role-desc">명품 빌려주기</div>
-        </div>
-      </div>
-
-      {/* 대여 현황 — Supabase 실데이터 */}
-      <div className="my-section-title">대여 현황</div>
-      {activeTxs.length === 0 ? (
-        <div className="rental-empty">
-          <div className="rental-empty-icon">✦</div>
-          <div className="rental-empty-text">아직 대여 내역이 없어요</div>
-          <div className="rental-empty-sub">첫 거래를 시작해보세요</div>
-        </div>
+      {role === "cinderella" ? (
+        <>
+          {/* 신데렐라 모드 — 빌린 것 중심 */}
+          <div className="my-section-title">대여 현황</div>
+          {activeTxs.length === 0 ? (
+            <div className="rental-empty">
+              <div className="rental-empty-icon">✦</div>
+              <div className="rental-empty-text">아직 대여 내역이 없어요</div>
+              <div className="rental-empty-sub">마음에 드는 명품으로 첫 거래를 시작해보세요</div>
+            </div>
+          ) : (
+            activeTxs.map(renderTxRow)
+          )}
+        </>
       ) : (
-        activeTxs.map((tx) => {
-          const thumb = tx.item?.images?.[0];
-          return (
-            <Link key={tx.id} href={`/transactions/${tx.id}`} className="rental-row">
-              <div className="rental-thumb">
-                {thumb ? (
-                  <img src={thumb} alt={tx.item?.title ?? "물품"} />
-                ) : (
-                  <div className="rental-thumb" />
-                )}
-              </div>
-              <div className="rental-info">
-                {tx.item?.brand && (
-                  <div className="rental-brand">{tx.item.brand}</div>
-                )}
-                <div className="rental-name">{tx.item?.title ?? "물품"}</div>
-                <div className="rental-date">
-                  {tx.start_date} ~ {tx.end_date}
-                </div>
-              </div>
-              <span className={`status-pill ${STATUS_CSS[tx.status] ?? "s-requested"}`}>
-                {STATUS_LABEL[tx.status] ?? tx.status}
-              </span>
+        <>
+          {/* 페어리 모드 — 내 물품 + 들어온 거래 요청 중심 */}
+          <div className="my-section-title my-section-title--row">
+            내 물품
+            <Link href="/items/my" className="my-section-more">
+              전체 보기
             </Link>
-          );
-        })
+          </div>
+          {myItems.length === 0 ? (
+            <div className="rental-empty">
+              <div className="rental-empty-icon">✦</div>
+              <div className="rental-empty-text">아직 등록한 물품이 없어요</div>
+              <div className="rental-empty-sub">사용하지 않는 명품으로 수익을 만들어보세요</div>
+              <Link href="/items/new" className="rental-empty-cta">
+                물품 등록하기
+              </Link>
+            </div>
+          ) : (
+            myItems.map((item) => {
+              const thumb = item.images?.[0];
+              const isAvailable = item.status === "available";
+              return (
+                <Link key={item.id} href={`/items/${item.id}`} className="rental-row">
+                  <div className="rental-thumb">
+                    {thumb ? (
+                      <img src={thumb} alt={item.title} />
+                    ) : (
+                      <div className="rental-thumb" />
+                    )}
+                  </div>
+                  <div className="rental-info">
+                    {item.brand && <div className="rental-brand">{item.brand}</div>}
+                    <div className="rental-name">{item.title}</div>
+                    <div className="rental-date">
+                      {item.price_per_day.toLocaleString()}원 / 일
+                    </div>
+                  </div>
+                  <span className={`status-pill ${isAvailable ? "s-deposit-confirmed" : "s-requested"}`}>
+                    {isAvailable ? "공개" : "숨김"}
+                  </span>
+                </Link>
+              );
+            })
+          )}
+
+          <div className="my-section-title">들어온 거래 요청</div>
+          {incomingTxs.length === 0 ? (
+            <div className="rental-empty">
+              <div className="rental-empty-icon">✦</div>
+              <div className="rental-empty-text">아직 들어온 요청이 없어요</div>
+              <div className="rental-empty-sub">물품을 공개하면 신데렐라들의 요청이 도착합니다</div>
+            </div>
+          ) : (
+            incomingTxs.map(renderTxRow)
+          )}
+        </>
       )}
 
       {/* 메뉴 */}

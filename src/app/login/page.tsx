@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithGoogleMobile, initMobileAuthListener, isCapacitor } from "@/lib/mobile-auth";
+import { sanitizeNext } from "@/lib/login-next";
+
+/** /login?next=... 에서 복귀 경로 추출 (Open Redirect 방어 포함) */
+function readNextParam(): string {
+  if (typeof window === "undefined") return "/";
+  return sanitizeNext(new URLSearchParams(window.location.search).get("next"));
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,10 +34,10 @@ export default function LoginPage() {
     let cleanup: (() => void) | undefined;
 
     initMobileAuthListener(
-      // 세션 교환 성공 → 홈으로 이동
+      // 세션 교환 성공 → 원래 보던 페이지로 복귀 (next 없으면 홈)
       () => {
         setLoading(false);
-        router.push("/");
+        router.push(readNextParam());
       },
       // 실패
       (msg) => {
@@ -51,7 +58,8 @@ export default function LoginPage() {
     setError(null);
     try {
       // isCapacitor() 분기는 signInWithGoogleMobile 내부에서 처리
-      await signInWithGoogleMobile();
+      // next: 로그인 완료 후 auth/callback이 원래 페이지로 복귀시킴
+      await signInWithGoogleMobile(readNextParam());
       // 웹 환경에서는 위 함수가 리디렉션을 트리거하므로 이 이후 코드 실행 안 됨
       // 모바일 환경에서는 Browser.open() 후 대기 → appUrlOpen 이벤트로 복귀
     } catch (e) {
@@ -64,7 +72,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero 이미지 */}
-      <div className="relative overflow-hidden bg-charcoal" style={{ height: "56vh" }}>
+      <div className="login-hero">
         <img
           src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=860&q=85"
           alt=""

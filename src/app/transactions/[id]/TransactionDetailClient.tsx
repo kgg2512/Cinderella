@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 import TransactionTimeline from "@/components/TransactionTimeline";
 import TossPaymentBtn from "@/components/TossPaymentBtn";
 import EvidenceUploadBtn from "@/components/EvidenceUploadBtn";
@@ -62,7 +63,7 @@ export default function TransactionDetailPage() {
 
   const load = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.replace("/login"); return; }
+    if (!user) { router.replace(loginPathWithNext()); return; }
     setMyId(user.id);
 
     const { data, error } = await supabase

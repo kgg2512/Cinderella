@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { loginPathWithNext } from "@/lib/login-next";
 import { getMyChats, type ChatListRow } from "./client-actions";
 
 function formatTime(iso: string): string {
@@ -28,7 +29,7 @@ export default function ChatsPage() {
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/login"); return; }
+      if (!user) { router.replace(loginPathWithNext()); return; }
       setMyId(user.id);
 
       const result = await getMyChats();
@@ -58,7 +59,7 @@ export default function ChatsPage() {
         </div>
       ) : chats.length === 0 ? (
         <div className="tx-empty">
-          <div className="tx-empty-icon">💬</div>
+          <div className="tx-empty-icon">✦</div>
           <div>
             아직 채팅이 없습니다.
             <br />
