@@ -80,14 +80,10 @@ export default function LoginPage() {
         />
         {/* 그라디언트 오버레이 */}
         <div className="login-hero-overlay" />
-        {/* 브랜드 */}
-        <div className="absolute bottom-8 left-7 right-7 text-white">
-          <div className="font-display text-5xl font-light italic tracking-wider leading-none">
-            Cinderella
-          </div>
-          <div className="text-[10px] tracking-[0.28em] uppercase mt-2 text-white/55">
-            정품 인증 명품 렌탈 플랫폼
-          </div>
+        {/* 브랜드 — Tailwind 유틸리티 스캔 누락(bottom-8/text-white 미생성) 회피, 명시 CSS 클래스 사용 */}
+        <div className="login-brand">
+          <div className="login-brand-name">Cinderella</div>
+          <div className="login-brand-sub">정품 인증 명품 렌탈 플랫폼</div>
         </div>
       </div>
 

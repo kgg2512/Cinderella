@@ -61,6 +61,33 @@ img {
   height: 56vh;
 }
 
+/* 브랜드 타이틀 — Tailwind 유틸리티 스캔 누락 이슈 회피를 위해 명시 CSS 사용 */
+.login-brand {
+  position: absolute;
+  bottom: 32px;
+  left: 28px;
+  right: 28px;
+  color: #ffffff;
+  z-index: 2;
+}
+
+.login-brand-name {
+  font-family: var(--font-cormorant), serif;
+  font-size: 46px;
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.login-brand-sub {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
 .login-hero-overlay {
   position: absolute;
   inset: 0;
