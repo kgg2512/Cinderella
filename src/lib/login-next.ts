@@ -26,3 +26,31 @@ export function loginPathWithNext(): string {
   if (current === "/" || current.startsWith("/login")) return "/login";
   return `/login?next=${encodeURIComponent(current)}`;
 }
+
+const NEXT_STASH_KEY = "cinderella_login_next";
+
+/**
+ * OAuth 시작 직전 복귀 경로를 sessionStorage에 보관.
+ * redirectTo URL에 쿼리를 붙이면 Supabase Redirect URL 허용목록 매칭이 깨져
+ * 조용히 Site URL로 떨어지므로 (에러 없음), next는 절대 redirect URL에 싣지 않는다.
+ */
+export function stashNext(next: string): void {
+  try {
+    const safe = sanitizeNext(next);
+    if (safe !== "/") sessionStorage.setItem(NEXT_STASH_KEY, safe);
+    else sessionStorage.removeItem(NEXT_STASH_KEY);
+  } catch {
+    // sessionStorage 차단 환경 — 복귀만 포기, 로그인은 정상 진행
+  }
+}
+
+/** auth/callback에서 보관된 복귀 경로 회수 (1회용) */
+export function popStashedNext(): string {
+  try {
+    const v = sessionStorage.getItem(NEXT_STASH_KEY);
+    sessionStorage.removeItem(NEXT_STASH_KEY);
+    return sanitizeNext(v);
+  } catch {
+    return "/";
+  }
+}

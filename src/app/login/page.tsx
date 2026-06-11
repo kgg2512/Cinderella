@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithGoogleMobile, initMobileAuthListener, isCapacitor } from "@/lib/mobile-auth";
-import { sanitizeNext } from "@/lib/login-next";
+import { sanitizeNext, stashNext } from "@/lib/login-next";
 
 /** /login?next=... 에서 복귀 경로 추출 (Open Redirect 방어 포함) */
 function readNextParam(): string {
@@ -57,9 +57,10 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
+      // 복귀 경로는 sessionStorage로 전달 (redirect URL에 쿼리 금지 — Supabase 허용목록 매칭 깨짐)
+      stashNext(readNextParam());
       // isCapacitor() 분기는 signInWithGoogleMobile 내부에서 처리
-      // next: 로그인 완료 후 auth/callback이 원래 페이지로 복귀시킴
-      await signInWithGoogleMobile(readNextParam());
+      await signInWithGoogleMobile();
       // 웹 환경에서는 위 함수가 리디렉션을 트리거하므로 이 이후 코드 실행 안 됨
       // 모바일 환경에서는 Browser.open() 후 대기 → appUrlOpen 이벤트로 복귀
     } catch (e) {

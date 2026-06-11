@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { popStashedNext } from "@/lib/login-next";
 
 function AuthCallbackInner() {
   const router = useRouter();
@@ -11,7 +12,8 @@ function AuthCallbackInner() {
   useEffect(() => {
     const errorParam = searchParams.get("error");
     const code = searchParams.get("code");
-    const next = searchParams.get("next") ?? "/";
+    // 복귀 경로: ?next= (레거시) 우선, 없으면 sessionStorage(stashNext) 회수
+    const next = searchParams.get("next") ?? popStashedNext();
     const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
     if (errorParam) {

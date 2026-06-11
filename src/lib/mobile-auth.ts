@@ -23,7 +23,6 @@
 // (SSR 빌드 중 window가 없어 오류 발생 방지)
 
 import { supabase } from '@/lib/supabase';
-import { sanitizeNext } from '@/lib/login-next';
 
 /** 현재 Capacitor 네이티브 앱 환경인지 감지 */
 export function isCapacitor(): boolean {
@@ -36,20 +35,17 @@ export function isCapacitor(): boolean {
  * - 네이티브: @capacitor/browser 인앱 브라우저로 열기 → 딥링크로 복귀
  * - 웹: 기존 supabase.auth.signInWithOAuth 동작 (리디렉션)
  *
- * @param next - 로그인 완료 후 복귀할 내부 경로 (예: "/profile").
- *               웹: auth/callback?next=... 으로 전달되어 callback이 복귀 처리.
- *               네이티브: 딥링크 URI는 Supabase 등록값과 정확히 일치해야 하므로 변경하지 않고,
- *               login 페이지의 appUrlOpen 콜백에서 복귀 처리.
+ * 복귀(next) 경로는 redirect URL에 싣지 않는다 — Supabase Redirect URL 허용목록은
+ * 쿼리가 붙으면 매칭에 실패해 에러 없이 Site URL로 떨어진다 (2026-06-12 로그인 루프 원인).
+ * 복귀 경로는 login 페이지가 sessionStorage(stashNext)로 보관하고 callback이 회수한다.
  */
-export async function signInWithGoogleMobile(next?: string): Promise<void> {
+export async function signInWithGoogleMobile(): Promise<void> {
   // 딥링크 redirect URI: Supabase 프로젝트에 등록된 값과 일치해야 함
   const mobileRedirectTo = 'com.g2company.cinderella://auth/callback';
-  const safeNext = sanitizeNext(next);
-  const nextQuery = safeNext !== '/' ? `?next=${encodeURIComponent(safeNext)}` : '';
   const webRedirectTo =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/auth/callback${nextQuery}`
-      : `/auth/callback${nextQuery}`;
+      ? `${window.location.origin}/auth/callback`
+      : '/auth/callback';
 
   const redirectTo = isCapacitor() ? mobileRedirectTo : webRedirectTo;
 
