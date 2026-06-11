@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import withPWA from "@ducanh2912/next-pwa";
 
 // 환경 변수로 빌드 모드 분기
 // CAPACITOR_BUILD=true  → 정적 익스포트 (Capacitor 모바일 앱용)
@@ -50,11 +49,8 @@ const nextConfig: NextConfig = {
       }),
 };
 
-// Capacitor 빌드 시 PWA 래퍼 제외 (네이티브 앱은 SW 불필요 + webpack 충돌 방지)
-export default isCapacitorBuild
-  ? nextConfig
-  : withPWA({
-      dest: "public",
-      disable: process.env.NODE_ENV === "development",
-      register: true,
-    })(nextConfig);
+// PWA 서비스워커 제거 (2026-06-12 결정):
+// SW가 옛날 번들을 무기한 캐싱해 배포가 기존 방문자에게 도달하지 않는 사고 발생
+// (OAuth 픽스가 회장 브라우저에 반영 안 됨). public/sw.js는 기존 등록자의
+// SW·캐시를 자폭시키는 킬스위치로 교체됨 — 삭제 금지.
+export default nextConfig;

@@ -10,7 +10,12 @@ function AuthCallbackInner() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const errorParam = searchParams.get("error");
+    // Supabase는 일부 실패(서버 에러 등)를 query가 아닌 hash(#error=...)로 전달한다
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const errorParam =
+      searchParams.get("error") ??
+      hashParams.get("error_description") ??
+      hashParams.get("error");
     const code = searchParams.get("code");
     // 복귀 경로: ?next= (레거시) 우선, 없으면 sessionStorage(stashNext) 회수
     const next = searchParams.get("next") ?? popStashedNext();
