@@ -74,7 +74,8 @@ export default function SWCleanup() {
             // sessionStorage 차단 환경: reload는 건너뛴다 (무한 루프 방지 우선)
             alreadyPurged = true;
           }
-          if (!alreadyPurged) {
+          // /auth/* (OAuth 콜백)에서는 reload 금지 — exchangeCodeForSession과 경합 방지 (리뷰 권고 2026-06-12)
+          if (!alreadyPurged && !window.location.pathname.startsWith("/auth/")) {
             window.location.reload();
           }
         }
