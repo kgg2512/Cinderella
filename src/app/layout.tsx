@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import SWCleanup from "@/components/SWCleanup";
 
 export const viewport: Viewport = {
   themeColor: "#D4AF37",
@@ -28,6 +29,8 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="bg-cream min-h-screen">
+        {/* 박제 서비스워커 강제 해제 — 로그인 루프 최종 수정 (2026-06-12) */}
+        <SWCleanup />
         {/* GA4 — 환경변수 NEXT_PUBLIC_GA_MEASUREMENT_ID 미입력 시 비활성 */}
         {gaMeasurementId && (
           <>
