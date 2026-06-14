@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ItemDetailClient from "./ItemDetailClient";
 import type { Database } from "@/types/database";
+import { isDemoMode, getDemoItem, DEMO_FAIRY } from "@/lib/demo";
 
 type ItemRow = Database["public"]["Tables"]["items"]["Row"];
 type UserRow = Database["public"]["Tables"]["users"]["Row"];
@@ -18,6 +19,27 @@ export default function ItemDetailPageClient() {
 
   useEffect(() => {
     if (!id) return;
+
+    // 데모 모드: DEMO_ITEMS에서 단건 조회 + 데모 페어리를 owner로 부착
+    if (isDemoMode()) {
+      const found = getDemoItem(id);
+      setItem(
+        found
+          ? ({
+              ...found,
+              owner: {
+                id: DEMO_FAIRY.id,
+                name: DEMO_FAIRY.name,
+                avatar_url: DEMO_FAIRY.avatar_url,
+                email: null,
+              },
+            } as unknown as Item)
+          : null,
+      );
+      setLoading(false);
+      return;
+    }
+
     supabase
       .from("items")
       .select("*, owner:users!items_user_id_fkey(id, name, avatar_url, email)")

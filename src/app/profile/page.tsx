@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
+import { isDemoMode, DEMO_USER } from "@/lib/demo";
 import type { User } from "@supabase/supabase-js";
 
 const MENU_ITEMS = [
@@ -90,6 +91,24 @@ export default function ProfilePage() {
       if (saved === "fairy" || saved === "cinderella") setRole(saved);
     } catch {
       // localStorage 접근 불가 환경(시크릿 등)은 기본값 유지
+    }
+
+    // 데모 모드: 인증·DB 호출 없이 DEMO_USER + 가짜 통계 주입
+    if (isDemoMode()) {
+      setUser({
+        id: DEMO_USER.id,
+        email: DEMO_USER.email,
+        user_metadata: {
+          full_name: DEMO_USER.name,
+          name: DEMO_USER.name,
+          avatar_url: DEMO_USER.avatar_url,
+        },
+      } as unknown as User);
+      setRentalCount(4);
+      setCompletedCount(8);
+      setWishCount(2);
+      setLoading(false);
+      return;
     }
 
     (async () => {
@@ -192,7 +211,8 @@ export default function ProfilePage() {
     user.user_metadata?.picture ??
     "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=100&q=80";
 
-  const temperature = calcTemperature(completedCount);
+  // 데모 모드: 페어리 온도 87.0도 고정 (시연용 신뢰도 어필)
+  const temperature = isDemoMode() ? 87 : calcTemperature(completedCount);
   const tempDisplay = temperature.toFixed(1);
 
   const renderTxRow = (tx: ActiveTx) => {

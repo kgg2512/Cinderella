@@ -8,6 +8,9 @@ import { getOrCreateChat } from "@/app/chats/client-actions";
 import { calcDeposit } from "@/lib/toss";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/types/database";
+import { isDemoMode, DEMO_USER, DEMO_CHAT_ID } from "@/lib/demo";
+
+const demo = isDemoMode();
 
 type ItemRow = Database["public"]["Tables"]["items"]["Row"];
 type UserRow = Database["public"]["Tables"]["users"]["Row"];
@@ -39,6 +42,14 @@ export default function ItemDetailClient({ item }: Props) {
   const [chatOpening, setChatOpening] = useState(false);
 
   useEffect(() => {
+    // 데모 모드: DB 호출 없이 로컬 상태만 (찜 false, 데모 사용자로 가장)
+    if (demo) {
+      setWishlisted(false);
+      setWishlistLoading(false);
+      setMyId(DEMO_USER.id);
+      return;
+    }
+
     setWishlistLoading(true);
     checkWishlisted(item.id).then((v) => {
       setWishlisted(v);
@@ -60,6 +71,18 @@ export default function ItemDetailClient({ item }: Props) {
       showToastMsg("날짜를 올바르게 선택해주세요.");
       return;
     }
+
+    // 데모 모드: 실제 거래 생성 없이 2초 후 성공 토스트 + 시트 닫기
+    if (demo) {
+      setRequesting(true);
+      setTimeout(() => {
+        setRequesting(false);
+        setShowSheet(false);
+        showToastMsg("데모: 실제 서비스에서 렌탈이 시작됩니다");
+      }, 2000);
+      return;
+    }
+
     setRequesting(true);
     const result = await requestTransaction(item.id, startDate, endDate, depositAmount);
     setRequesting(false);
@@ -78,6 +101,13 @@ export default function ItemDetailClient({ item }: Props) {
 
   const handleChatOpen = async () => {
     if (chatOpening) return;
+
+    // 데모 모드: 데모 채팅방으로 직행
+    if (demo) {
+      router.push(`/chats/${DEMO_CHAT_ID}`);
+      return;
+    }
+
     setChatOpening(true);
     const result = await getOrCreateChat(item.id);
     setChatOpening(false);
@@ -89,6 +119,18 @@ export default function ItemDetailClient({ item }: Props) {
   };
 
   const toggleWish = () => {
+    // 데모 모드: DB 호출 없이 로컬 state만 토글 (토스트는 동일하게 표시)
+    if (demo) {
+      if (wishlisted) {
+        setWishlisted(false);
+        showToastMsg("찜 해제됐습니다");
+      } else {
+        setWishlisted(true);
+        showToastMsg("찜 목록에 추가됐습니다");
+      }
+      return;
+    }
+
     if (wishlisted) {
       setWishlisted(false);
       showToastMsg("찜 해제됐습니다");

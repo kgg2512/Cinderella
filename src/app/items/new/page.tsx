@@ -4,9 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
+import { isDemoMode } from "@/lib/demo";
 import type { ItemCategory } from "@/types";
 import { submitItem } from "./client-actions";
 import type { SubmitItemResult } from "./client-actions";
+
+const demo = isDemoMode();
 
 const CATEGORIES: { value: ItemCategory; label: string }[] = [
   { value: "bags", label: "핸드백" },
@@ -37,6 +40,8 @@ export default function NewItemPage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   useEffect(() => {
+    // 데모 모드: 인증 체크 스킵 (폼은 비활성 상태로 노출)
+    if (demo) return;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) router.replace(loginPathWithNext());
     });
@@ -74,6 +79,13 @@ export default function NewItemPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // 데모 모드: 실제 등록 없이 안내 토스트만
+    if (demo) {
+      showToastMsg("데모: 실제 서비스에서 페어리로 등록하고 수익을 만드세요");
+      return;
+    }
+
     setSubmitting(true);
     setFieldErrors({});
 
@@ -120,7 +132,15 @@ export default function NewItemPage() {
         </div>
       </div>
 
+      {/* 데모 모드: 폼 비활성 안내 배너 */}
+      {demo && (
+        <div className="demo-notice">
+          ✦ 실제 서비스에서 페어리로 등록하고 수익을 만드세요 ✦
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="form-wrap">
+        <fieldset disabled={demo} className="contents">
         {/* 카테고리 */}
         <div className="form-group">
           <label className="form-label">카테고리</label>
@@ -262,9 +282,10 @@ export default function NewItemPage() {
           </div>
         </div>
 
-        <button type="submit" disabled={submitting} className="btn-primary">
-          {submitting ? "등록 중..." : "등록하기"}
-        </button>
+          <button type="submit" disabled={submitting} className="btn-primary">
+            {submitting ? "등록 중..." : "등록하기"}
+          </button>
+        </fieldset>
       </form>
 
       <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">{toast}</div>

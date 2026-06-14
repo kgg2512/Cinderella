@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/types/database";
+import { isDemoMode, DEMO_ITEMS } from "@/lib/demo";
 
 type Item = Database["public"]["Tables"]["items"]["Row"];
 
@@ -25,6 +26,22 @@ export default function SearchPage() {
     }
 
     setLoading(true);
+
+    // 데모 모드: DEMO_ITEMS에서 키워드/브랜드 필터 (DB 호출 없음)
+    if (isDemoMode()) {
+      const kw = trimmed.toLowerCase();
+      const filtered = DEMO_ITEMS.filter((it) => {
+        if (brand !== "All" && it.brand !== brand) return false;
+        if (kw === "") return true;
+        return (
+          it.title.toLowerCase().includes(kw) ||
+          (it.brand ?? "").toLowerCase().includes(kw)
+        );
+      });
+      setResults(filtered);
+      setLoading(false);
+      return;
+    }
 
     let dbQuery = supabase
       .from("items")

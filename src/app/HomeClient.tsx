@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase as _supabase } from "@/lib/supabase";
 import type { ItemCategory } from "@/types";
 import type { Database } from "@/types/database";
+import { isDemoMode, DEMO_ITEMS } from "@/lib/demo";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const supabase = _supabase as any;
@@ -104,9 +105,9 @@ const MOCK_ITEMS: Item[] = [
 ];
 
 export default function HomeClient() {
-  // 초기값: MOCK_ITEMS로 설정 → SSR/CSR 모두 즉시 6개 아이템 표시
-  // useEffect에서 Supabase 실데이터가 오면 교체됨
-  const [items, setItems] = useState<Item[]>(MOCK_ITEMS);
+  // 초기값: 데모 모드면 DEMO_ITEMS, 아니면 MOCK_ITEMS → SSR/CSR 모두 즉시 6개 표시
+  // 일반 모드에서는 useEffect에서 Supabase 실데이터가 오면 교체됨
+  const [items, setItems] = useState<Item[]>(isDemoMode() ? DEMO_ITEMS : MOCK_ITEMS);
   const [loading, setLoading] = useState(false);
   const [dbError, setDbError] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
@@ -115,6 +116,9 @@ export default function HomeClient() {
   const heroBgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 데모 모드: Supabase 호출 스킵, DEMO_ITEMS 고정 표시
+    if (isDemoMode()) return;
+
     supabase
       .from("items")
       .select("*")

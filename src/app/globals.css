@@ -122,6 +122,65 @@ img {
   cursor: not-allowed;
 }
 
+/* ── DEMO MODE ─────────────────────── */
+/* 데모 진입 버튼 — 골드 그라디언트 + 투명 카드 느낌 */
+.btn-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--gold);
+  background: linear-gradient(90deg, rgba(212, 184, 106, 0.12), rgba(184, 150, 62, 0.12));
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s, background 0.2s;
+  box-shadow: var(--shadow);
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+.btn-demo:hover {
+  background: linear-gradient(90deg, rgba(212, 184, 106, 0.2), rgba(184, 150, 62, 0.2));
+}
+.btn-demo:active {
+  transform: scale(0.98);
+}
+
+/* 데모 모드 상단 띠 배너 — Navbar 위 고정 */
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  background: linear-gradient(90deg, var(--gold-lt), var(--gold));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(184, 150, 62, 0.35);
+}
+
+/* 데모 안내 배너 (페이지 본문 상단 — 등록 등 비활성 화면용) */
+.demo-notice {
+  margin: 14px 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--gold-lt);
+  background: linear-gradient(90deg, rgba(212, 184, 106, 0.1), rgba(184, 150, 62, 0.08));
+  color: var(--gold);
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
 /* ── TOPBAR ────────────────────────── */
 .topbar {
   position: sticky;

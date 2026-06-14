@@ -6,6 +6,14 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
 import { getMyChats, type ChatListRow } from "./client-actions";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_FAIRY,
+  DEMO_CHAT_ID,
+  DEMO_ITEMS,
+  DEMO_MESSAGES,
+} from "@/lib/demo";
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -27,6 +35,38 @@ export default function ChatsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 데모 모드: 인증·DB 호출 없이 가짜 채팅 1개 주입
+    if (isDemoMode()) {
+      setMyId(DEMO_USER.id);
+      const lastMsg = DEMO_MESSAGES[DEMO_MESSAGES.length - 1];
+      const demoChat: ChatListRow = {
+        id: DEMO_CHAT_ID,
+        item_id: DEMO_ITEMS[0].id,
+        borrower_id: DEMO_USER.id,
+        owner_id: DEMO_FAIRY.id,
+        created_at: new Date().toISOString(),
+        item: {
+          id: DEMO_ITEMS[0].id,
+          title: DEMO_ITEMS[0].title,
+          brand: DEMO_ITEMS[0].brand,
+          images: DEMO_ITEMS[0].images ?? [],
+        },
+        borrower: { id: DEMO_USER.id, name: DEMO_USER.name, avatar_url: DEMO_USER.avatar_url },
+        owner: { id: DEMO_FAIRY.id, name: DEMO_FAIRY.name, avatar_url: DEMO_FAIRY.avatar_url },
+        messages: [
+          {
+            content: lastMsg.content,
+            created_at: new Date().toISOString(),
+            sender_id: DEMO_USER.id,
+            read_at: new Date().toISOString(),
+          },
+        ],
+      };
+      setChats([demoChat]);
+      setLoading(false);
+      return;
+    }
+
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace(loginPathWithNext()); return; }

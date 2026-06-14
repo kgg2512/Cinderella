@@ -13,6 +13,16 @@ import {
   type ChatRow,
   type MessageRow,
 } from "../client-actions";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_FAIRY,
+  DEMO_CHAT_ID,
+  DEMO_ITEMS,
+  DEMO_MESSAGES,
+} from "@/lib/demo";
+
+const demo = isDemoMode();
 
 const MAX_LEN = 2000;
 
@@ -53,6 +63,39 @@ export default function ChatRoomClient() {
 
   // 초기 로드
   useEffect(() => {
+    // 데모 모드: 인증·DB·Realtime 없이 미리 작성된 대화 3줄 주입
+    if (demo) {
+      const baseTime = Date.now() - DEMO_MESSAGES.length * 60000;
+      setMyId(DEMO_USER.id);
+      setChat({
+        id: DEMO_CHAT_ID,
+        item_id: DEMO_ITEMS[0].id,
+        borrower_id: DEMO_USER.id,
+        owner_id: DEMO_FAIRY.id,
+        created_at: new Date(baseTime).toISOString(),
+        item: {
+          id: DEMO_ITEMS[0].id,
+          title: DEMO_ITEMS[0].title,
+          brand: DEMO_ITEMS[0].brand,
+          images: DEMO_ITEMS[0].images ?? [],
+        },
+        borrower: { id: DEMO_USER.id, name: DEMO_USER.name, avatar_url: DEMO_USER.avatar_url },
+        owner: { id: DEMO_FAIRY.id, name: DEMO_FAIRY.name, avatar_url: DEMO_FAIRY.avatar_url },
+      });
+      setMessages(
+        DEMO_MESSAGES.map((m, i) => ({
+          id: m.id,
+          chat_id: DEMO_CHAT_ID,
+          sender_id: m.sender === "me" ? DEMO_USER.id : DEMO_FAIRY.id,
+          content: m.content,
+          created_at: new Date(baseTime + i * 60000).toISOString(),
+          read_at: new Date().toISOString(),
+        })),
+      );
+      setLoading(false);
+      return;
+    }
+
     (async () => {
       // CISO 제약 4: getUser()로 인증 확인 (getSession() 금지)
       const { data: { user } } = await supabase.auth.getUser();
@@ -73,6 +116,7 @@ export default function ChatRoomClient() {
   // Realtime 구독 — RLS 적용된 INSERT만 수신됨 (비참여자 수신 불가)
   useEffect(() => {
     if (!myId) return;
+    if (demo) return; // 데모 모드: Realtime 구독 없음
 
     const channel = supabase
       .channel(`chat-${id}`)
@@ -104,6 +148,20 @@ export default function ChatRoomClient() {
       showToast(`메시지는 ${MAX_LEN}자 이내로 입력해주세요.`);
       return;
     }
+    // 데모 모드: DB 없이 로컬에 메시지 추가
+    if (demo) {
+      appendMessage({
+        id: `demo-msg-${Date.now()}`,
+        chat_id: DEMO_CHAT_ID,
+        sender_id: DEMO_USER.id,
+        content,
+        created_at: new Date().toISOString(),
+        read_at: null,
+      });
+      setInput("");
+      return;
+    }
+
     setSending(true);
     const result = await sendMessage(id, content);
     if (result.success) {

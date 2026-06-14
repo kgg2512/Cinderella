@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getWishlist, removeWishlist } from "./client-actions";
+import { isDemoMode, DEMO_ITEMS, DEMO_WISHLIST_ITEM_IDS } from "@/lib/demo";
 
 interface ItemShape {
   id: string;
@@ -25,12 +26,34 @@ interface Props {
   initialWishlist: WishItem[];
 }
 
+// 데모 찜 목록 — DEMO_ITEMS 중 2개를 찜한 상태로 구성
+const DEMO_WISHLIST: WishItem[] = DEMO_WISHLIST_ITEM_IDS.map((id) => {
+  const it = DEMO_ITEMS.find((d) => d.id === id)!;
+  return {
+    id: `demo-wish-${id}`,
+    item_id: id,
+    created_at: new Date().toISOString(),
+    item: {
+      id: it.id,
+      title: it.title,
+      brand: it.brand,
+      images: it.images ?? [],
+      price_per_day: it.price_per_day,
+      status: it.status,
+    },
+  };
+});
+
 export default function WishlistClient({ initialWishlist }: Props) {
-  const [wishlist, setWishlist] = useState(initialWishlist);
+  const [wishlist, setWishlist] = useState(
+    isDemoMode() ? DEMO_WISHLIST : initialWishlist,
+  );
   const [removing, setRemoving] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(true);
+  const [refreshing, setRefreshing] = useState(!isDemoMode());
 
   useEffect(() => {
+    // 데모 모드: DB 호출 없이 고정 목록 유지
+    if (isDemoMode()) return;
     setRefreshing(true);
     getWishlist().then((data) => {
       setWishlist(data as WishItem[]);
@@ -39,6 +62,11 @@ export default function WishlistClient({ initialWishlist }: Props) {
   }, []);
 
   const handleRemove = async (itemId: string, wishId: string) => {
+    // 데모 모드: 로컬 상태에서만 제거
+    if (isDemoMode()) {
+      setWishlist((prev) => prev.filter((w) => w.id !== wishId));
+      return;
+    }
     setRemoving(wishId);
     const result = await removeWishlist(itemId);
     if (result.success) {

@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import SWCleanup from "@/components/SWCleanup";
+import DemoBanner from "@/components/DemoBanner";
 
 export const viewport: Viewport = {
   themeColor: "#D4AF37",
@@ -48,6 +49,8 @@ export default function RootLayout({
             </Script>
           </>
         )}
+        {/* 데모 모드 상단 띠 배너 (NEXT_PUBLIC_DEMO_MODE=true 시에만) */}
+        <DemoBanner />
         <Navbar />
         <main className="max-w-md mx-auto pb-24">{children}</main>
       </body>

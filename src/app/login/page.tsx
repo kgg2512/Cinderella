@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithGoogleMobile, initMobileAuthListener, isCapacitor } from "@/lib/mobile-auth";
 import { sanitizeNext, stashNext } from "@/lib/login-next";
+import { isDemoMode, DEMO_USER } from "@/lib/demo";
+
+const demo = isDemoMode();
 
 /** /login?next=... 에서 복귀 경로 추출 (Open Redirect 방어 포함) */
 function readNextParam(): string {
@@ -31,6 +34,9 @@ export default function LoginPage() {
   // 모바일 환경에서 앱 URL 딥링크 리스너 등록
   // 웹 환경에서는 아무 동작 없음
   useEffect(() => {
+    // 데모 모드: OAuth/딥링크 리스너 불필요
+    if (demo) return;
+
     let cleanup: (() => void) | undefined;
 
     initMobileAuthListener(
@@ -52,6 +58,15 @@ export default function LoginPage() {
       cleanup?.();
     };
   }, [router]);
+
+  const handleDemoEnter = () => {
+    try {
+      sessionStorage.setItem("demo_user", JSON.stringify(DEMO_USER));
+    } catch {
+      // sessionStorage 차단 환경에서도 진입은 진행
+    }
+    router.push("/");
+  };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -103,26 +118,44 @@ export default function LoginPage() {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="btn-google"
-        >
-          <GoogleIcon />
-          {loading
-            ? isCapacitor()
-              ? "인증 중... (브라우저에서 완료하세요)"
-              : "로그인 중..."
-            : "Google 계정으로 시작하기"}
-        </button>
+        {demo ? (
+          <>
+            <button
+              type="button"
+              onClick={handleDemoEnter}
+              className="btn-demo"
+            >
+              ✦ 데모로 체험하기 ✦
+            </button>
+            <p className="text-[10px] text-muted text-center leading-loose">
+              투자자 프레젠테이션용 데모 모드입니다.<br />
+              로그인 없이 모든 화면을 둘러볼 수 있습니다.
+            </p>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="btn-google"
+            >
+              <GoogleIcon />
+              {loading
+                ? isCapacitor()
+                  ? "인증 중... (브라우저에서 완료하세요)"
+                  : "로그인 중..."
+                : "Google 계정으로 시작하기"}
+            </button>
 
-        <p className="text-[10px] text-muted text-center leading-loose">
-          계속 진행하면 Cinderella의{" "}
-          <a href="/terms" className="text-gold no-underline">이용약관</a>{" "}
-          및{" "}
-          <a href="/privacy" className="text-gold no-underline">개인정보처리방침</a>에 동의합니다.
-        </p>
+            <p className="text-[10px] text-muted text-center leading-loose">
+              계속 진행하면 Cinderella의{" "}
+              <a href="/terms" className="text-gold no-underline">이용약관</a>{" "}
+              및{" "}
+              <a href="/privacy" className="text-gold no-underline">개인정보처리방침</a>에 동의합니다.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
