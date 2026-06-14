@@ -11,14 +11,49 @@ interface SettingRow {
   sub?: string;
   href?: string;
   disabled?: boolean;
-  toggle?: boolean;
 }
 
-const NOTIFICATION_ROWS: SettingRow[] = [
-  { label: "푸시 알림", sub: "새 대여 요청, 메시지 알림", toggle: true, disabled: true },
-  { label: "거래 알림", sub: "입금·반납 등 거래 상태 변경", toggle: true, disabled: true },
-  { label: "마케팅 알림", sub: "혜택·이벤트 소식", toggle: true, disabled: true },
+type NotifKey = "push" | "transaction" | "marketing";
+
+interface NotifRow {
+  key: NotifKey;
+  label: string;
+  sub: string;
+}
+
+const NOTIF_PREFS_STORAGE_KEY = "cinderella_notif_prefs";
+
+const NOTIFICATION_ROWS: NotifRow[] = [
+  { key: "push", label: "푸시 알림", sub: "새 대여 요청, 메시지 알림 (실제 발송 준비 중 · 선호만 저장)" },
+  { key: "transaction", label: "거래 알림", sub: "입금·반납 등 거래 상태 변경 (선호만 저장)" },
+  { key: "marketing", label: "마케팅 알림", sub: "혜택·이벤트 소식 (선호만 저장)" },
 ];
+
+type NotifPrefs = Record<NotifKey, boolean>;
+
+const DEFAULT_NOTIF_PREFS: NotifPrefs = {
+  push: true,
+  transaction: true,
+  marketing: false,
+};
+
+function loadNotifPrefs(): NotifPrefs {
+  if (typeof window === "undefined") return DEFAULT_NOTIF_PREFS;
+  try {
+    const raw = window.localStorage.getItem(NOTIF_PREFS_STORAGE_KEY);
+    if (!raw) return DEFAULT_NOTIF_PREFS;
+    const parsed = JSON.parse(raw) as Partial<NotifPrefs>;
+    return {
+      push: typeof parsed.push === "boolean" ? parsed.push : DEFAULT_NOTIF_PREFS.push,
+      transaction:
+        typeof parsed.transaction === "boolean" ? parsed.transaction : DEFAULT_NOTIF_PREFS.transaction,
+      marketing:
+        typeof parsed.marketing === "boolean" ? parsed.marketing : DEFAULT_NOTIF_PREFS.marketing,
+    };
+  } catch {
+    return DEFAULT_NOTIF_PREFS;
+  }
+}
 
 const ACCOUNT_ROWS: SettingRow[] = [
   { label: "계좌 등록", sub: "정산받을 은행 계좌", disabled: true },
@@ -40,10 +75,34 @@ function ChevronIcon() {
   );
 }
 
-function TogglePill({ disabled }: { disabled?: boolean }) {
+function NotificationRowItem({
+  row,
+  on,
+  onToggle,
+  isLast,
+}: {
+  row: NotifRow;
+  on: boolean;
+  onToggle: (key: NotifKey) => void;
+  isLast: boolean;
+}) {
+  const rowClass = ["settings-row", isLast ? "settings-row--last" : ""].filter(Boolean).join(" ");
   return (
-    <div className={`settings-toggle${disabled ? " settings-toggle--disabled" : ""}`}>
-      <div className="settings-toggle-knob" />
+    <div className={rowClass}>
+      <div>
+        <div className="settings-row-label">{row.label}</div>
+        <div className="settings-row-sub">{row.sub}</div>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on ? "true" : "false"}
+        aria-label={`${row.label} ${on ? "켜짐" : "꺼짐"}`}
+        className={`settings-toggle settings-toggle--btn${on ? " settings-toggle--on" : ""}`}
+        onClick={() => onToggle(row.key)}
+      >
+        <span className="settings-toggle-knob" />
+      </button>
     </div>
   );
 }
@@ -63,7 +122,7 @@ function SettingRowItem({ row, isLast }: { row: SettingRow; isLast: boolean }) {
         <div className="settings-row-label">{row.label}</div>
         {row.sub && <div className="settings-row-sub">{row.sub}</div>}
       </div>
-      {row.toggle ? <TogglePill disabled={row.disabled} /> : <ChevronIcon />}
+      <ChevronIcon />
     </>
   );
 
@@ -81,12 +140,30 @@ function SettingRowItem({ row, isLast }: { row: SettingRow; isLast: boolean }) {
 export default function SettingsPage() {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) router.replace(loginPathWithNext());
     });
   }, [router]);
+
+  // localStorage에서 알림 선호 복원 (새로고침해도 유지)
+  useEffect(() => {
+    setNotifPrefs(loadNotifPrefs());
+  }, []);
+
+  const handleNotifToggle = (key: NotifKey) => {
+    setNotifPrefs((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        window.localStorage.setItem(NOTIF_PREFS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // localStorage 접근 불가(시크릿 모드 등) 시 상태만 유지
+      }
+      return next;
+    });
+  };
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -116,7 +193,13 @@ export default function SettingsPage() {
       <div className="my-section-title">알림</div>
       <div className="settings-section-block">
         {NOTIFICATION_ROWS.map((row, i) => (
-          <SettingRowItem key={row.label} row={row} isLast={i === NOTIFICATION_ROWS.length - 1} />
+          <NotificationRowItem
+            key={row.key}
+            row={row}
+            on={notifPrefs[row.key]}
+            onToggle={handleNotifToggle}
+            isLast={i === NOTIFICATION_ROWS.length - 1}
+          />
         ))}
       </div>
 

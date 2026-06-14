@@ -2766,6 +2766,18 @@ img {
   opacity: 0.5;
 }
 
+.settings-toggle--btn {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.18s ease;
+}
+
+.settings-toggle--on {
+  background: var(--gold);
+}
+
 .settings-toggle-knob {
   position: absolute;
   top: 3px;
@@ -2775,6 +2787,11 @@ img {
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.18s ease;
+}
+
+.settings-toggle--on .settings-toggle-knob {
+  transform: translateX(18px);
 }
 
 .settings-logout-wrap {
