@@ -101,7 +101,13 @@ export default function WishlistClient({ initialWishlist }: Props) {
                 <Link href={`/items/${item.id}`} className="wish-item-link">
                   <div className="item-thumb">
                     {item.images?.[0] ? (
-                      <img src={item.images[0]} alt={item.title} />
+                      <img
+                        src={item.images[0]}
+                        alt={`${item.brand ? item.brand + " " : ""}${item.title} 렌탈 상품`}
+                        loading="lazy"
+                        width={400}
+                        height={400}
+                      />
                     ) : (
                       <div className="w-full h-full bg-[#F3F0EB] flex items-center justify-center text-[#A09589] text-xs">
                         사진 없음

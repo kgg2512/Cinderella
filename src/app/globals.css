@@ -12,8 +12,8 @@
   --gold: #B8963E;
   --gold-lt: #D4B86A;
   --charcoal: #1A1816;
-  --mid: #6B6159;
-  --muted: #A09589;
+  --mid: #3E3935;
+  --muted: #6B5D54;
   --green: #2E7D32;
   --green-bg: #F1F8F1;
   --shadow: 0 2px 16px rgba(26, 24, 22, 0.055);
@@ -208,8 +208,8 @@ img {
 }
 
 .topbar-icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -258,6 +258,7 @@ img {
   border: none;
   cursor: pointer;
   text-decoration: none;
+  min-height: 44px;
 }
 
 .nav-btn.active {
@@ -437,7 +438,7 @@ img {
   gap: 5px;
   padding: 5px 11px;
   border-radius: 20px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.03em;
   -webkit-backdrop-filter: blur(8px);
@@ -587,7 +588,8 @@ img {
   background: var(--ivory);
 }
 
-.home-card-img img {
+.home-card-img img,
+.home-card-img-el {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -718,7 +720,7 @@ img {
   left: 6px;
   background: rgba(26, 24, 22, 0.72);
   color: #ffffff;
-  font-size: 7px;
+  font-size: 9px;
   letter-spacing: 0.1em;
   font-weight: 700;
   padding: 2px 7px;
@@ -761,7 +763,7 @@ img {
   font-weight: 500;
   color: var(--charcoal);
   margin-bottom: 4px;
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -1046,7 +1048,8 @@ img {
 }
 
 .seller-chat-btn {
-  padding: 8px 16px;
+  padding: 12px 16px;
+  min-height: 44px;
   border: 1.5px solid var(--border);
   border-radius: 20px;
   font-size: 12px;
@@ -1176,7 +1179,7 @@ img {
 }
 
 .form-label {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--mid);
@@ -1356,8 +1359,10 @@ img {
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  background: var(--border);
+  color: var(--muted);
   cursor: not-allowed;
+  opacity: 1;
 }
 
 /* ── WISHLIST ───────────────────────── */
@@ -3173,4 +3178,49 @@ img {
 .seller-chat-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ── FOCUS VISIBLE (접근성 — 키보드 탐색) ─────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── REDUCED MOTION ────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .home-hero-bg {
+    transition: transform 8s ease-out;
+  }
+  .home-hero-sparkles::before,
+  .home-hero-sparkles::after {
+    animation: hero-sparkle 3.2s ease-in-out infinite alternate;
+  }
+  .tx-dot-current {
+    animation: tx-pulse 1.6s ease-in-out infinite;
+  }
+  .btn-evidence-upload.uploading {
+    animation: pulse 1s infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-bg {
+    transition: none;
+  }
+  .home-hero-sparkles::before,
+  .home-hero-sparkles::after {
+    animation: none;
+  }
+  .tx-dot-current {
+    animation: none;
+  }
+  .btn-evidence-upload.uploading {
+    animation: none;
+  }
 }

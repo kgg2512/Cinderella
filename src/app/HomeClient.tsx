@@ -287,7 +287,14 @@ export default function HomeClient() {
             <Link key={item.id} href={`/items/${item.id}`} className="home-card">
               <div className="home-card-img">
                 {item.images?.[0] ? (
-                  <img src={item.images[0]} alt={item.title} />
+                  <img
+                    src={item.images[0]}
+                    alt={`${item.brand ? item.brand + " " : ""}${item.title} 렌탈 상품`}
+                    loading="lazy"
+                    width={400}
+                    height={400}
+                    className="home-card-img-el"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[#A09589] text-xs">
                     사진 없음

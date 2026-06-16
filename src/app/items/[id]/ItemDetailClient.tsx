@@ -147,7 +147,13 @@ export default function ItemDetailClient({ item }: Props) {
       {/* 이미지 캐러셀 */}
       <div className="detail-img-wrap">
         {imgs.length > 0 ? (
-          <img src={imgs[currentImage]} alt={item.title} />
+          <img
+            src={imgs[currentImage]}
+            alt={`${item.brand ? item.brand + " " : ""}${item.title} — ${currentImage + 1}번째 이미지`}
+            loading={currentImage === 0 ? "eager" : "lazy"}
+            width={860}
+            height={860}
+          />
         ) : (
           <div className="w-full h-full bg-[#F3F0EB] flex items-center justify-center text-[#A09589] text-sm">
             사진 없음
@@ -220,7 +226,13 @@ export default function ItemDetailClient({ item }: Props) {
           <div className="seller-card">
             <div className="seller-av">
               {item.owner.avatar_url ? (
-                <img src={item.owner.avatar_url} alt={item.owner.name ?? "페어리"} />
+                <img
+                  src={item.owner.avatar_url}
+                  alt={`${item.owner.name ?? "페어리"} 프로필 사진`}
+                  loading="lazy"
+                  width={44}
+                  height={44}
+                />
               ) : (
                 <div className="w-full h-full bg-[#E8E3DC] flex items-center justify-center text-[#A09589] text-lg">
                   {(item.owner.name ?? "?")[0]}
