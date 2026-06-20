@@ -11,10 +11,13 @@
 
 ## 1. Google Play (먼저 권장 — Windows에서 가능)
 - [ ] Google Play Console 계정($25 1회 결제)
-- [ ] 업로드 키스토어 생성: `keytool -genkey -v -keystore cinderella.keystore -alias cinderella -keyalg RSA -keysize 2048 -validity 9125` (비밀번호 안전 보관)
-- [ ] `android/app/build.gradle`에 signingConfig 연결 (또는 Play App Signing 사용)
-- [ ] AAB 빌드: `npm run build:mobile && npx cap sync android` → Android Studio에서 `Build > Generate Signed Bundle (AAB)`
-  - ⚠️ **Alpha 미검증**: 이 머신에 Android SDK 없음. compileSdk/targetSdk 35 + AGP 8.6.0 + Gradle 8.7로 올려뒀으나 회장 빌드에서 첫 검증 필요. 깨지면 Alpha에 로그 전달
+- [x] 업로드 키스토어 생성 — ✅ **Alpha 완료**: `android/release.keystore` (alias=`cinderella-release`, SHA1 44:87:2E:25:…). 비번은 `android/local.properties`(git 비추적)
+- [x] `android/app/build.gradle` signingConfig 연결 — ✅ **Alpha 완료** (release/minify/shrink 설정 포함)
+- [x] AAB 빌드 — ✅ **Alpha 완료 (2026-06-21)**: 이 머신에서 직접 빌드·서명 검증함 (지난 보고의 "SDK 없음·미검증"은 오판 — SDK는 `C:\Android`에 이미 있었고 `ANDROID_HOME` 미설정뿐이었음)
+  - 빌드: `gradlew bundleRelease` → **BUILD SUCCESSFUL 8m18s** (exit 0), build-tools 35.0.0 설치 후
+  - 서명: `jarsigner -verify` → **"jar verified" (exit 0)**. self-signed/no-timestamp 경고는 업로드 키라 정상(Play App Signing이 재서명)
+  - **산출물**: `android/app/build/outputs/bundle/release/app-release.aab` (3.51MB) — 바탕화면 `cinderella-app-release.aab`로도 복사
+  - ⚠️ 회장 백업 필수: `release.keystore` + `local.properties` 비번을 별도 안전 보관(분실 시 Play App Signing이면 업로드 키 재설정은 가능하나 번거로움)
 - [ ] Play Console 입력:
   - [ ] 앱 이름/짧은설명/전체설명 (한국어) — `play-store-assets/` 자산 사용
   - [ ] 그래픽: 아이콘512, 피처그래픽1024x500, 스크린샷(폰 2장+) — `play-store-assets/`, `public/icons/`
@@ -42,6 +45,7 @@
 - 로그인 없이 둘러보기: 데모/게스트 경로 있어 "콘텐츠 보려면 무조건 로그인" 거부 사유 회피 가능
 
 ## 4. Alpha가 이미 심사-레디로 해둔 것 (코드/설정)
+- ✅ **서명된 릴리스 AAB 빌드·검증 완료** (2026-06-21) — `app-release.aab` 3.51MB, jarsigner verified
 - ✅ 회원탈퇴(인앱) — RPC + 설정 UI + 탈퇴 후 안내
 - ✅ Android targetSdk/compileSdk 35 (Play 2025+ 필수) + AGP/Gradle 연동
 - ✅ 권한 위생: READ_EXTERNAL_STORAGE maxSdk32, 카메라 uses-feature required=false
