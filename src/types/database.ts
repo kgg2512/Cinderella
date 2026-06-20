@@ -255,7 +255,13 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      // 회원 탈퇴 RPC (security definer) — 본인 계정 삭제/익명화
+      delete_current_user: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
   };
 }

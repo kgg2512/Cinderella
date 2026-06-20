@@ -18,19 +18,26 @@ export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  // auth/callback에서 실패 시 /login?error=... 로 돌려보내므로 여기서 표시
+  // auth/callback 실패(?error=) 또는 탈퇴 완료(?deleted=1) 메시지 표시
   useEffect(() => {
-    const err = new URLSearchParams(window.location.search).get("error");
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("error");
+    const deleted = params.get("deleted");
+    // 클라이언트 전용 값(URL 쿼리) 읽기 → 하이드레이션 후 setState가 정답. 1회성, 캐스케이드 아님.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (deleted) {
+      setNotice("회원 탈퇴가 완료되었습니다. 그동안 이용해주셔서 감사합니다.");
+    }
     if (err) {
-      // 클라이언트 전용 값(URL 쿼리) 읽기 → 하이드레이션 후 setState가 정답. 1회성, 캐스케이드 아님.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(
         err === "timeout"
           ? "로그인 시간이 초과되었습니다. 다시 시도해주세요."
           : `로그인에 실패했습니다: ${err}`,
       );
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   // 모바일 환경에서 앱 URL 딥링크 리스너 등록
@@ -112,6 +119,13 @@ export default function LoginPage() {
           <strong className="text-charcoal font-semibold">나만의 신데렐라 순간</strong>을 만드세요.
           <br />결혼식, 소개팅, 특별한 그 날을 위해.
         </p>
+
+        {/* 탈퇴 완료 등 안내 메시지 */}
+        {notice && (
+          <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+            {notice}
+          </div>
+        )}
 
         {/* 에러 메시지 */}
         {error && (

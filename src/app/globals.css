@@ -3224,3 +3224,117 @@ textarea:focus-visible,
     animation: none;
   }
 }
+
+/* ── ACCOUNT DELETION (위험 구역 + 확인 모달) ───────────── */
+.settings-danger-wrap {
+  padding: 0 18px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-delete-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #C0392B;
+  border: 1px solid rgba(192, 57, 43, 0.35);
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+  transition: background 0.15s;
+}
+
+.settings-delete-btn:hover {
+  background: rgba(192, 57, 43, 0.06);
+}
+
+.settings-delete-help {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+  margin: 0;
+}
+
+.delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(26, 24, 22, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.delete-modal {
+  width: 100%;
+  max-width: 340px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px 22px 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+}
+
+.delete-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin: 0 0 10px;
+}
+
+.delete-modal-body {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--mid, #5a5550);
+  margin: 0 0 14px;
+}
+
+.delete-modal-error {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #C0392B;
+  background: rgba(192, 57, 43, 0.07);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0 0 14px;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.delete-modal-cancel,
+.delete-modal-confirm {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.delete-modal-cancel {
+  color: var(--charcoal);
+  background: var(--ivory, #f4f1ec);
+  border: 1px solid var(--border, #e6e0d8);
+}
+
+.delete-modal-confirm {
+  color: #fff;
+  background: #C0392B;
+  border: 1px solid #C0392B;
+}
+
+.delete-modal-cancel:disabled,
+.delete-modal-confirm:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

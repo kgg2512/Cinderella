@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
+import { isDemoMode } from "@/lib/demo";
 
 interface SettingRow {
   label: string;
@@ -141,6 +142,9 @@ export default function SettingsPage() {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -171,6 +175,25 @@ export default function SettingsPage() {
     setLoggingOut(true);
     await supabase.auth.signOut();
     router.push("/login");
+  };
+
+  // 회원 탈퇴 (스토어 필수 요건). 데모 모드에서는 실제 삭제 없이 로그인 화면으로.
+  const handleDeleteAccount = async () => {
+    setDeleteError(null);
+    if (isDemoMode()) {
+      setShowDeleteModal(false);
+      router.push("/login");
+      return;
+    }
+    setDeleting(true);
+    const { error } = await supabase.rpc("delete_current_user");
+    if (error) {
+      setDeleting(false);
+      setDeleteError("탈퇴 처리 중 오류가 발생했습니다. 진행 중인 거래가 없는지 확인 후 다시 시도해주세요.");
+      return;
+    }
+    await supabase.auth.signOut();
+    router.replace("/login?deleted=1");
   };
 
   return (
@@ -232,6 +255,63 @@ export default function SettingsPage() {
           {loggingOut ? "로그아웃 중..." : "로그아웃"}
         </button>
       </div>
+
+      {/* 회원 탈퇴 (위험 구역 — 스토어 필수) */}
+      <div className="settings-danger-wrap">
+        <button
+          type="button"
+          className="settings-delete-btn"
+          onClick={() => {
+            setDeleteError(null);
+            setShowDeleteModal(true);
+          }}
+        >
+          회원 탈퇴
+        </button>
+        <p className="settings-delete-help">
+          탈퇴 시 프로필·찜·등록 물품 등 개인정보가 삭제되며 다시 로그인할 수 없습니다.
+          거래 기록은 관련 법령에 따라 일정 기간 보존됩니다.
+        </p>
+      </div>
+
+      {/* 탈퇴 확인 모달 */}
+      {showDeleteModal && (
+        <div
+          className="delete-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+        >
+          <div className="delete-modal">
+            <h2 id="delete-modal-title" className="delete-modal-title">
+              정말 탈퇴하시겠어요?
+            </h2>
+            <p className="delete-modal-body">
+              계정과 개인정보(프로필·찜·등록 물품)가 영구적으로 삭제되며 복구할 수 없습니다.
+              진행 중인 거래가 있다면 먼저 마무리해주세요.
+            </p>
+            {deleteError && <p className="delete-modal-error">{deleteError}</p>}
+            <div className="delete-modal-actions">
+              <button
+                type="button"
+                className="delete-modal-cancel"
+                disabled={deleting}
+                onClick={() => setShowDeleteModal(false)}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className="delete-modal-confirm"
+                disabled={deleting}
+                onClick={handleDeleteAccount}
+              >
+                {deleting ? "탈퇴 처리 중..." : "탈퇴하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

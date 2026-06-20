@@ -61,8 +61,11 @@ export default function TransactionDetailPage() {
     setTimeout(() => setToast(""), 2500);
   };
 
-  const load = useCallback(async () => {
+  // isActive: id 빠른 전환 시 이전 요청의 늦은 응답이 새 화면 상태를 덮어쓰는 것 방지(stale 가드).
+  // 수동 호출(run 후 새로고침)은 기본값(항상 active)으로 동작.
+  const load = useCallback(async (isActive: () => boolean = () => true) => {
     const { data: { user } } = await supabase.auth.getUser();
+    if (!isActive()) return;
     if (!user) { router.replace(loginPathWithNext()); return; }
     setMyId(user.id);
 
@@ -77,14 +80,19 @@ export default function TransactionDetailPage() {
       .eq("id", id)
       .single();
 
+    if (!isActive()) return;
     if (error || !data) { router.replace("/transactions"); return; }
     setTx(data as TxDetail);
     setLoading(false);
   }, [id, router]);
 
-  // load()는 async — setState는 await 이후(getUser 등) 발생, effect 본문 동기 setState 아님. 규칙 오탐.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let active = true;
+    // load는 async — setState는 await 이후 발생(동기 아님). 규칙 오탐.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load(() => active);
+    return () => { active = false; }; // cleanup: 언마운트/재실행 시 이전 응답 무시
+  }, [load]);
 
   const run = async (fn: () => Promise<{ success: boolean; error?: string }>) => {
     setWorking(true);

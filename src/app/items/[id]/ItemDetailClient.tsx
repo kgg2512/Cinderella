@@ -36,24 +36,17 @@ export default function ItemDetailClient({ item }: Props) {
   const router = useRouter();
   const [currentImage, setCurrentImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
-  const [wishlistLoading, setWishlistLoading] = useState(true);
+  // 데모는 빌드 상수(isDemoMode 인라인) → lazy init이 SSR/CSR 동일값이라 하이드레이션 안전.
+  const [wishlistLoading, setWishlistLoading] = useState(!demo);
   const [showSheet, setShowSheet] = useState(false);
-  const [myId, setMyId] = useState<string | null>(null);
+  const [myId, setMyId] = useState<string | null>(demo ? DEMO_USER.id : null);
   const [chatOpening, setChatOpening] = useState(false);
 
   useEffect(() => {
-    // 데모 모드: DB 호출 없이 로컬 상태만 (찜 false, 데모 사용자로 가장).
-    // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
-    /* eslint-disable react-hooks/set-state-in-effect */
-    if (demo) {
-      setWishlisted(false);
-      setWishlistLoading(false);
-      setMyId(DEMO_USER.id);
-      return;
-    }
-    /* eslint-enable react-hooks/set-state-in-effect */
+    // 데모 모드: 초기 상태를 위 useState lazy init으로 이미 주입함 → effect는 비데모 DB 경로만.
+    if (demo) return;
 
-    setWishlistLoading(true);
+    // wishlistLoading 초기값이 이미 true(!demo)이고 페이지는 item별 remount → 동기 리셋 불요.
     checkWishlisted(item.id).then((v) => {
       setWishlisted(v);
       setWishlistLoading(false);
