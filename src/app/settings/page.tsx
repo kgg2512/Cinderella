@@ -150,6 +150,8 @@ export default function SettingsPage() {
 
   // localStorage에서 알림 선호 복원 (새로고침해도 유지)
   useEffect(() => {
+    // 클라이언트 전용 값(localStorage) 읽기 → 하이드레이션 후 setState가 정답(불일치 방지). 1회성, 캐스케이드 아님.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNotifPrefs(loadNotifPrefs());
   }, []);
 

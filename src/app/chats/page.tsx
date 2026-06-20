@@ -35,7 +35,10 @@ export default function ChatsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 데모 모드: 인증·DB 호출 없이 가짜 채팅 1개 주입
+    // 데모 모드: 인증·DB 호출 없이 가짜 채팅 1개 주입.
+    // 데모 데이터에 new Date() 타임스탬프 포함 → lazy init 전환 시 SSR/CSR 하이드레이션 불일치.
+    // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (isDemoMode()) {
       setMyId(DEMO_USER.id);
       const lastMsg = DEMO_MESSAGES[DEMO_MESSAGES.length - 1];
@@ -66,6 +69,7 @@ export default function ChatsPage() {
       setLoading(false);
       return;
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();

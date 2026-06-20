@@ -42,13 +42,16 @@ export default function ItemDetailClient({ item }: Props) {
   const [chatOpening, setChatOpening] = useState(false);
 
   useEffect(() => {
-    // 데모 모드: DB 호출 없이 로컬 상태만 (찜 false, 데모 사용자로 가장)
+    // 데모 모드: DB 호출 없이 로컬 상태만 (찜 false, 데모 사용자로 가장).
+    // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (demo) {
       setWishlisted(false);
       setWishlistLoading(false);
       setMyId(DEMO_USER.id);
       return;
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     setWishlistLoading(true);
     checkWishlisted(item.id).then((v) => {

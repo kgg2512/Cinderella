@@ -20,7 +20,10 @@ export default function ItemDetailPageClient() {
   useEffect(() => {
     if (!id) return;
 
-    // 데모 모드: DEMO_ITEMS에서 단건 조회 + 데모 페어리를 owner로 부착
+    // 데모 모드: DEMO_ITEMS에서 단건 조회 + 데모 페어리를 owner로 부착.
+    // 데모 아이템에 new Date() 타임스탬프 포함 → lazy init 전환 시 SSR/CSR 하이드레이션 불일치.
+    // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (isDemoMode()) {
       const found = getDemoItem(id);
       setItem(
@@ -39,6 +42,7 @@ export default function ItemDetailPageClient() {
       setLoading(false);
       return;
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     supabase
       .from("items")

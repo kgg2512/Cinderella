@@ -82,6 +82,8 @@ export default function TransactionDetailPage() {
     setLoading(false);
   }, [id, router]);
 
+  // load()는 async — setState는 await 이후(getUser 등) 발생, effect 본문 동기 setState 아님. 규칙 오탐.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   const run = async (fn: () => Promise<{ success: boolean; error?: string }>) => {
@@ -105,7 +107,6 @@ export default function TransactionDetailPage() {
 
   const isLender = myId === tx.lender_id;
   const isBorrower = myId === tx.borrower_id;
-  const role = isLender ? "lender" : "borrower";
   const item = tx.item;
   const thumbUrl = item?.images?.[0] ?? "https://images.unsplash.com/photo-1529025530948-67e8a5c69b58?auto=format&fit=crop&w=200&q=70";
 

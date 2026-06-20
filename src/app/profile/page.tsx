@@ -85,6 +85,9 @@ export default function ProfilePage() {
   const [incomingTxs, setIncomingTxs] = useState<ActiveTx[]>([]);
 
   useEffect(() => {
+    // 아래 동기 setState는 (a) localStorage 등 클라이언트 전용 값 복원 → 하이드레이션 후 설정이 정답,
+    // (b) 데모 1회성 마운트 초기화. 둘 다 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
+    /* eslint-disable react-hooks/set-state-in-effect */
     // 저장된 역할 모드 복원 (재방문 시 유지)
     try {
       const saved = window.localStorage.getItem(ROLE_STORAGE_KEY);
@@ -110,6 +113,7 @@ export default function ProfilePage() {
       setLoading(false);
       return;
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     (async () => {
       const {

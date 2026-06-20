@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -23,20 +23,8 @@ export default function MyItemsPage() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.replace(loginPathWithNext());
-        return;
-      }
-      await fetchItems(user.id);
-    })();
-  }, [router]);
-
-  const fetchItems = async (userId: string) => {
+  // 선언을 effect 위로 (react-hooks/immutability: effect가 선언 전 변수 참조 금지) + useCallback로 안정화
+  const fetchItems = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from("items")
       .select("id, title, brand, price_per_day, images, status, category, created_at")
@@ -49,7 +37,20 @@ export default function MyItemsPage() {
       setItems((data ?? []) as MyItem[]);
     }
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.replace(loginPathWithNext());
+        return;
+      }
+      await fetchItems(user.id);
+    })();
+  }, [router, fetchItems]);
 
   const toggleStatus = async (item: MyItem) => {
     const newStatus = item.status === "available" ? "hidden" : "available";

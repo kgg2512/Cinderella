@@ -4,7 +4,7 @@ import { isDemoMode, DEMO_USER } from "@/lib/demo";
 
 // HMR 중 인스턴스 중복 생성 방지 (PKCE code verifier 충돌 방지)
 declare global {
-  // eslint-disable-next-line no-var
+  // 전역 증강은 var 필수 (let/const 불가). no-var는 현재 설정에서 미적용이라 disable 주석 불요.
   var __supabase: SupabaseClient<Database> | undefined;
 }
 

@@ -63,7 +63,10 @@ export default function ChatRoomClient() {
 
   // 초기 로드
   useEffect(() => {
-    // 데모 모드: 인증·DB·Realtime 없이 미리 작성된 대화 3줄 주입
+    // 데모 모드: 인증·DB·Realtime 없이 미리 작성된 대화 3줄 주입.
+    // 데모 메시지에 Date.now() 타임스탬프 포함 → lazy init 전환 시 SSR/CSR 하이드레이션 불일치.
+    // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (demo) {
       const baseTime = Date.now() - DEMO_MESSAGES.length * 60000;
       setMyId(DEMO_USER.id);
@@ -95,6 +98,7 @@ export default function ChatRoomClient() {
       setLoading(false);
       return;
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     (async () => {
       // CISO 제약 4: getUser()로 인증 확인 (getSession() 금지)

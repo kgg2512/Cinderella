@@ -54,7 +54,7 @@ export default function WishlistClient({ initialWishlist }: Props) {
   useEffect(() => {
     // 데모 모드: DB 호출 없이 고정 목록 유지
     if (isDemoMode()) return;
-    setRefreshing(true);
+    // refreshing 초기값이 이미 !isDemoMode()(=true)이므로 여기서 재설정 불필요 — 동기 setState 제거
     getWishlist().then((data) => {
       setWishlist(data as WishItem[]);
       setRefreshing(false);

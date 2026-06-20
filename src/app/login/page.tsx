@@ -23,6 +23,8 @@ export default function LoginPage() {
   useEffect(() => {
     const err = new URLSearchParams(window.location.search).get("error");
     if (err) {
+      // 클라이언트 전용 값(URL 쿼리) 읽기 → 하이드레이션 후 setState가 정답. 1회성, 캐스케이드 아님.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(
         err === "timeout"
           ? "로그인 시간이 초과되었습니다. 다시 시도해주세요."
