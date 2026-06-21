@@ -186,6 +186,27 @@ export default function SettingsPage() {
       return;
     }
     setDeleting(true);
+
+    // 1) 내 물품 사진(item-images: items/{uid}/*) 물리 삭제 — S3까지. best-effort(실패해도 계정삭제 진행).
+    //    transaction-photos(거래 증빙)는 전자상거래법상 보존의무 → 의도적으로 삭제하지 않는다.
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const prefix = `items/${user.id}`;
+        const { data: files } = await supabase.storage
+          .from("item-images")
+          .list(prefix, { limit: 1000 });
+        if (files && files.length > 0) {
+          await supabase.storage
+            .from("item-images")
+            .remove(files.map((f) => `${prefix}/${f.name}`));
+        }
+      }
+    } catch {
+      // 스토리지 정리 실패는 치명적이지 않음(계정·DB 삭제가 우선). orphan 이미지는 후속 정리 대상.
+    }
+
+    // 2) 계정/개인정보 DB 처리 (익명화 + 로그인 무효화)
     const { error } = await supabase.rpc("delete_current_user");
     if (error) {
       setDeleting(false);

@@ -12,8 +12,11 @@
 --       - 로그인 차단(banned_until + 자격 제거) → 재로그인 불가
 --       - 거래/채팅 레코드는 상대방을 위해 보존(개인식별정보는 제거됨)
 --   * 개인정보처리방침에 "거래기록은 법령상 보존" 고지 필요(회장 확인).
---   * Storage 의 업로드 이미지(증빙/프로필) 물리 삭제는 SQL 범위 밖 →
---     Edge Function 또는 회장 운영 절차로 별도 처리(체크리스트 참조).
+--   * Storage 처리(SQL 범위 밖, 클라이언트 탈퇴 플로우 settings/page.tsx 에서 수행):
+--       - item-images(물품 사진): 탈퇴 시 supabase.storage.remove 로 물리삭제(S3까지).
+--         경로 items/{uid}/* → DELETE 정책은 20260621010000_fix_item_images_delete_policy.sql 로 [2]=uid 교정됨.
+--       - transaction-photos(거래 증빙): 전자상거래법 보존의무 → 삭제하지 않음(DELETE 정책 의도적 부재).
+--       - avatar(프로필 사진): Storage 아님(Google OAuth 외부 URL) → 위 4)에서 avatar_url=null 익명화로 종결.
 -- ============================================================================
 
 create or replace function public.delete_current_user()
