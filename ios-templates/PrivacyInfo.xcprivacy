@@ -50,12 +50,12 @@
         <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
       </array>
     </dict>
-    <!-- 결제 정보 — 토스페이먼츠 처리, 앱은 토큰만 수신 -->
+    <!-- 이름 (Google OAuth 표시명) -->
     <dict>
       <key>NSPrivacyCollectedDataType</key>
-      <string>NSPrivacyCollectedDataTypePaymentInfo</string>
+      <string>NSPrivacyCollectedDataTypeName</string>
       <key>NSPrivacyCollectedDataTypeLinked</key>
-      <false/>
+      <true/>
       <key>NSPrivacyCollectedDataTypeTracking</key>
       <false/>
       <key>NSPrivacyCollectedDataTypePurposes</key>
@@ -63,12 +63,12 @@
         <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
       </array>
     </dict>
-    <!-- 기기 ID -->
+    <!-- 채팅 메시지 (사용자 콘텐츠) -->
     <dict>
       <key>NSPrivacyCollectedDataType</key>
-      <string>NSPrivacyCollectedDataTypeDeviceID</string>
+      <string>NSPrivacyCollectedDataTypeOtherUserContent</string>
       <key>NSPrivacyCollectedDataTypeLinked</key>
-      <false/>
+      <true/>
       <key>NSPrivacyCollectedDataTypeTracking</key>
       <false/>
       <key>NSPrivacyCollectedDataTypePurposes</key>
@@ -76,6 +76,11 @@
         <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
       </array>
     </dict>
+    <!--
+      제거됨: PaymentInfo(P2P 딥링크 송금 — 앱은 결제정보 미수집),
+              DeviceID(푸시 발송 미구현·기기식별자 서버 전송 없음).
+      실제 수집·전송하는 데이터만 선언(Apple 라벨 불일치 = 거절 사유 방지).
+    -->
   </array>
 
   <!-- 광고 추적 없음 -->
