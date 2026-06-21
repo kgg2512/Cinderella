@@ -5,7 +5,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
-import { isDemoMode, DEMO_USER } from "@/lib/demo";
+import {
+  isDemoMode,
+  DEMO_USER,
+  DEMO_ACTIVE_BORROWING,
+  DEMO_ACTIVE_LENDING,
+  DEMO_MY_ITEMS,
+} from "@/lib/demo";
 import type { User } from "@supabase/supabase-js";
 
 const MENU_ITEMS = [
@@ -110,6 +116,10 @@ export default function ProfilePage() {
       setRentalCount(4);
       setCompletedCount(8);
       setWishCount(2);
+      // 진행 중 거래 주입 — "대여 횟수 4" ↔ "대여 내역 없음" 모순 제거
+      setActiveTxs(DEMO_ACTIVE_BORROWING as unknown as ActiveTx[]);
+      setMyItems(DEMO_MY_ITEMS as unknown as MyItemRow[]);
+      setIncomingTxs(DEMO_ACTIVE_LENDING as unknown as ActiveTx[]);
       setLoading(false);
       return;
     }

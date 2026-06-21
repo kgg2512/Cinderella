@@ -6,14 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
 import { getMyChats, type ChatListRow } from "./client-actions";
-import {
-  isDemoMode,
-  DEMO_USER,
-  DEMO_FAIRY,
-  DEMO_CHAT_ID,
-  DEMO_ITEMS,
-  DEMO_MESSAGES,
-} from "@/lib/demo";
+import { isDemoMode, DEMO_USER, DEMO_CHATS } from "@/lib/demo";
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -41,31 +34,37 @@ export default function ChatsPage() {
     /* eslint-disable react-hooks/set-state-in-effect */
     if (isDemoMode()) {
       setMyId(DEMO_USER.id);
-      const lastMsg = DEMO_MESSAGES[DEMO_MESSAGES.length - 1];
-      const demoChat: ChatListRow = {
-        id: DEMO_CHAT_ID,
-        item_id: DEMO_ITEMS[0].id,
-        borrower_id: DEMO_USER.id,
-        owner_id: DEMO_FAIRY.id,
-        created_at: new Date().toISOString(),
-        item: {
-          id: DEMO_ITEMS[0].id,
-          title: DEMO_ITEMS[0].title,
-          brand: DEMO_ITEMS[0].brand,
-          images: DEMO_ITEMS[0].images ?? [],
-        },
-        borrower: { id: DEMO_USER.id, name: DEMO_USER.name, avatar_url: DEMO_USER.avatar_url },
-        owner: { id: DEMO_FAIRY.id, name: DEMO_FAIRY.name, avatar_url: DEMO_FAIRY.avatar_url },
-        messages: [
-          {
-            content: lastMsg.content,
-            created_at: new Date().toISOString(),
-            sender_id: DEMO_USER.id,
-            read_at: new Date().toISOString(),
+      const now = Date.now();
+      const demoChats: ChatListRow[] = DEMO_CHATS.map((c, idx) => {
+        const last = c.messages[c.messages.length - 1];
+        const lastSenderId = last.sender === "me" ? DEMO_USER.id : c.fairy.id;
+        // 대화방마다 시간 차이를 둬 목록 정렬이 자연스럽게 보이도록
+        const ts = new Date(now - idx * 23 * 60000).toISOString();
+        return {
+          id: c.id,
+          item_id: c.item.id,
+          borrower_id: DEMO_USER.id,
+          owner_id: c.fairy.id,
+          created_at: ts,
+          item: {
+            id: c.item.id,
+            title: c.item.title,
+            brand: c.item.brand,
+            images: c.item.images ?? [],
           },
-        ],
-      };
-      setChats([demoChat]);
+          borrower: { id: DEMO_USER.id, name: DEMO_USER.name, avatar_url: DEMO_USER.avatar_url },
+          owner: { id: c.fairy.id, name: c.fairy.name, avatar_url: c.fairy.avatar_url },
+          messages: [
+            {
+              content: last.content,
+              created_at: ts,
+              sender_id: lastSenderId,
+              read_at: new Date().toISOString(),
+            },
+          ],
+        };
+      });
+      setChats(demoChats);
       setLoading(false);
       return;
     }

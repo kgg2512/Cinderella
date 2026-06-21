@@ -15,14 +15,7 @@ import {
 } from "../client-actions";
 import { submitReport, blockUser } from "@/app/safety/client-actions";
 import ReportSheet from "@/components/ReportSheet";
-import {
-  isDemoMode,
-  DEMO_USER,
-  DEMO_FAIRY,
-  DEMO_CHAT_ID,
-  DEMO_ITEMS,
-  DEMO_MESSAGES,
-} from "@/lib/demo";
+import { isDemoMode, DEMO_USER, getDemoChat } from "@/lib/demo";
 
 const demo = isDemoMode();
 
@@ -74,28 +67,29 @@ export default function ChatRoomClient() {
     // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
     /* eslint-disable react-hooks/set-state-in-effect */
     if (demo) {
-      const baseTime = Date.now() - DEMO_MESSAGES.length * 60000;
+      const dchat = getDemoChat(id);
+      const baseTime = Date.now() - dchat.messages.length * 60000;
       setMyId(DEMO_USER.id);
       setChat({
-        id: DEMO_CHAT_ID,
-        item_id: DEMO_ITEMS[0].id,
+        id: dchat.id,
+        item_id: dchat.item.id,
         borrower_id: DEMO_USER.id,
-        owner_id: DEMO_FAIRY.id,
+        owner_id: dchat.fairy.id,
         created_at: new Date(baseTime).toISOString(),
         item: {
-          id: DEMO_ITEMS[0].id,
-          title: DEMO_ITEMS[0].title,
-          brand: DEMO_ITEMS[0].brand,
-          images: DEMO_ITEMS[0].images ?? [],
+          id: dchat.item.id,
+          title: dchat.item.title,
+          brand: dchat.item.brand,
+          images: dchat.item.images ?? [],
         },
         borrower: { id: DEMO_USER.id, name: DEMO_USER.name, avatar_url: DEMO_USER.avatar_url },
-        owner: { id: DEMO_FAIRY.id, name: DEMO_FAIRY.name, avatar_url: DEMO_FAIRY.avatar_url },
+        owner: { id: dchat.fairy.id, name: dchat.fairy.name, avatar_url: dchat.fairy.avatar_url },
       });
       setMessages(
-        DEMO_MESSAGES.map((m, i) => ({
+        dchat.messages.map((m, i) => ({
           id: m.id,
-          chat_id: DEMO_CHAT_ID,
-          sender_id: m.sender === "me" ? DEMO_USER.id : DEMO_FAIRY.id,
+          chat_id: dchat.id,
+          sender_id: m.sender === "me" ? DEMO_USER.id : dchat.fairy.id,
           content: m.content,
           created_at: new Date(baseTime + i * 60000).toISOString(),
           read_at: new Date().toISOString(),
@@ -162,7 +156,7 @@ export default function ChatRoomClient() {
     if (demo) {
       appendMessage({
         id: `demo-msg-${Date.now()}`,
-        chat_id: DEMO_CHAT_ID,
+        chat_id: id,
         sender_id: DEMO_USER.id,
         content,
         created_at: new Date().toISOString(),

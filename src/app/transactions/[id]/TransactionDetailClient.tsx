@@ -16,6 +16,7 @@ import {
 } from "../client-actions";
 import type { TransactionStatus } from "@/types/transaction";
 import { TRANSACTION_STATUS_LABEL } from "@/types/transaction";
+import { isDemoMode, DEMO_USER, getDemoTransaction } from "@/lib/demo";
 
 interface TxDetail {
   id: string;
@@ -64,6 +65,17 @@ export default function TransactionDetailPage() {
   // isActive: id 빠른 전환 시 이전 요청의 늦은 응답이 새 화면 상태를 덮어쓰는 것 방지(stale 가드).
   // 수동 호출(run 후 새로고침)은 기본값(항상 active)으로 동작.
   const load = useCallback(async (isActive: () => boolean = () => true) => {
+    // 데모 모드: DB 없이 데모 거래 단건 주입 (타임라인 표시용)
+    if (isDemoMode()) {
+      const demoTx = getDemoTransaction(id);
+      if (!isActive()) return;
+      if (!demoTx) { router.replace("/transactions"); return; }
+      setMyId(DEMO_USER.id);
+      setTx(demoTx as unknown as TxDetail);
+      setLoading(false);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!isActive()) return;
     if (!user) { router.replace(loginPathWithNext()); return; }
@@ -95,6 +107,11 @@ export default function TransactionDetailPage() {
   }, [load]);
 
   const run = async (fn: () => Promise<{ success: boolean; error?: string }>) => {
+    // 데모 모드: 실제 상태 변경 없이 안내 토스트 (읽기 전용 시연)
+    if (isDemoMode()) {
+      showToast("데모 모드 — 실제 서비스에서 진행됩니다");
+      return;
+    }
     setWorking(true);
     const result = await fn();
     if (result.success) {

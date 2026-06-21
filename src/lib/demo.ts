@@ -13,6 +13,7 @@
  */
 
 import type { Database } from "@/types/database";
+import type { TransactionWithDetails } from "@/types/transaction";
 
 type Item = Database["public"]["Tables"]["items"]["Row"];
 
@@ -133,40 +134,218 @@ export function getDemoItem(id: string): Item | null {
 /** 데모 찜 목록 — DEMO_ITEMS 중 2개를 찜한 상태로 고정 */
 export const DEMO_WISHLIST_ITEM_IDS = ["mock-2", "mock-3"];
 
-/** 데모 페어리(대여자) — 채팅 상대 */
+/** 데모 페어리(대여자) — 1번 채팅 상대 */
 export const DEMO_FAIRY = {
   id: "demo-fairy-001",
   name: "소피아",
   avatar_url: "https://i.pravatar.cc/120?img=32",
 };
 
-/** 데모 채팅방 id (라우트: /chats/demo-chat) */
-export const DEMO_CHAT_ID = "demo-chat";
+/** 데모 페어리 2 — 2번 채팅/거래 상대 */
+export const DEMO_FAIRY_2 = {
+  id: "demo-fairy-002",
+  name: "지우",
+  avatar_url: "https://i.pravatar.cc/120?img=45",
+};
 
-/** 데모 채팅 미리 작성된 대화 3줄 */
-export const DEMO_MESSAGES = [
+/** 데모 신데렐라(차용자) — 내가 페어리일 때 거래 상대 */
+export const DEMO_CINDERELLA = {
+  id: "demo-cinderella-001",
+  name: "하은",
+  avatar_url: "https://i.pravatar.cc/120?img=20",
+};
+
+export type DemoMessage = { id: string; sender: "me" | "fairy"; content: string };
+
+/** 1번 대화 — 소피아 ↔ 나, Neverfull 렌탈 전 과정(발견→가격/보증금→정품→직거래 약속) */
+const DEMO_CHAT_1_MESSAGES: DemoMessage[] = [
+  { id: "c1-1", sender: "me", content: "안녕하세요, Neverfull MM 빌리고 싶어요! 이번 주말 친구 결혼식이 있어서요 ✨" },
+  { id: "c1-2", sender: "fairy", content: "안녕하세요 민희님 😊 네버풀 지금 대여 가능해요! 토요일 오전부터 필요하실까요?" },
+  { id: "c1-3", sender: "me", content: "네! 토요일 오전 10시부터 일요일 저녁까지 가능할까요?" },
+  { id: "c1-4", sender: "fairy", content: "그럼요. 1박 2일 5만원이고 보증금은 30만원이에요. 반납 시 전액 돌려드려요!" },
+  { id: "c1-5", sender: "me", content: "좋아요 :) 정품 보증서도 같이 주시나요?" },
+  { id: "c1-6", sender: "fairy", content: "네, 구매 영수증이랑 정품 인증서 함께 드려요. FairyRating 최상위라 안심하셔도 돼요 💛" },
+  { id: "c1-7", sender: "me", content: "믿음이 가네요! 강남역에서 직거래 가능하실까요?" },
+  { id: "c1-8", sender: "fairy", content: "토요일 오전 9시 30분 강남역 11번 출구 어떠세요?" },
+  { id: "c1-9", sender: "me", content: "완벽해요! 그때 뵐게요 😊 빌리기 요청 보냈습니다!" },
+];
+
+/** 2번 대화 — 지우 ↔ 나, Datejust 시계 보증금 단계까지 진행 */
+const DEMO_CHAT_2_MESSAGES: DemoMessage[] = [
+  { id: "c2-1", sender: "me", content: "안녕하세요! 데이트저스트 36 다음 주 화요일 비즈니스 미팅에 빌릴 수 있을까요?" },
+  { id: "c2-2", sender: "fairy", content: "안녕하세요 😊 화요일 하루 대여 가능합니다. 정품 보증서랑 박스 함께 드려요." },
+  { id: "c2-3", sender: "me", content: "좋네요! 보증금은 얼마인가요?" },
+  { id: "c2-4", sender: "fairy", content: "50만원이고 반납 확인 후 바로 돌려드려요. 토스로 보내주시면 됩니다 🙏" },
+  { id: "c2-5", sender: "me", content: "방금 보증금 보냈어요! 확인 부탁드려요 :)" },
+];
+
+/** 레거시 호환 — 기본(1번) 대화 메시지 */
+export const DEMO_MESSAGES = DEMO_CHAT_1_MESSAGES;
+
+/** 기본 데모 채팅방 id */
+export const DEMO_CHAT_ID = "demo-chat-1";
+
+export interface DemoChat {
+  id: string;
+  fairy: { id: string; name: string; avatar_url: string };
+  item: Item;
+  messages: DemoMessage[];
+}
+
+/** 데모 채팅 목록 — 2개 대화방 (마켓이 살아있음을 시연) */
+export const DEMO_CHATS: DemoChat[] = [
+  { id: "demo-chat-1", fairy: DEMO_FAIRY, item: getDemoItem("mock-1")!, messages: DEMO_CHAT_1_MESSAGES },
+  { id: "demo-chat-2", fairy: DEMO_FAIRY_2, item: getDemoItem("mock-4")!, messages: DEMO_CHAT_2_MESSAGES },
+];
+
+/** 데모 채팅방 단건 조회 (없으면 1번 폴백) */
+export function getDemoChat(id: string): DemoChat {
+  return DEMO_CHATS.find((c) => c.id === id) ?? DEMO_CHATS[0];
+}
+
+// ── 데모 거래(Transaction) 데이터 ───────────────────────────────────────────
+// 렌탈 마켓의 핵심 = 거래 루프. 투자자에게 "브라우즈→채팅→빌리기→거래진행→완료"의
+// 완결 스토리를 보여주기 위해 전 상태(요청·보증금·대여중·완료·반납)를 망라한다.
+// 날짜/created_at은 고정 문자열 — SSR/CSR 하이드레이션 드리프트 방지.
+
+function txItemRef(id: string) {
+  const it = getDemoItem(id)!;
+  return { id: it.id, title: it.title, brand: it.brand, images: it.images, price_per_day: it.price_per_day };
+}
+function txUserRef(u: { id: string; name: string; avatar_url: string }) {
+  return { id: u.id, name: u.name, avatar_url: u.avatar_url };
+}
+const ME_REF = { id: DEMO_USER.id, name: DEMO_USER.name, avatar_url: DEMO_USER.avatar_url };
+
+/**
+ * 데모 거래 5건.
+ *  - 내가 빌린 것(borrower=나): tx-1 대여중 / tx-2 보증금요청 / tx-3 거래완료
+ *  - 내가 빌려준 것(lender=나): tx-4 빌리기요청 / tx-5 반납됨
+ */
+export const DEMO_TRANSACTIONS: TransactionWithDetails[] = [
   {
-    id: "demo-msg-1",
-    sender: "me" as const,
-    content: "안녕하세요, Neverfull 빌리고 싶어요!",
+    id: "demo-tx-1",
+    item_id: "mock-1",
+    lender_id: DEMO_FAIRY.id,
+    borrower_id: DEMO_USER.id,
+    status: "handed_over",
+    start_date: "2026-06-21",
+    end_date: "2026-06-23",
+    deposit_amount: 300000,
+    toss_id: "sophia_lux",
+    lender_confirmed_handover: true,
+    borrower_confirmed_handover: true,
+    lender_confirmed_return: false,
+    borrower_confirmed_return: false,
+    created_at: "2026-06-20T09:00:00.000Z",
+    updated_at: "2026-06-21T01:00:00.000Z",
+    item: txItemRef("mock-1"),
+    lender: txUserRef(DEMO_FAIRY),
+    borrower: ME_REF,
   },
   {
-    id: "demo-msg-2",
-    sender: "fairy" as const,
-    content: "네 물론이죠! 언제 필요하세요?",
+    id: "demo-tx-2",
+    item_id: "mock-4",
+    lender_id: DEMO_FAIRY_2.id,
+    borrower_id: DEMO_USER.id,
+    status: "deposit_requested",
+    start_date: "2026-06-30",
+    end_date: "2026-06-30",
+    deposit_amount: 500000,
+    toss_id: "jiwoo_watch",
+    lender_confirmed_handover: false,
+    borrower_confirmed_handover: false,
+    lender_confirmed_return: false,
+    borrower_confirmed_return: false,
+    created_at: "2026-06-21T12:00:00.000Z",
+    updated_at: "2026-06-21T12:30:00.000Z",
+    item: txItemRef("mock-4"),
+    lender: txUserRef(DEMO_FAIRY_2),
+    borrower: ME_REF,
   },
   {
-    id: "demo-msg-3",
-    sender: "me" as const,
-    content: "이번 주말이요!",
+    id: "demo-tx-3",
+    item_id: "mock-2",
+    lender_id: DEMO_FAIRY.id,
+    borrower_id: DEMO_USER.id,
+    status: "completed",
+    start_date: "2026-06-07",
+    end_date: "2026-06-09",
+    deposit_amount: 400000,
+    toss_id: "sophia_lux",
+    lender_confirmed_handover: true,
+    borrower_confirmed_handover: true,
+    lender_confirmed_return: true,
+    borrower_confirmed_return: true,
+    created_at: "2026-06-06T09:00:00.000Z",
+    updated_at: "2026-06-09T18:00:00.000Z",
+    item: txItemRef("mock-2"),
+    lender: txUserRef(DEMO_FAIRY),
+    borrower: ME_REF,
+  },
+  {
+    id: "demo-tx-4",
+    item_id: "mock-3",
+    lender_id: DEMO_USER.id,
+    borrower_id: DEMO_CINDERELLA.id,
+    status: "requested",
+    start_date: "2026-06-25",
+    end_date: "2026-06-26",
+    deposit_amount: 700000,
+    toss_id: null,
+    lender_confirmed_handover: false,
+    borrower_confirmed_handover: false,
+    lender_confirmed_return: false,
+    borrower_confirmed_return: false,
+    created_at: "2026-06-22T08:30:00.000Z",
+    updated_at: "2026-06-22T08:30:00.000Z",
+    item: txItemRef("mock-3"),
+    lender: ME_REF,
+    borrower: txUserRef(DEMO_CINDERELLA),
+  },
+  {
+    id: "demo-tx-5",
+    item_id: "mock-5",
+    lender_id: DEMO_USER.id,
+    borrower_id: DEMO_CINDERELLA.id,
+    status: "returned",
+    start_date: "2026-06-14",
+    end_date: "2026-06-16",
+    deposit_amount: 250000,
+    toss_id: "minhee_k",
+    lender_confirmed_handover: true,
+    borrower_confirmed_handover: true,
+    lender_confirmed_return: false,
+    borrower_confirmed_return: true,
+    created_at: "2026-06-13T09:00:00.000Z",
+    updated_at: "2026-06-16T20:00:00.000Z",
+    item: txItemRef("mock-5"),
+    lender: ME_REF,
+    borrower: txUserRef(DEMO_CINDERELLA),
   },
 ];
 
-/** 데모 채팅 목록(1개) 표시용 메타 */
-export const DEMO_CHAT_PREVIEW = {
-  id: DEMO_CHAT_ID,
-  fairyName: DEMO_FAIRY.name,
-  itemTitle: DEMO_ITEMS[0].title,
-  itemThumb: DEMO_ITEMS[0].images[0],
-  lastMessage: DEMO_MESSAGES[DEMO_MESSAGES.length - 1].content,
-};
+/** 내가 빌린 거래 (borrower=나) — 최신순 */
+export const DEMO_BORROWING = DEMO_TRANSACTIONS.filter((t) => t.borrower_id === DEMO_USER.id);
+/** 내가 빌려준 거래 (lender=나) — 최신순 */
+export const DEMO_LENDING = DEMO_TRANSACTIONS.filter((t) => t.lender_id === DEMO_USER.id);
+
+/** 데모 거래 단건 조회 */
+export function getDemoTransaction(id: string): TransactionWithDetails | null {
+  return DEMO_TRANSACTIONS.find((t) => t.id === id) ?? null;
+}
+
+/** 진행 중(완료 제외) 거래 — 마이페이지 "대여 현황"/"들어온 요청"용 */
+const ACTIVE_TX_STATUSES = ["requested", "deposit_requested", "deposit_confirmed", "handed_over", "returned"];
+export const DEMO_ACTIVE_BORROWING = DEMO_BORROWING.filter((t) => ACTIVE_TX_STATUSES.includes(t.status));
+export const DEMO_ACTIVE_LENDING = DEMO_LENDING.filter((t) => ACTIVE_TX_STATUSES.includes(t.status));
+
+/** 내가 페어리로서 등록한 물품 (마이페이지 페어리 모드 "내 물품") */
+export const DEMO_MY_ITEMS = [getDemoItem("mock-3")!, getDemoItem("mock-5")!].map((it) => ({
+  id: it.id,
+  title: it.title,
+  brand: it.brand,
+  price_per_day: it.price_per_day,
+  images: it.images,
+  status: "available",
+}));

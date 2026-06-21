@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { loginPathWithNext } from "@/lib/login-next";
 import type { TransactionStatus } from "@/types/transaction";
 import { TRANSACTION_STATUS_LABEL } from "@/types/transaction";
+import { isDemoMode, DEMO_USER, DEMO_BORROWING, DEMO_LENDING } from "@/lib/demo";
 
 interface TxCard {
   id: string;
@@ -94,6 +95,18 @@ export default function TransactionsPage() {
   }, []);
 
   useEffect(() => {
+    // 데모 모드: 인증·DB 없이 데모 거래 주입 (빌린 것 3 / 빌려준 것 2).
+    // 1회성 마운트 초기화이며 렌더 캐스케이드 아님 → 의도된 effect 패턴(규칙 오탐).
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (isDemoMode()) {
+      setMyId(DEMO_USER.id);
+      setBorrowing(DEMO_BORROWING as unknown as TxCard[]);
+      setLending(DEMO_LENDING as unknown as TxCard[]);
+      setLoading(false);
+      return;
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace(loginPathWithNext()); return; }
