@@ -1756,6 +1756,157 @@ img {
   opacity: 1;
 }
 
+/* ── REPORT / BLOCK (UGC 신고·차단) ──── */
+.report-reason-list {
+  border: none;
+  margin: 4px 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.report-reason-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 4px;
+  font-size: 14px;
+  color: #2A2622;
+  cursor: pointer;
+  border-bottom: 1px solid #F0EDE8;
+}
+
+.report-reason-item:last-child {
+  border-bottom: none;
+}
+
+.report-reason-item input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1A1816;
+  cursor: pointer;
+}
+
+.report-detail-wrap {
+  margin-bottom: 16px;
+}
+
+.report-detail-input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #E2DCD3;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #2A2622;
+  background: #FFFFFF;
+  resize: none;
+  outline: none;
+}
+
+.report-detail-input:focus {
+  border-color: #1A1816;
+}
+
+.report-cancel-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: #8A7F73;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.report-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 탑바/카드 내 신고·차단 액션 버튼 */
+.safety-action-btn {
+  background: transparent;
+  border: none;
+  color: #A09589;
+  font-size: 12.5px;
+  padding: 6px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.safety-action-btn:active {
+  opacity: 0.6;
+}
+
+/* 채팅 탑바 더보기 메뉴 */
+.chat-more-wrap {
+  position: relative;
+  margin-left: auto;
+}
+
+.chat-more-btn {
+  background: transparent;
+  border: none;
+  color: #1A1816;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.chat-more-btn:active {
+  background: #F0EDE8;
+}
+
+.chat-more-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #EDE8E1;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(26, 24, 22, 0.12);
+  overflow: hidden;
+  z-index: 50;
+  min-width: 132px;
+}
+
+.chat-more-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  font-size: 13.5px;
+  color: #2A2622;
+  cursor: pointer;
+}
+
+.chat-more-menu button:active {
+  background: #F7F4EF;
+}
+
+.chat-more-menu button.danger {
+  color: #C0392B;
+}
+
+/* 메뉴 바깥 클릭 닫기용 투명 오버레이 */
+.chat-more-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
 /* ── REGISTER ──────────────────────── */
 .reg-header {
   padding: 24px 18px 0;

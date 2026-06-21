@@ -78,6 +78,16 @@ export async function getOrCreateChat(itemId: string): Promise<ActionResult<{ ch
   if (itemError || !item) return { success: false, error: "물품을 찾을 수 없습니다." };
   if (item.user_id === user.id) return { success: false, error: "본인 물품에는 문의할 수 없습니다." };
 
+  // 차단한 유저의 물품에는 신규 채팅 생성 불가 (UGC 차단 효과)
+  // RLS상 본인 blocks만 조회되므로 "내가 상대를 차단한" 경우를 막는다.
+  const { data: blocked } = await supabase
+    .from("blocks")
+    .select("id")
+    .eq("blocker_id", user.id)
+    .eq("blocked_id", item.user_id)
+    .maybeSingle();
+  if (blocked) return { success: false, error: "차단한 페어리에게는 문의할 수 없습니다." };
+
   // 기존 채팅 확인 (UNIQUE(item_id, borrower_id))
   const { data: existing } = await supabase
     .from("chats")
@@ -125,7 +135,23 @@ export async function getMyChats(): Promise<ActionResult<ChatListRow[]>> {
     .limit(1, { referencedTable: "messages" });
 
   if (error) return { success: false, error: "채팅 목록을 불러오지 못했습니다." };
-  return { success: true, data: (data ?? []) as ChatListRow[] };
+
+  // UGC 차단 효과: 내가 차단한 상대와의 채팅은 목록에서 제외(클릭/메시지 노출 차단).
+  // blocks 조회 실패(마이그레이션 미적용 등) 시 빈 집합 → 목록 전체를 막지 않음(graceful).
+  const { data: blockedRows } = await supabase
+    .from("blocks")
+    .select("blocked_id")
+    .eq("blocker_id", user.id);
+  const blockedIds = new Set(
+    ((blockedRows ?? []) as { blocked_id: string }[]).map((r) => r.blocked_id),
+  );
+
+  const rows = ((data ?? []) as ChatListRow[]).filter((c) => {
+    const otherId = c.borrower_id === user.id ? c.owner_id : c.borrower_id;
+    return !blockedIds.has(otherId);
+  });
+
+  return { success: true, data: rows };
 }
 
 /** 채팅방 상세 (참여자 검증은 RLS가 수행 — 비참여자는 row 자체가 안 보임) */

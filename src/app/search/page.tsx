@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getBlockedIds } from "@/app/safety/client-actions";
 import type { Database } from "@/types/database";
 import { isDemoMode, DEMO_ITEMS } from "@/lib/demo";
 
@@ -43,19 +44,26 @@ export default function SearchPage() {
       return;
     }
 
+    // 차단 유저 id 선조회 (비로그인/실패 시 빈 배열 → 필터 미적용)
+    const blocked = await getBlockedIds();
+
     let dbQuery = supabase
       .from("items")
       .select("*")
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .limit(50);
+      .eq("status", "available");
 
+    // 내가 차단한 유저의 아이템 비노출
+    if (blocked.length > 0) {
+      dbQuery = dbQuery.not("user_id", "in", `(${blocked.join(",")})`);
+    }
     if (brand !== "All") {
       dbQuery = dbQuery.eq("brand", brand);
     }
     if (trimmed !== "") {
       dbQuery = dbQuery.or(`title.ilike.%${trimmed}%,brand.ilike.%${trimmed}%`);
     }
+
+    dbQuery = dbQuery.order("created_at", { ascending: false }).limit(50);
 
     const { data } = await dbQuery;
     setResults(data ?? []);

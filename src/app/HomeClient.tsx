@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase as _supabase } from "@/lib/supabase";
+import { getBlockedIds } from "@/app/safety/client-actions";
 import type { ItemCategory } from "@/types";
 import type { Database } from "@/types/database";
 import { isDemoMode, DEMO_ITEMS } from "@/lib/demo";
@@ -119,24 +120,35 @@ export default function HomeClient() {
     // 데모 모드: Supabase 호출 스킵, DEMO_ITEMS 고정 표시
     if (isDemoMode()) return;
 
-    supabase
-      .from("items")
-      .select("*")
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .limit(40)
-      .then(({ data, error }: { data: Item[] | null; error: unknown }) => {
-        // DB에 실제 아이템이 없거나 Supabase 오류 시 MOCK_ITEMS 폴백
-        if (error) {
-          setDbError(true);
-          setItems(MOCK_ITEMS);
-        } else if (!data || data.length === 0) {
-          setItems(MOCK_ITEMS);
-        } else {
-          setItems(data);
-        }
-        setLoading(false);
-      });
+    (async () => {
+      // 차단 유저 id 선조회 (비로그인/실패 시 빈 배열 → 필터 미적용)
+      const blocked = await getBlockedIds();
+
+      let query = supabase
+        .from("items")
+        .select("*")
+        .eq("status", "available");
+
+      // 내가 차단한 유저의 아이템 비노출
+      if (blocked.length > 0) {
+        query = query.not("user_id", "in", `(${blocked.join(",")})`);
+      }
+
+      const { data, error } = await query
+        .order("created_at", { ascending: false })
+        .limit(40);
+
+      // DB에 실제 아이템이 없거나 Supabase 오류 시 MOCK_ITEMS 폴백
+      if (error) {
+        setDbError(true);
+        setItems(MOCK_ITEMS);
+      } else if (!data || data.length === 0) {
+        setItems(MOCK_ITEMS);
+      } else {
+        setItems(data);
+      }
+      setLoading(false);
+    })();
   }, []);
 
   // Hero 배경 이미지 로드 후 ken-burns 효과 시작

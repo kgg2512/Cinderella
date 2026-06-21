@@ -13,6 +13,8 @@ import {
   type ChatRow,
   type MessageRow,
 } from "../client-actions";
+import { submitReport, blockUser } from "@/app/safety/client-actions";
+import ReportSheet from "@/components/ReportSheet";
 import {
   isDemoMode,
   DEMO_USER,
@@ -49,6 +51,10 @@ export default function ChatRoomClient() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const showToast = (msg: string) => {
@@ -177,6 +183,54 @@ export default function ChatRoomClient() {
     setSending(false);
   };
 
+  // 상대방 id 계산 (신고/차단 대상) — chat 로드 후에만 유효
+  const counterpartId =
+    chat && myId ? (chat.owner_id === myId ? chat.borrower_id : chat.owner_id) : null;
+
+  const handleReportSubmit = async (reason: string, detail: string) => {
+    setMenuOpen(false);
+    // 데모 모드: no-op + 토스트
+    if (demo) {
+      setShowReport(false);
+      showToast("데모: 신고가 접수되었습니다");
+      return;
+    }
+    if (!counterpartId) return;
+
+    setReporting(true);
+    const result = await submitReport({
+      targetType: "user",
+      targetId: counterpartId,
+      reason,
+      detail,
+    });
+    setReporting(false);
+    setShowReport(false);
+    showToast(result.success ? "신고가 접수되었습니다" : result.error);
+  };
+
+  const handleBlock = async () => {
+    setMenuOpen(false);
+    // 데모 모드: no-op + 토스트 (채팅 목록 복귀까지 동일 UX)
+    if (demo) {
+      showToast("데모: 차단되었습니다");
+      setTimeout(() => router.push("/chats"), 1200);
+      return;
+    }
+    if (!counterpartId || blocking) return;
+
+    setBlocking(true);
+    const result = await blockUser(counterpartId);
+    setBlocking(false);
+    if (result.success) {
+      showToast("차단되었습니다");
+      // 차단 후 채팅 목록으로 복귀 — getMyChats가 차단 상대와의 채팅을 목록에서 제외함
+      setTimeout(() => router.push("/chats"), 1000);
+    } else {
+      showToast(result.error);
+    }
+  };
+
   if (loading || !chat || !myId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -200,6 +254,56 @@ export default function ChatRoomClient() {
         </button>
         <div className="topbar-logo">{counterpart?.name ?? "채팅"}</div>
         {!isOwner && <span className="chat-fairy-badge">페어리</span>}
+
+        {/* 더보기 메뉴 — 상대방 신고/차단 (UGC 정책) */}
+        <div className="chat-more-wrap">
+          <button
+            type="button"
+            className="chat-more-btn"
+            aria-label="채팅 메뉴"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen ? "true" : "false"}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="5" r="1.6" />
+              <circle cx="12" cy="12" r="1.6" />
+              <circle cx="12" cy="19" r="1.6" />
+            </svg>
+          </button>
+          {menuOpen && (
+            <>
+              {/* 메뉴 바깥 클릭 닫기용 투명 오버레이 */}
+              <button
+                type="button"
+                aria-label="메뉴 닫기"
+                className="chat-more-backdrop"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="chat-more-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setShowReport(true);
+                  }}
+                >
+                  상대방 신고
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="danger"
+                  onClick={handleBlock}
+                  disabled={blocking}
+                >
+                  {blocking ? "차단 중..." : "상대방 차단"}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* 아이템 컨텍스트 스트립 */}
@@ -274,6 +378,14 @@ export default function ChatRoomClient() {
           </svg>
         </button>
       </div>
+
+      <ReportSheet
+        open={showReport}
+        title="상대방 신고"
+        submitting={reporting}
+        onClose={() => setShowReport(false)}
+        onSubmit={handleReportSubmit}
+      />
 
       <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">{toast}</div>
     </div>

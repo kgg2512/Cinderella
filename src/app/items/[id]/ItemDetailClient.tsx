@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { requestTransaction } from "@/app/transactions/client-actions";
 import { addWishlist, removeWishlist, checkWishlisted } from "@/app/wishlist/client-actions";
 import { getOrCreateChat } from "@/app/chats/client-actions";
+import { submitReport } from "@/app/safety/client-actions";
+import ReportSheet from "@/components/ReportSheet";
 import { calcDeposit } from "@/lib/toss";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/types/database";
@@ -58,6 +60,8 @@ export default function ItemDetailClient({ item }: Props) {
   const [startDate, setStartDate] = useState(today());
   const [endDate, setEndDate] = useState(tomorrow());
   const [requesting, setRequesting] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   const imgs = item.images ?? [];
   const depositAmount = calcDeposit(item.price_per_day);
@@ -136,6 +140,26 @@ export default function ItemDetailClient({ item }: Props) {
       showToastMsg("찜 목록에 추가됐습니다");
       addWishlist(item.id).then((r) => { if (!r.success) setWishlisted(false); });
     }
+  };
+
+  const handleReportSubmit = async (reason: string, detail: string) => {
+    // 데모 모드: DB 호출 없이 토스트만 (no-op)
+    if (demo) {
+      setShowReport(false);
+      showToastMsg("데모: 신고가 접수되었습니다");
+      return;
+    }
+
+    setReporting(true);
+    const result = await submitReport({
+      targetType: "item",
+      targetId: item.id,
+      reason,
+      detail,
+    });
+    setReporting(false);
+    setShowReport(false);
+    showToastMsg(result.success ? "신고가 접수되었습니다" : result.error);
   };
 
   return (
@@ -260,6 +284,20 @@ export default function ItemDetailClient({ item }: Props) {
             <div className="det-desc">{item.description}</div>
           </div>
         )}
+
+        {/* 신고 (UGC 정책 — 본인 물품이 아닐 때만 노출) */}
+        {myId !== item.user_id && (
+          <div className="det-section">
+            <button
+              type="button"
+              className="safety-action-btn"
+              onClick={() => setShowReport(true)}
+              aria-label="이 물품 신고하기"
+            >
+              ⚐ 이 물품 신고하기
+            </button>
+          </div>
+        )}
         <div className="det-spacer" />
       </div>
 
@@ -345,6 +383,14 @@ export default function ItemDetailClient({ item }: Props) {
           </div>
         </div>
       )}
+
+      <ReportSheet
+        open={showReport}
+        title="물품 신고"
+        submitting={reporting}
+        onClose={() => setShowReport(false)}
+        onSubmit={handleReportSubmit}
+      />
 
       <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">{toast}</div>
     </div>
