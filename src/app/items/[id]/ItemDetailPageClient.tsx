@@ -7,6 +7,12 @@ import ItemDetailClient from "./ItemDetailClient";
 import type { Database } from "@/types/database";
 import { isDemoMode, getDemoItem, DEMO_FAIRY } from "@/lib/demo";
 
+// 일반(비데모) 모드에서 Supabase DB가 비어있을 때 홈(HomeClient)이 보여주는
+// MOCK_ITEMS(mock-1~6)를 상세페이지도 인식하도록 하는 폴백.
+// 홈 카드를 눌렀는데 "아이템을 찾을 수 없습니다"로 깨지는 버그 수정.
+// (홈의 MOCK_ITEMS와 동일 id·내용 — demo.ts의 DEMO_ITEMS 재사용)
+const isMockId = (v: string) => v.startsWith("mock-");
+
 type ItemRow = Database["public"]["Tables"]["items"]["Row"];
 type UserRow = Database["public"]["Tables"]["users"]["Row"];
 interface Item extends ItemRow { owner?: UserRow | null; }
@@ -50,7 +56,27 @@ export default function ItemDetailPageClient() {
       .eq("id", id)
       .single()
       .then(({ data }) => {
-        setItem((data as unknown as Item) ?? null);
+        if (data) {
+          setItem(data as unknown as Item);
+        } else if (isMockId(id)) {
+          // Supabase에 없고 mock-N id면 홈 폴백 목록에서 조회 (DB 시드 전 상태 대응)
+          const found = getDemoItem(id);
+          setItem(
+            found
+              ? ({
+                  ...found,
+                  owner: {
+                    id: DEMO_FAIRY.id,
+                    name: DEMO_FAIRY.name,
+                    avatar_url: DEMO_FAIRY.avatar_url,
+                    email: null,
+                  },
+                } as unknown as Item)
+              : null,
+          );
+        } else {
+          setItem(null);
+        }
         setLoading(false);
       });
   }, [id]);
