@@ -52,7 +52,7 @@ export default function ItemDetailPageClient() {
 
     supabase
       .from("items")
-      .select("*, owner:users!items_user_id_fkey(id, name, avatar_url, email)")
+      .select("*, owner:users!items_user_id_fkey(id, name, avatar_url)")
       .eq("id", id)
       .single()
       .then(({ data }) => {

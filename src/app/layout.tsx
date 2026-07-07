@@ -26,10 +26,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  // 보안(MED-6): Capacitor 정적 익스포트 빌드는 headers() 미적용 → 모바일 웹뷰 CSP를 meta로 주입.
+  // 웹(Vercel) 빌드는 next.config headers()의 CSP를 쓰므로 이 태그를 렌더하지 않음.
+  const isCapacitorBuild = process.env.CAPACITOR_BUILD === "true";
 
   return (
     <html lang="ko">
       <body className="bg-cream min-h-screen">
+        {isCapacitorBuild && (
+          <meta
+            httpEquiv="Content-Security-Policy"
+            content={[
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob: https:",
+              "font-src 'self' data:",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "frame-ancestors 'none'",
+            ].join("; ")}
+          />
+        )}
         {/* 박제 서비스워커 강제 해제 — 로그인 루프 최종 수정 (2026-06-12) */}
         <SWCleanup />
         {/* GA4 — 환경변수 NEXT_PUBLIC_GA_MEASUREMENT_ID 미입력 시 비활성 */}

@@ -68,11 +68,19 @@ async function uploadImages(
 ): Promise<string[]> {
   const urls: string[] = [];
 
+  // 보안(MED-5): MIME 화이트리스트 — 파일명 확장자를 신뢰하지 않고 실제 타입 기준으로 검증/정규화
+  const ALLOWED_TYPES: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+
   for (const file of files.slice(0, 5)) {
     if (file.size === 0) continue;
     if (file.size > 10 * 1024 * 1024) continue; // 10MB 초과 스킵
+    const ext = ALLOWED_TYPES[file.type];
+    if (!ext) continue; // 허용 이미지 타입(jpeg/png/webp)만 업로드, 그 외 스킵
 
-    const ext = file.name.split(".").pop() ?? "jpg";
     const storagePath = `items/${userId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
 
     const { error } = await supabase.storage
