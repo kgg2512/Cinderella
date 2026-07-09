@@ -103,16 +103,33 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('transaction-photos', 'transaction-photos', false)
 ON CONFLICT (id) DO NOTHING;
 
--- 거래 당사자만 자신의 폴더 업로드 가능 (경로: {transaction_id}/{user_id}/*)
-CREATE POLICY "거래 당사자만 사진 업로드" ON storage.objects
+-- [2026-07-09 드리프트 시정 — HIGH-2 BOLA 재발 방지]
+-- 과거 이 자리의 정책은 auth.role()='authenticated' 단독(광역)이라 아무 로그인 유저나
+-- 전 거래사진 열람·업로드 가능했다(HIGH-2). 재적용 시 광역정책이 부활하지 않도록,
+-- 처음부터 라이브 하드닝 상태(2026-07-09 pg_policies 실측)와 동일한 이름·정의로 생성한다.
+-- 라이브는 이미 하드닝 완료 — 이 파일은 신규 환경 재현용 SSOT. 경로 규칙: {transaction_id}/{user_id}/*
+DROP POLICY IF EXISTS "거래 당사자만 사진 업로드" ON storage.objects; -- 구 광역 INSERT (존재 시 제거)
+DROP POLICY IF EXISTS "인증 사용자만 사진 조회" ON storage.objects;   -- 구 광역 SELECT (존재 시 제거)
+DROP POLICY IF EXISTS "storage_upload_party" ON storage.objects;
+DROP POLICY IF EXISTS "storage_select_party" ON storage.objects;
+
+-- 업로드: 본인 폴더({transaction_id}/{본인 uid}/*)에만 가능
+CREATE POLICY "storage_upload_party" ON storage.objects
   FOR INSERT WITH CHECK (
     bucket_id = 'transaction-photos'
-    AND auth.role() = 'authenticated'
+    AND (auth.uid())::text = (storage.foldername(objects.name))[2]
   );
 
--- 거래 당사자만 조회 가능 (비공개 버킷 → signed URL 사용)
-CREATE POLICY "인증 사용자만 사진 조회" ON storage.objects
+-- 조회: 본인 폴더 또는 해당 거래의 당사자(lender/borrower)만 (비공개 버킷 → signed URL 서빙)
+CREATE POLICY "storage_select_party" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'transaction-photos'
-    AND auth.role() = 'authenticated'
+    AND (
+      (auth.uid())::text = (storage.foldername(objects.name))[2]
+      OR EXISTS (
+        SELECT 1 FROM public.transactions t
+        WHERE (t.id)::text = (storage.foldername(objects.name))[1]
+          AND (t.lender_id = auth.uid() OR t.borrower_id = auth.uid())
+      )
+    )
   );

@@ -14,8 +14,13 @@ GRANT  SELECT (id, name, avatar_url, created_at) ON public.users TO anon, authen
 
 -- [HIGH-2] transaction-photos 구 광역정책 제거 (당사자 스코프 정책은 이미 존재)
 --   허용정책 OR 결합 탓에 구 광역정책이 살아있으면 전면 개방 유지됨 → 구 정책만 제거.
+--   [2026-07-09 드리프트 시정] 기반 20260604000000_transactions.sql이 처음부터 스코프 정책
+--   (storage_upload_party/storage_select_party)만 생성하도록 수정됨 → 신규 재적용 시 아래는 안전한 no-op.
+--   과거 광역정책의 모든 세대 이름(라이브 구명 "TxStorage *" + repo 구명 한글 2건)을 방어적으로 제거.
 DROP POLICY IF EXISTS "TxStorage select" ON storage.objects;
 DROP POLICY IF EXISTS "TxStorage insert" ON storage.objects;
+DROP POLICY IF EXISTS "인증 사용자만 사진 조회" ON storage.objects;
+DROP POLICY IF EXISTS "거래 당사자만 사진 업로드" ON storage.objects;
 
 -- [MED-5] item-images 업로드를 본인 폴더로 스코프 (경로 items/{uid}/* 확인됨)
 DROP POLICY IF EXISTS "Authenticated users can upload item images" ON storage.objects;
