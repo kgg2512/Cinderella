@@ -51,7 +51,7 @@
        물리적 대여 서비스입니다.
     ```
   - **앱 카테고리**: 쇼핑 / 태그: 쇼핑, 라이프스타일
-  - **연락처 이메일**: support@g2company.io
+  - **연락처 이메일**: kgg2512@gmail.com
   - **그래픽 자산 업로드**:
     - 앱 아이콘 512: `public/icons/icon-512.png`
     - 피처 그래픽 1024×500: `public/icons/feature-graphic-1024x500.png`
@@ -100,7 +100,7 @@
 - **모더레이션 처리 경로(심사 질문 대비 답변)**:
   - 신고 접수 즉시 `reports` 테이블에 `status='pending'`으로 적재
   - 운영자가 Supabase 대시보드(service_role)에서 신고 검토 → 위반 시 해당 아이템 `status='hidden'` 처리 / 반복 위반 계정 `banned_until` 차단
-  - 모더레이션 연락처: support@g2company.io (개인정보처리방침/등록정보 명시)
+  - 모더레이션 연락처: kgg2512@gmail.com (개인정보처리방침/등록정보 명시)
   - ⚠️ 후속 권장: 신고 도착 알림(Supabase Edge Function → 이메일/Slack)으로 검토 SLA 단축
 
 ## 4. 출시

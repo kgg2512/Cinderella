@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signInWithGoogleMobile, initMobileAuthListener, isCapacitor } from "@/lib/mobile-auth";
 import { sanitizeNext, stashNext } from "@/lib/login-next";
 import { isDemoMode, DEMO_USER } from "@/lib/demo";
+import { supabase } from "@/lib/supabase";
 
 const demo = isDemoMode();
 
@@ -19,6 +20,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  // 약관·개인정보처리방침 명시 동의 (스토어 심사 요건 — 미동의 시 모든 진입 차단)
+  const [agreed, setAgreed] = useState(false);
+
+  // 이메일 로그인 (심사용 / 공개 가입 없이 로그인 전용)
+  const [showEmailLogin, setShowEmailLogin] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // auth/callback 실패(?error=) 또는 탈퇴 완료(?deleted=1) 메시지 표시
   useEffect(() => {
@@ -68,7 +77,16 @@ export default function LoginPage() {
     };
   }, [router]);
 
+  const requireAgreement = (): boolean => {
+    if (!agreed) {
+      setError("이용약관 및 개인정보처리방침에 동의해주세요.");
+      return false;
+    }
+    return true;
+  };
+
   const handleDemoEnter = () => {
+    if (!requireAgreement()) return;
     try {
       sessionStorage.setItem("demo_user", JSON.stringify(DEMO_USER));
     } catch {
@@ -78,6 +96,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!requireAgreement()) return;
     setLoading(true);
     setError(null);
     try {
@@ -91,6 +110,33 @@ export default function LoginPage() {
       setLoading(false);
       const msg = e instanceof Error ? e.message : "로그인에 실패했습니다.";
       setError(msg);
+    }
+  };
+
+  // 이메일+비밀번호 로그인 (심사원/기존 회원 전용, 공개 가입 없음)
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!requireAgreement()) return;
+    if (!email.trim() || !password) {
+      setError("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (signInError) {
+        setLoading(false);
+        setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+        return;
+      }
+      router.push(readNextParam());
+    } catch {
+      setLoading(false);
+      setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -134,11 +180,29 @@ export default function LoginPage() {
           </div>
         )}
 
+        {/* 약관·개인정보 명시 동의 (스토어 심사 필수 — 미체크 시 모든 진입 버튼 비활성) */}
+        <label className="login-consent">
+          <input
+            type="checkbox"
+            className="login-consent-check"
+            checked={agreed}
+            onChange={(ev) => setAgreed(ev.target.checked)}
+            aria-label="이용약관 및 개인정보처리방침 동의"
+          />
+          <span className="login-consent-text">
+            <a href="/terms" className="text-gold no-underline">이용약관</a>
+            {" "}및{" "}
+            <a href="/privacy" className="text-gold no-underline">개인정보처리방침</a>
+            에 동의합니다. (필수)
+          </span>
+        </label>
+
         {demo ? (
           <>
             <button
               type="button"
               onClick={handleDemoEnter}
+              disabled={!agreed}
               className="btn-demo"
             >
               ✦ 데모로 체험하기 ✦
@@ -153,7 +217,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleGoogleLogin}
-              disabled={loading}
+              disabled={loading || !agreed}
               className="btn-google"
             >
               <GoogleIcon />
@@ -164,12 +228,53 @@ export default function LoginPage() {
                 : "Google 계정으로 시작하기"}
             </button>
 
-            <p className="text-[10px] text-muted text-center leading-loose">
-              계속 진행하면 Cinderella의{" "}
-              <a href="/terms" className="text-gold no-underline">이용약관</a>{" "}
-              및{" "}
-              <a href="/privacy" className="text-gold no-underline">개인정보처리방침</a>에 동의합니다.
-            </p>
+            {/* 이메일 로그인 (기존 회원·심사원 전용, 공개 가입 없음) */}
+            {!showEmailLogin ? (
+              <button
+                type="button"
+                className="login-email-toggle"
+                onClick={() => {
+                  setError(null);
+                  setShowEmailLogin(true);
+                }}
+              >
+                이메일로 로그인
+              </button>
+            ) : (
+              <form onSubmit={handleEmailLogin} className="flex flex-col gap-3">
+                <div>
+                  <label htmlFor="login-email" className="form-label">이메일</label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    autoComplete="email"
+                    className="form-input"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(ev) => setEmail(ev.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="login-password" className="form-label">비밀번호</label>
+                  <input
+                    id="login-password"
+                    type="password"
+                    autoComplete="current-password"
+                    className="form-input"
+                    placeholder="비밀번호"
+                    value={password}
+                    onChange={(ev) => setPassword(ev.target.value)}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading || !agreed}
+                  className="btn-primary"
+                >
+                  {loading ? "로그인 중..." : "이메일로 로그인"}
+                </button>
+              </form>
+            )}
           </>
         )}
       </div>

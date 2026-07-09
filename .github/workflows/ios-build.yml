@@ -1,0 +1,106 @@
+name: iOS Build (unsigned)
+
+# ============================================================================
+# ⚠️ 수동 실행 전용 (workflow_dispatch). 자동 트리거(push/pull_request/schedule)
+#    절대 추가 금지 — 죽은 워크플로 자동 실행이 배포 실패 메일 폭탄을 유발한 전례 있음.
+#    이 워크플로는 macOS 러너에서 서명 없는(unsigned) iOS 빌드 산출물을 만든다.
+#    최종 서명·업로드(App Store Connect)는 회장이 로컬 Xcode/Transporter로 수행.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "빌드 사유 (기록용)"
+        required: false
+        default: "manual unsigned iOS build"
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 정적 익스포트(out/) 생성 — Capacitor 웹 자산.
+      # NEXT_PUBLIC_SUPABASE_* 는 리포지토리 Secrets 로 주입(회장 설정 필요).
+      # anon 키는 공개 키이므로 Secrets 미설정 시에도 값 자체는 민감하지 않음.
+      - name: Build web assets (static export)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run build:mobile
+
+      # iOS 네이티브 프로젝트 생성 + 웹 자산 동기화
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      # 권한 사용 문구 + OAuth 커스텀 URL Scheme 주입 (ios-templates/Info.plist.additions 반영)
+      - name: Merge Info.plist (usage descriptions + URL scheme)
+        run: |
+          set -e
+          PLIST="ios/App/App/Info.plist"
+          setkey() {
+            /usr/libexec/PlistBuddy -c "Add :$1 string $2" "$PLIST" 2>/dev/null \
+              || /usr/libexec/PlistBuddy -c "Set :$1 $2" "$PLIST"
+          }
+          setkey NSCameraUsageDescription "명품 상품을 등록하기 위해 사진을 촬영합니다."
+          setkey NSPhotoLibraryUsageDescription "상품 이미지를 앨범에서 선택하기 위해 접근합니다."
+          setkey NSPhotoLibraryAddUsageDescription "거래 완료 사진을 앨범에 저장합니다."
+          # CFBundleURLTypes → com.g2company.cinderella:// (OAuth 딥링크 콜백)
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLName string com.g2company.cinderella" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string com.g2company.cinderella" "$PLIST" 2>/dev/null || true
+          echo "--- Info.plist (권한/스킴 확인) ---"
+          /usr/libexec/PlistBuddy -c "Print :NSCameraUsageDescription" "$PLIST"
+
+      # iOS 17+ 필수 개인정보 매니페스트 + App Store 아이콘(1024) 복사 (best-effort)
+      - name: Copy Privacy manifest + app icon
+        run: |
+          cp ios-templates/PrivacyInfo.xcprivacy ios/App/App/PrivacyInfo.xcprivacy
+          ICONSET="ios/App/App/Assets.xcassets/AppIcon.appiconset"
+          if [ -d "$ICONSET" ]; then
+            cp ios-templates/AppIcon-1024.png "$ICONSET/AppIcon-512@2x.png" || true
+          fi
+
+      - name: CocoaPods install
+        working-directory: ios/App
+        run: pod install
+
+      # 서명 없는 아카이브 (CI에서는 서명 불가 — 산출물만 생성)
+      - name: Build unsigned archive
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$PWD/build/App.xcarchive" \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Upload unsigned archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinderella-ios-unsigned-archive
+          path: ios/App/build/App.xcarchive
+          retention-days: 7
+          if-no-files-found: error

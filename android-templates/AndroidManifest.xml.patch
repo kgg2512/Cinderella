@@ -19,11 +19,14 @@
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
     android:maxSdkVersion="32" />
 
-<!-- 알림 (Android 13+) -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
 <!-- 진동 -->
 <uses-permission android:name="android.permission.VIBRATE" />
+
+<!--
+  참고: POST_NOTIFICATIONS(푸시 알림) 권한은 제거됨.
+  @capacitor/push-notifications 플러그인 미사용(2026-07-09) → 미작동 권한 요청은
+  스토어 심사 감점 사유이므로 선언하지 않는다. 푸시 도입 시 플러그인 재설치 후 복원.
+-->
 
 <!-- ===== uses-feature (선택적) ===== -->
 <uses-feature android:name="android.hardware.camera" android:required="false" />

@@ -149,6 +149,46 @@ img {
 .btn-demo:active {
   transform: scale(0.98);
 }
+.btn-demo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 약관 동의 체크박스 (스토어 심사 필수) ── */
+.login-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.login-consent-check {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.login-consent-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--mid);
+}
+
+/* 이메일 로그인 토글 링크 */
+.login-email-toggle {
+  align-self: center;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--mid);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 4px;
+}
 
 /* 데모 모드 상단 띠 배너 — Navbar 위 고정 */
 .demo-banner {

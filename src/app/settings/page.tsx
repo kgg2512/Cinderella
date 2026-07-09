@@ -65,7 +65,7 @@ const INFO_ROWS: SettingRow[] = [
   { label: "개인정보처리방침", href: "/privacy" },
   { label: "이용약관", href: "/terms" },
   { label: "앱 버전", sub: "1.0.0 (준비 중)", disabled: true },
-  { label: "문의하기", sub: "준비 중", disabled: true },
+  { label: "문의하기", sub: "kgg2512@gmail.com", href: "mailto:kgg2512@gmail.com?subject=%5B%EC%8B%A0%EB%8D%B0%EB%A0%90%EB%9D%BC%5D%20%EB%AC%B8%EC%9D%98" },
 ];
 
 function ChevronIcon() {
@@ -126,6 +126,15 @@ function SettingRowItem({ row, isLast }: { row: SettingRow; isLast: boolean }) {
       <ChevronIcon />
     </>
   );
+
+  // mailto:/외부 링크는 네이티브 앵커로 (Next Link는 내부 라우팅 전용)
+  if (row.href && (row.href.startsWith("mailto:") || row.href.startsWith("http"))) {
+    return (
+      <a href={row.href} className={rowClass}>
+        {inner}
+      </a>
+    );
+  }
 
   if (row.href) {
     return (

@@ -17,6 +17,7 @@ import {
 import type { TransactionStatus } from "@/types/transaction";
 import { TRANSACTION_STATUS_LABEL } from "@/types/transaction";
 import { isDemoMode, DEMO_USER, getDemoTransaction } from "@/lib/demo";
+import { paymentsEnabled } from "@/lib/features";
 
 interface TxDetail {
   id: string;
@@ -243,11 +244,20 @@ export default function TransactionDetailPage() {
                 <span>@{tx.toss_id}</span>
               </div>
             </div>
-            <TossPaymentBtn
-              tossId={tx.toss_id}
-              amount={tx.deposit_amount}
-              description={`신데렐라 보증금 — ${item?.title ?? "거래"}`}
-            />
+            {paymentsEnabled() ? (
+              <TossPaymentBtn
+                tossId={tx.toss_id}
+                amount={tx.deposit_amount}
+                description={`신데렐라 보증금 — ${item?.title ?? "거래"}`}
+              />
+            ) : (
+              <div className="deposit-notice-box deposit-notice-box--flush">
+                <p className="deposit-notice-line">
+                  토스 앱에서 <strong>@{tx.toss_id}</strong> 님께 위 보증금을 직접 송금한 뒤,
+                  아래 버튼으로 완료를 알려주세요.
+                </p>
+              </div>
+            )}
             <button
               type="button"
               className="btn-primary--dark"
