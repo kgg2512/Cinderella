@@ -3,6 +3,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { calcDeposit } from "@/lib/toss";
 import type { TransactionStatus, TransactionRole } from "@/types/transaction";
 
 // ── 서버용 Supabase 클라이언트 ───────────────────────────────────────
@@ -54,7 +55,7 @@ export async function requestTransaction(
   // 물품 소유자 확인
   const { data: item, error: itemError } = await supabase
     .from("items")
-    .select("user_id, status")
+    .select("user_id, status, price_per_day")
     .eq("id", itemId)
     .single();
 
@@ -68,6 +69,15 @@ export async function requestTransaction(
     return { success: false, error: "본인 물품은 빌릴 수 없습니다." };
   }
 
+  // 보안: 클라 입력 depositAmount를 신뢰하지 않고, 방금 조회한 item.price_per_day로
+  // 공용 calcDeposit(일 임대료 × 2)을 서버에서 재실행해 저장값을 확정한다.
+  const verifiedDeposit = calcDeposit(item.price_per_day);
+  if (depositAmount !== verifiedDeposit) {
+    console.warn(
+      `[requestTransaction] 클라 depositAmount(${depositAmount}) != 서버 재계산값(${verifiedDeposit}) — 서버 재계산값을 저장합니다.`
+    );
+  }
+
   const { data, error } = await supabase
     .from("transactions")
     .insert({
@@ -77,7 +87,7 @@ export async function requestTransaction(
       status: "requested" as TransactionStatus,
       start_date: startDate,
       end_date: endDate,
-      deposit_amount: depositAmount,
+      deposit_amount: verifiedDeposit,
     })
     .select("id")
     .single();

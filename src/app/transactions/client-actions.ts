@@ -1,4 +1,5 @@
 import { supabase as _supabase } from "@/lib/supabase";
+import { calcDeposit } from "@/lib/toss";
 import type { TransactionStatus, TransactionRole } from "@/types/transaction";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,16 +25,28 @@ export async function requestTransaction(
   try { user = await getAuthUser(); } catch { return { success: false, error: "로그인이 필요합니다." }; }
 
   const { data: item, error: itemError } = await supabase
-    .from("items").select("user_id, status").eq("id", itemId).single();
+    .from("items").select("user_id, status, price_per_day").eq("id", itemId).single();
 
   if (itemError || !item) return { success: false, error: "물품을 찾을 수 없습니다." };
   if (item.status !== "available") return { success: false, error: "현재 대여 불가능한 물품입니다." };
   if (item.user_id === user.id) return { success: false, error: "본인 물품은 빌릴 수 없습니다." };
 
+  // 보안: 클라 계산값(depositAmount)을 그대로 신뢰하지 않고, 방금 조회한 item.price_per_day로
+  // 동일 계산식(calcDeposit = 일 임대료 × 2)을 재실행해 저장값을 정한다. 인자로 받은 depositAmount는
+  // 화면 표시 시점 값(경합 시 구버전일 수 있음)일 뿐 — 불일치는 조용히 서버측 계산값으로 덮어써 저장.
+  // ⚠️ 이 함수는 "use server"가 아닌 브라우저 실행 코드(anon key)라 이 재계산 자체는 JS 우회(직접 REST
+  // 호출) 앞에서 궁극적 신뢰 경계가 되지 못한다 — 진짜 경계는 DB RLS/트리거(별도 마이그레이션 필요).
+  const verifiedDeposit = calcDeposit(item.price_per_day);
+  if (depositAmount !== verifiedDeposit && process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[requestTransaction] 클라 depositAmount(${depositAmount}) != 서버 재계산값(${verifiedDeposit}) — 서버 재계산값을 저장합니다.`
+    );
+  }
+
   const { data, error } = await supabase
     .from("transactions")
     .insert({ item_id: itemId, lender_id: item.user_id, borrower_id: user.id,
-      status: "requested" as TransactionStatus, start_date: startDate, end_date: endDate, deposit_amount: depositAmount })
+      status: "requested" as TransactionStatus, start_date: startDate, end_date: endDate, deposit_amount: verifiedDeposit })
     .select("id").single();
 
   if (error || !data) return { success: false, error: "거래 요청 중 오류가 발생했습니다." };

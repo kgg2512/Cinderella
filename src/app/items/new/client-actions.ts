@@ -42,11 +42,23 @@ export async function submitItem(formData: FormData): Promise<SubmitItemResult> 
   const imageFiles = formData.getAll("images") as File[];
   const imageUrls: string[] = [];
 
+  // 보안(MED-5): MIME 화이트리스트 — 파일명 확장자를 신뢰하지 않고 실제 타입 기준으로 검증/정규화
+  // (src/app/items/new/actions.ts의 uploadImages와 동일 정책 — 실사용 경로는 이쪽이므로 여기에도 적용)
+  const ALLOWED_TYPES: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+
   for (const file of imageFiles.slice(0, 5)) {
     if (file.size === 0 || file.size > 10 * 1024 * 1024) continue;
-    const ext = file.name.split(".").pop() ?? "jpg";
+    const ext = ALLOWED_TYPES[file.type];
+    if (!ext) continue; // 허용 이미지 타입(jpeg/png/webp)만 업로드, 그 외(svg/html 등) 스킵
     const storagePath = `items/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("item-images").upload(storagePath, file, { upsert: false });
+    const { error } = await supabase.storage.from("item-images").upload(storagePath, file, {
+      upsert: false,
+      contentType: file.type,
+    });
     if (error) continue;
     const { data: urlData } = supabase.storage.from("item-images").getPublicUrl(storagePath);
     imageUrls.push(urlData.publicUrl);
