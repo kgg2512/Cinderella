@@ -16,3 +16,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 데모 슬롯은 실모드(실제 Supabase)로 돈다 = 진짜 스테이징. 투자자용 가짜 플로우 데모가 필요하면 `DEMO_DEPLOY.md`대로 `NEXT_PUBLIC_DEMO_MODE=true`를 얹어 데모 슬롯에 배포.
 - 알려진 한계: ①데모·스토어가 같은 Supabase DB 공유(스테이징 DB 분리는 추후) ②Google OAuth 리다이렉트 허용목록에 데모 도메인 등록 필요(로그인 검증 시).
 - 앱(플레이스토어/앱스토어) 빌드도 동일 원칙: 데모 웹 검증 PASS된 코드로만 스토어 제출 빌드.
+- 슬롯 URL: 데모 = https://cinderella-demo.vercel.app / 스토어(운영) = https://cinderella-iota.vercel.app
