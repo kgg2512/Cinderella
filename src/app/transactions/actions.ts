@@ -160,7 +160,7 @@ export async function uploadTransactionPhoto(
   transactionId: string,
   photoType: "before_handover" | "after_return",
   formData: FormData
-): Promise<ActionResult<{ photoId: string; publicUrl: string }>> {
+): Promise<ActionResult<{ photoId: string; signedUrl: string }>> {
   const { supabase, user } = await getAuthUser();
 
   const file = formData.get("photo") as File | null;
@@ -209,13 +209,15 @@ export async function uploadTransactionPhoto(
     return { success: false, error: "사진 기록 저장 중 오류가 발생했습니다." };
   }
 
-  const { data: urlData } = supabase.storage
+  // 보안(F-GAP-02): private 버킷은 getPublicUrl 불가 — 당사자 RLS 경유 서명 URL(1h)로 교체.
+  // 서명 실패가 이미 성공한 업로드를 깨지 않도록 빈 문자열 폴백.
+  const { data: signed } = await supabase.storage
     .from("transaction-photos")
-    .getPublicUrl(storagePath);
+    .createSignedUrl(storagePath, 3600);
 
   return {
     success: true,
-    data: { photoId: photoData.id, publicUrl: urlData.publicUrl },
+    data: { photoId: photoData.id, signedUrl: signed?.signedUrl ?? "" },
   };
 }
 

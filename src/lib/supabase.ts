@@ -97,6 +97,8 @@ function createDemoStub(): SupabaseClient<Database> {
       from: () => ({
         upload: () => Promise.resolve({ data: null, error: null }),
         getPublicUrl: () => ({ data: { publicUrl: "" } }),
+        createSignedUrl: () =>
+          Promise.resolve({ data: { signedUrl: "" }, error: null }),
         remove: () => Promise.resolve({ data: null, error: null }),
       }),
     },

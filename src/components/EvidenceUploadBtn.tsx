@@ -6,7 +6,7 @@ import { uploadTransactionPhoto } from "@/app/transactions/client-actions";
 interface EvidenceUploadBtnProps {
   transactionId: string;
   photoType: "before_handover" | "after_return";
-  onUploaded?: (photoId: string, publicUrl: string) => void;
+  onUploaded?: (photoId: string, signedUrl: string) => void;
 }
 
 const LABEL: Record<"before_handover" | "after_return", string> = {
@@ -65,7 +65,7 @@ export default function EvidenceUploadBtn({
 
     if (result.success) {
       setState("done");
-      onUploaded?.(result.data.photoId, result.data.publicUrl);
+      onUploaded?.(result.data.photoId, result.data.signedUrl);
     } else {
       setState("idle");
       setError(result.error);

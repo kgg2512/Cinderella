@@ -95,7 +95,7 @@ export async function uploadTransactionPhoto(
   transactionId: string,
   photoType: "before_handover" | "after_return",
   formData: FormData
-): Promise<ActionResult<{ photoId: string; publicUrl: string }>> {
+): Promise<ActionResult<{ photoId: string; signedUrl: string }>> {
   let user;
   try { user = await getAuthUser(); } catch { return { success: false, error: "로그인이 필요합니다." }; }
 
@@ -122,8 +122,14 @@ export async function uploadTransactionPhoto(
 
   if (insertError || !photoData) return { success: false, error: "사진 기록 저장 중 오류가 발생했습니다." };
 
-  const { data: urlData } = supabase.storage.from("transaction-photos").getPublicUrl(storagePath);
-  return { success: true, data: { photoId: photoData.id, publicUrl: urlData.publicUrl } };
+  // 보안(F-GAP-02): transaction-photos는 private 버킷 — getPublicUrl은 접근 불가 URL을 반환한다.
+  // 당사자 RLS를 경유하는 만료형 서명 URL(1h)로 교체. DB에는 storage_path만 저장돼 있으므로
+  // 표시 시점에 createSignedUrl로 재생성하는 게 정석. 서명 실패가 이미 성공한 업로드를
+  // 깨지 않도록 빈 문자열 폴백(현재 소비처는 URL을 사용하지 않음).
+  const { data: signed } = await supabase.storage
+    .from("transaction-photos")
+    .createSignedUrl(storagePath, 3600);
+  return { success: true, data: { photoId: photoData.id, signedUrl: signed?.signedUrl ?? "" } };
 }
 
 export async function confirmHandover(transactionId: string, role: TransactionRole): Promise<ActionResult> {
