@@ -232,7 +232,7 @@ export default function ItemDetailClient({ item }: Props) {
           <div className="det-badges">
             {item.brand && <div className="badge-brand">{item.brand}</div>}
             <div className="badge-grade">{item.status}</div>
-            <div className="badge-auth">✓ 정품 인증</div>
+            <div className="badge-auth">정품(대여자 표명)</div>
           </div>
           <div className="det-name">{item.title}</div>
           <div className="det-price-row">
@@ -273,8 +273,8 @@ export default function ItemDetailClient({ item }: Props) {
 
         {/* 인증 박스 */}
         <div className="ins-box">
-          <div className="ins-box-title">FairyRating 정품 인증 완료</div>
-          <div className="ins-box-desc">이 아이템은 FairyRating 검증을 통과한 정품입니다.<br />훼손·분실 시 플랫폼 보증 정책이 적용됩니다.</div>
+          <div className="ins-box-title">물품 진위 안내</div>
+          <div className="ins-box-desc">이 물품의 진품 여부는 대여자(페어리)가 표명한 것으로, 회사는 진품을 별도로 감정·보증하지 않습니다.<br />수령 시 정품 여부를 직접 확인하고, 이상이 있으면 24시간 이내 신고해 주세요.</div>
         </div>
 
         {/* 상품 정보 */}

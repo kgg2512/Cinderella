@@ -42,7 +42,7 @@ export const DEMO_ITEMS: Item[] = [
     category: "bags",
     price_per_day: 28000,
     description:
-      "정품 인증 완료된 네버풀 MM입니다. 데일리부터 격식 자리까지 두루 활용 가능한 시그니처 모노그램 라인.",
+      "대여자가 정품으로 표명한 네버풀 MM입니다. 데일리부터 격식 자리까지 두루 활용 가능한 시그니처 모노그램 라인.",
     images: [
       "https://images.unsplash.com/photo-1529025530948-67e8a5c69b58?auto=format&fit=crop&w=600&q=82",
     ],
@@ -72,7 +72,7 @@ export const DEMO_ITEMS: Item[] = [
     category: "bags",
     price_per_day: 90000,
     description:
-      "토고 레더 포브 컬러 버킨 30, 골드 하드웨어. FairyRating 최상위 인증. 특별한 날을 위한 단 하나의 선택.",
+      "토고 레더 포브 컬러 버킨 30, 골드 하드웨어. FairyRating 최상위 평가. 특별한 날을 위한 단 하나의 선택.",
     images: [
       "https://images.unsplash.com/photo-1691480250099-a63081ecfcb8?auto=format&fit=crop&w=600&q=82",
     ],
@@ -87,7 +87,7 @@ export const DEMO_ITEMS: Item[] = [
     category: "watches",
     price_per_day: 65000,
     description:
-      "데이트저스트 36 주빌레 브레이슬릿, 화이트 다이얼. 정품 보증서 동봉. 비즈니스 미팅에 완벽한 시계.",
+      "데이트저스트 36 주빌레 브레이슬릿, 화이트 다이얼. 구매 영수증 동봉. 비즈니스 미팅에 완벽한 시계.",
     images: [
       "https://images.unsplash.com/photo-1526045431048-f857369baa09?auto=format&fit=crop&w=600&q=82",
     ],
@@ -102,7 +102,7 @@ export const DEMO_ITEMS: Item[] = [
     category: "jewelry",
     price_per_day: 35000,
     description:
-      "까르띠에 러브 네클리스 18K 옐로우 골드. 정품 인증 완료. 웨딩·기념일 연출에 더없이 우아한 주얼리.",
+      "까르띠에 러브 네클리스 18K 옐로우 골드. 구매 영수증 보유. 웨딩·기념일 연출에 더없이 우아한 주얼리.",
     images: [
       "https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=600&q=82",
     ],
@@ -163,8 +163,8 @@ const DEMO_CHAT_1_MESSAGES: DemoMessage[] = [
   { id: "c1-2", sender: "fairy", content: "안녕하세요 민희님 😊 네버풀 지금 대여 가능해요! 토요일 오전부터 필요하실까요?" },
   { id: "c1-3", sender: "me", content: "네! 토요일 오전 10시부터 일요일 저녁까지 가능할까요?" },
   { id: "c1-4", sender: "fairy", content: "그럼요. 1박 2일 5만원이고 보증금은 30만원이에요. 반납 시 전액 돌려드려요!" },
-  { id: "c1-5", sender: "me", content: "좋아요 :) 정품 보증서도 같이 주시나요?" },
-  { id: "c1-6", sender: "fairy", content: "네, 구매 영수증이랑 정품 인증서 함께 드려요. FairyRating 최상위라 안심하셔도 돼요 💛" },
+  { id: "c1-5", sender: "me", content: "좋아요 :) 구매 영수증도 같이 주시나요?" },
+  { id: "c1-6", sender: "fairy", content: "네, 구매 영수증이랑 브랜드 보증서 함께 드려요. FairyRating 최상위라 안심하셔도 돼요 💛" },
   { id: "c1-7", sender: "me", content: "믿음이 가네요! 강남역에서 직거래 가능하실까요?" },
   { id: "c1-8", sender: "fairy", content: "토요일 오전 9시 30분 강남역 11번 출구 어떠세요?" },
   { id: "c1-9", sender: "me", content: "완벽해요! 그때 뵐게요 😊 빌리기 요청 보냈습니다!" },
@@ -173,7 +173,7 @@ const DEMO_CHAT_1_MESSAGES: DemoMessage[] = [
 /** 2번 대화 — 지우 ↔ 나, Datejust 시계 보증금 단계까지 진행 */
 const DEMO_CHAT_2_MESSAGES: DemoMessage[] = [
   { id: "c2-1", sender: "me", content: "안녕하세요! 데이트저스트 36 다음 주 화요일 비즈니스 미팅에 빌릴 수 있을까요?" },
-  { id: "c2-2", sender: "fairy", content: "안녕하세요 😊 화요일 하루 대여 가능합니다. 정품 보증서랑 박스 함께 드려요." },
+  { id: "c2-2", sender: "fairy", content: "안녕하세요 😊 화요일 하루 대여 가능합니다. 구매 영수증이랑 박스 함께 드려요." },
   { id: "c2-3", sender: "me", content: "좋네요! 보증금은 얼마인가요?" },
   { id: "c2-4", sender: "fairy", content: "50만원이고 반납 확인 후 바로 돌려드려요. 토스로 보내주시면 됩니다 🙏" },
   { id: "c2-5", sender: "me", content: "방금 보증금 보냈어요! 확인 부탁드려요 :)" },

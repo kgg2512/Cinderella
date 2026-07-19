@@ -154,7 +154,7 @@ export default function LoginPage() {
         {/* 브랜드 — Tailwind 유틸리티 스캔 누락(bottom-8/text-white 미생성) 회피, 명시 CSS 클래스 사용 */}
         <div className="login-brand">
           <div className="login-brand-name">Cinderella</div>
-          <div className="login-brand-sub">정품 인증 명품 렌탈 플랫폼</div>
+          <div className="login-brand-sub">개인간(P2P) 명품 렌탈 플랫폼</div>
         </div>
       </div>
 

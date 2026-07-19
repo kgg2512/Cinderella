@@ -210,7 +210,7 @@ export default function HomeClient() {
             페어리들의 명품을 빌려<br />당신만의 신데렐라 순간을 만드세요
           </div>
           <div className="cert-badges">
-            <div className="cert-badge cert-badge-auth">✓ 인증 정품 100%</div>
+            <div className="cert-badge cert-badge-auth">✓ 개인간 직거래</div>
             <div className="cert-badge cert-badge-verified">✦ FairyRating 검증</div>
           </div>
         </div>

@@ -128,7 +128,7 @@ export default function NewItemPage() {
         <div className="reg-title">페어리가 되어보세요</div>
         <div className="reg-sub">
           사용하지 않는 명품으로 수익을 만들어보세요.<br />
-          FairyRating 인증 후 플랫폼에 등록되며, 정품 보증 정책이 적용됩니다.
+          등록한 물품은 페어리들에게 공개됩니다. 진품 여부는 대여자가 표명하며, 위조품 등록은 금지됩니다.
         </div>
       </div>
 
