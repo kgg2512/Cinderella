@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620" font-family="'Malgun Gothic',sans-serif">
+  <rect width="1600" height="620" fill="#faf7f2"/>
+  <text x="40" y="52" font-size="30" font-weight="700" fill="#1a1a2e">신데렐라 — 학부모(김서연) 전체 생애주기 사용 시나리오</text>
+  <text x="40" y="84" font-size="17" fill="#7a6f63">거점: 수도권 실용파 학부모 · 트리거: 자녀 학교 격식 자리(총회·공개수업 등) · 대여로 부담 없이 격 갖추기</text>
+  <!-- 10 stage cards, 5 per row -->
+  <g font-size="15" fill="#2d2d2d">
+    <!-- row 1 -->
+    <g transform="translate(40,120)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+      <text x="60" y="40" font-size="17" font-weight="700">인식</text>
+      <text x="18" y="78" font-size="14">총회 통지 → "뭘 들지"</text>
+      <text x="18" y="100" font-size="14">고민. 작년 옷 반복 걱정</text>
+      <text x="18" y="140" font-size="13" fill="#c0392b">장벽: 대여 개념 생소</text>
+    </g>
+    <g transform="translate(350,120)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+      <text x="60" y="40" font-size="17" font-weight="700">알게 됨</text>
+      <text x="18" y="78" font-size="14">맘카페 후기·지인 추천</text>
+      <text x="18" y="100" font-size="14">으로 신데렐라 발견</text>
+      <text x="18" y="140" font-size="13" fill="#c0392b">장벽: 신생앱 신뢰</text>
+    </g>
+    <g transform="translate(660,120)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+      <text x="60" y="40" font-size="17" font-weight="700">분석</text>
+      <text x="18" y="78" font-size="14">총회용 명품백 검색,</text>
+      <text x="18" y="100" font-size="14">온도점수·후기·진품 비교</text>
+      <text x="18" y="140" font-size="13" fill="#c0392b">장벽: 진품 확신</text>
+    </g>
+    <g transform="translate(970,120)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+      <text x="60" y="40" font-size="17" font-weight="700">구매·획득</text>
+      <text x="18" y="78" font-size="14">대여 신청 → 페어리 수락</text>
+      <text x="18" y="100" font-size="14">보증금·대여료 직송금(토스)</text>
+      <text x="18" y="140" font-size="13" fill="#27ae60">구매 300만 vs 대여 3~5만</text>
+    </g>
+    <g transform="translate(1280,120)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+      <text x="60" y="40" font-size="17" font-weight="700">수령·준비</text>
+      <text x="18" y="78" font-size="14">택배 수령, 진품·상태 확인</text>
+      <text x="18" y="100" font-size="14">(24h 내 이상 신고), 코디</text>
+      <text x="18" y="140" font-size="13" fill="#c0392b">장벽: 파손 배상 걱정</text>
+    </g>
+    <!-- row 2 -->
+    <g transform="translate(40,340)">
+      <rect width="290" height="180" rx="12" fill="#fff8ec" stroke="#e8d9a0"/>
+      <circle cx="30" cy="34" r="18" fill="#1a1a2e"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+      <text x="60" y="40" font-size="17" font-weight="700">사용 ★</text>
+      <text x="18" y="78" font-size="14">총회 당일 착용, 또래</text>
+      <text x="18" y="100" font-size="14">학부모 앞 격 갖춤</text>
+      <text x="18" y="140" font-size="13" fill="#c0392b">두려움: '빌린 티'</text>
+    </g>
+    <g transform="translate(350,340)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">7</text>
+      <text x="60" y="40" font-size="17" font-weight="700">가치 판단</text>
+      <text x="18" y="78" font-size="14">"부담 없이 격 갖춤 +</text>
+      <text x="18" y="100" font-size="14">자녀에게 안 부끄러움" 만족</text>
+      <text x="18" y="140" font-size="13" fill="#27ae60">재이용 의사↑</text>
+    </g>
+    <g transform="translate(660,340)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">8</text>
+      <text x="60" y="40" font-size="17" font-weight="700">지불</text>
+      <text x="18" y="78" font-size="14">대여료 정산(직송금 완료),</text>
+      <text x="18" y="100" font-size="14">파손 없으면 보증금 반환</text>
+      <text x="18" y="140" font-size="13" fill="#27ae60">실비용=대여료만</text>
+    </g>
+    <g transform="translate(970,340)">
+      <rect width="290" height="180" rx="12" fill="#ffffff" stroke="#e0d7c6"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">9</text>
+      <text x="60" y="40" font-size="17" font-weight="700">지원</text>
+      <text x="18" y="78" font-size="14">문제 시 페어리 채팅·</text>
+      <text x="18" y="100" font-size="14">신고 기능·고객지원</text>
+      <text x="18" y="140" font-size="13" fill="#7a6f63">분쟁 해결 신뢰 형성</text>
+    </g>
+    <g transform="translate(1280,340)">
+      <rect width="290" height="180" rx="12" fill="#fff8ec" stroke="#e8d9a0"/>
+      <circle cx="30" cy="34" r="18" fill="#c9a84c"/><text x="30" y="40" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">10</text>
+      <text x="60" y="40" font-size="17" font-weight="700">재구매·확산</text>
+      <text x="18" y="78" font-size="14">다음 학교 행사 때 재대여,</text>
+      <text x="18" y="100" font-size="14">맘카페 후기·추천</text>
+      <text x="18" y="140" font-size="13" fill="#27ae60">연 3~4회 + 입소문(CAC↓)</text>
+    </g>
+  </g>
+  <text x="40" y="588" font-size="14" fill="#7a6f63">근거: 2026-07 학부모 3명 1차 인터뷰(1단계 1C). 핵심 마찰 = 진품 신뢰·'빌린 티'. 재대여 엔진 = 학교 행사 캘린더. ⚠️ 지인 표본 → 맘카페 추가 검증 예정.</text>
+</svg>
