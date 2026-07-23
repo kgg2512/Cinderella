@@ -290,9 +290,9 @@ export default function HomeClient() {
             <p className="home-grid-empty-sub">
               첫 번째 페어리가 되어보세요.<br />사용하지 않는 명품으로 수익을 만드세요.
             </p>
-            <a href="/sell" className="empty-state-cta">
+            <Link href="/items/new" className="empty-state-cta">
               페어리 되기
-            </a>
+            </Link>
           </div>
         ) : (
           sorted.map((item) => (
