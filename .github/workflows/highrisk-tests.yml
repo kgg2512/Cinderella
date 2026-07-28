@@ -1,0 +1,42 @@
+name: High-risk tests
+
+# 고위험 경로(결제·인증·개인정보) 회귀 게이트.
+#
+# 배경(G2 2026-07-27 실측): 이 레포는 테스트 파일 0개 · test 스크립트 0 · 테스트 런너 0 이었다.
+# 그 상태로 결제·인증 경로가 수정되면 회귀를 잡을 장치가 아무것도 없었다.
+# 범위는 `tests/highrisk/**` 로 한정한다 — 전면 커버리지가 목표가 아니다.
+#
+# 실패 시: PR/커밋에 빨간 표시. 기존 uptime-check.yml 과 같은 계열(무인·무비용).
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  highrisk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Run high-risk tests
+        run: npm test
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "### ✅ 고위험 경로 테스트 통과" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ 고위험 경로 테스트 실패 — 결제·인증·개인정보 회귀 가능성" >> $GITHUB_STEP_SUMMARY
+            echo "범위: \`tests/highrisk/**\` (G2 eval/highrisk_paths.json 동결 목록 기준)" >> $GITHUB_STEP_SUMMARY
+          fi
