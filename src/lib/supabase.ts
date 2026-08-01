@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "@/types/database";
 import { isDemoMode, DEMO_USER } from "@/lib/demo";
 
@@ -116,7 +117,19 @@ function createRealClient(): SupabaseClient<Database> {
       "Supabase env vars missing: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY",
     );
 
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  // ★2026-07-30 P2-G2: createClient → createBrowserClient 로 전환.
+  //
+  //   왜: 세션 저장소가 **localStorage 였다**. 서버(미들웨어·서버 컴포넌트)는 localStorage 를
+  //   읽을 수 없으므로 `/transactions` · `/profile` · `/items/new` 의 **서버측 인증 검사가
+  //   원리적으로 불가능**했다. 그 결과 세 경로가 미인증 200 으로 열려 있었고(3세션 불변),
+  //   실질 방어선이 RLS 하나뿐이었다.
+  //
+  //   createBrowserClient(@supabase/ssr)는 세션을 **쿠키**에 넣는다 → 미들웨어가 읽을 수 있다.
+  //   auth 옵션은 그대로 유지한다(특히 detectSessionInUrl:false — 아래 원주석의 PKCE race).
+  //
+  //   ⚠️ 이것은 🔒 인증 스택 변경이다. 미인증 차단은 실측했으나 **인증 상태 정상 통과는
+  //   테스트 계정 부재로 미검증**이다(§9-1, 3세션 이월). 그 전까지 이 변경은 미완이다.
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
       flowType: "pkce",
       // false 필수: auth/callback 페이지에서 exchangeCodeForSession을 명시 호출한다.
